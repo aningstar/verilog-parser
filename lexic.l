@@ -151,16 +151,15 @@
 
 [0-9]+                  { printf("UNSIGNED DECIMAL INTEGER : %s \n",yytext); }
 
-[0-9]*['][bB]+[^_][01xXzZ?_]+        { printf("UNSIGNED BINARY : %s \n",yytext); } 
-[0-9]*['][oO]+[^_][0-7xXzZ?_]+       { printf("UNSIGNED OCTAL : %s \n",yytext); }
-[0-9]*['][dD]+[^_][0-9_]+            { printf("UNSIGNED DECIMAL : %s \n",yytext); }
-[0-9]*['][hH]+[^_][0-9a-fA-FxXzZ?_]+ { printf("UNSIGNED HEXADECIMAL : %s \n",yytext); }
+[0-9]*['][bB][01xXzZ?][01xXzZ?_]*        { printf("UNSIGNED BINARY : %s \n",yytext); } 
+[0-9]*['][oO][0-7xXzZ?][0-7xXzZ?_]*       { printf("UNSIGNED OCTAL : %s \n",yytext); }
+[0-9]*['][dD][0-9][0-9_]*            { printf("UNSIGNED DECIMAL : %s \n",yytext); }
+[0-9]*['][hH][0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]* { printf("UNSIGNED HEXADECIMAL : %s \n",yytext); }
 
-[0-9]*['][s][bB]+[^_][01xXzZ?_]+        { printf("SIGNED BINARY : %s \n",yytext); } 
-[0-9]*['][s][oO]+[^_][0-7xXzZ?_]+       { printf("SIGNED OCTAL : %s \n",yytext); }
-[0-9]*['][s][dD]+[^_][0-9_]+            { printf("SIGNED DECIMAL : %s \n",yytext); }
-[0-9]*['][s][hH]+[^_][0-9a-fA-FxXzZ?_]+ { printf("SIGNED HEXADECIMAL : %s \n",yytext); }
-
+[0-9]*['][s][bB][01xXzZ?][01xXzZ?_]*        { printf("SIGNED BINARY : %s \n",yytext); } 
+[0-9]*['][s][oO][0-7xXzZ?][0-7xXzZ?_]*       { printf("SIGNED OCTAL : %s \n",yytext); }
+[0-9]*['][s][dD][0-9][0-9_]*            { printf("SIGNED DECIMAL : %s \n",yytext); }
+[0-9]*['][s][hH][0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]* { printf("SIGNED HEXADECIMAL : %s \n",yytext); }
 
 [\n\r]+               { printf("NEWLINE\n"); }
 [ ]                   { }
