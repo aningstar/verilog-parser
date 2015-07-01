@@ -6,7 +6,7 @@ module ALU (out, zero, inA, inB, op);
   output reg zero;
   input wire [N-1:0] inA;
   input wire [N-1:0] inB;
-  input wire[3:0] op;
+  input wire [3:0] op;
 
 
   always@(inA,inB,op) begin

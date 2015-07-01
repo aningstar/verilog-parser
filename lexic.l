@@ -1,125 +1,151 @@
 %%
 
-"always"              { printf("ALWAYS"); }
-"and"                 { printf("AND"); }
-"assign"              { printf("ASSIGN"); }
-"automatic"           { printf("AUTOMATIC"); }
-"begin"               { printf("BEGIN"); }
-"buf"                 { printf("BUF"); }
-"bufif0"              { printf("BUFIF0"); }
-"bufif1"              { printf("BUFIF1"); }
-"case"                { printf("CASE"); }
-"casex"               { printf("CASEX"); }
-"casez"               { printf("CASEZ"); }
-"cell"                { printf("CELL"); }
-"cmos"                { printf("CMOS"); }
-"config"              { printf("CONFIG"); }
-"deassign"            { printf("DEASSIGN"); }
-"default"             { printf("DEFAULT"); }
-"defparam"            { printf("DEFPARAM"); }
-"design"              { printf("DESIGN"); }
-"disable"             { printf("DISABLE"); }
-"edge"                { printf("EDGE"); }
-"else"                { printf("ELSE"); }
-"end"                 { printf("END"); }
-"endcase"             { printf("ENDCASE"); }
-"endconfig"           { printf("ENDCONFIG"); }
-"endfunction"         { printf("ENDFUNCTION"); }
-"endgenerate"         { printf("ENDGENERATE"); }
-"endmodule"           { printf("ENDMODULE"); }
-"endprimitive"        { printf("ENDPRIMITIVE"); }
-"endspecify"          { printf("ENDSPECIFY"); }
-"endtable"            { printf("ENDTABLE"); }
-"endtask"             { printf("ENDTASK"); }
-"event"               { printf("EVENT"); }
-"for"                 { printf("FOR"); }
-"force"               { printf("FORCE"); }
-"forever"             { printf("FOREVER"); }
-"fork"                { printf("FORK"); }
-"function"            { printf("FUNCTION"); }
-"generate"            { printf("GENERATE"); }
-"genvar"              { printf("GENVAR"); }
-"highz0"              { printf("HIGHZ0"); }
-"highz1"              { printf("HIGHZ1"); }
-"if"                  { printf("IF"); }
-"ifnone"              { printf("IFNONE"); }
-"initial"             { printf("INITIAL"); }
-"instance"            { printf("INSTANCE"); }
-"inout"               { printf("INOUT"); }
-"input"               { printf("INPUT"); }
-"integer"             { printf("INTEGER"); }
-"join"                { printf("JOIN"); }
-"large"               { printf("LARGE"); }
-"liblist"             { printf("LIBLIST"); }
-"localparam"          { printf("LOCALPARAM"); }
-"macromodule"         { printf("MACROMODULE"); }
-"medium"              { printf("MEDIUM"); }
-"module"              { printf("MODULE"); }
-"nand"                { printf("NAND"); }
-"negedge"             { printf("NEGEDGE"); }
-"nmos"                { printf("NMOS"); }
-"nor"                 { printf("NOR"); }
-"not"                 { printf("NOT"); }
-"noshowcancelled"     { printf("NOSHOWCANCELLED"); } 
-"notif0"              { printf("NOTIF0"); }
-"notif1"              { printf("NOTIF1"); }
-"or"                  { printf("OR"); }
-"output"              { printf("OUTPUT"); }
-"parameter"           { printf("PARAMETER"); }
-"pmos"                { printf("PMOS"); }
-"posedge"             { printf("POSEDGE"); }
-"primitive"           { printf("PRIMITIVE"); }
-"pull0"               { printf("PULL0"); }
-"pull1"               { printf("PULL1"); }
-"pulldown"            { printf("PULLDOWN"); }
-"pullup"              { printf("PULLUP"); }
-"pulsestyle_onevent"  { printf("PULSESTYLE_ONEVENT"); }
-"pulsestyle_ondetect" { printf("PULSESTYLE_ONDETECT"); }
-"rcmos"               { printf("RCMOS"); }
-"real"                { printf("REAL"); }
-"realtime"            { printf("REALTIME"); }
-"reg"                 { printf("REG"); }
-"release"             { printf("RELEASE"); }
-"repeat"              { printf("REPEAT"); }
-"rnmos"               { printf("RNMOS"); }
-"rpmos"               { printf("RPMOS"); }
-"rtran"               { printf("RTRAN"); }
-"rtranif0"            { printf("RTRANIF0"); }
-"rtranif1"            { printf("RTRANIF1"); }
-"scalared"            { printf("SCALARED"); }
-"signed"              { printf("SIGNED"); }
-"showcancelled"       { printf("SHOWCANCELLED"); }
-"small"               { printf("SMALL"); }
-"specify"             { printf("SPECIFY"); }
-"specparam"           { printf("SPECPARAM"); }
-"strength"            { printf("STRENGTH"); }
-"strong0"             { printf("STRONG0"); }
-"strong1"             { printf("STRONG1"); }
-"supply0"             { printf("SUPPLY0"); }
-"supply1"             { printf("SUPPLY1"); }
-"table"               { printf("TABLE"); }
-"task"                { printf("TASK"); }
-"time"                { printf("TIME"); }
-"tran"                { printf("TRAN"); }
-"tranif0"             { printf("TRANIF0"); }
-"tranif1"             { printf("TRANIF1"); }
-"tri"                 { printf("TRI"); }
-"tri0"                { printf("TRI0"); }
-"tri1"                { printf("TRI1"); }
-"triand"              { printf("TRIAND"); }
-"trior"               { printf("TRIOR"); }
-"trireg"              { printf("TRIREG"); }
-"unsigned"            { printf("UNSIGNED"); }
-"use"                 { printf("USE"); }
-"vectored"            { printf("VECTORED"); }
-"wait"                { printf("WAIT"); }
-"wand"                { printf("WAND"); }
-"weak0"               { printf("WEAK0"); }
-"weak1"               { printf("WEAK1"); }
-"while"               { printf("WHILE"); }
-"wire"                { printf("WIRE"); }
-"wor"                 { printf("WOR"); }
-"xnor"                { printf("XNOR"); }
-"xor"                 { printf("XOR"); }
+"always"              { printf("ALWAYS : %s \n",yytext); }
+"and"                 { printf("AND : %s \n",yytext); }
+"assign"              { printf("ASSIGN\n"); }
+"automatic"           { printf("AUTOMATIC\n"); }
+"begin"               { printf("BEGIN\n"); }
+"buf"                 { printf("BUF\n"); }
+"bufif0"              { printf("BUFIF0\n"); }
+"bufif1"              { printf("BUFIF1\n"); }
+"case"                { printf("CASE\n"); }
+"casex"               { printf("CASEX\n"); }
+"casez"               { printf("CASEZ\n"); }
+"cell"                { printf("CELL\n"); }
+"cmos"                { printf("CMOS\n"); }
+"config"              { printf("CONFIG\n"); }
+"deassign"            { printf("DEASSIGN\n"); }
+"default"             { printf("DEFAULT\n"); }
+"defparam"            { printf("DEFPARAM\n"); }
+"design"              { printf("DESIGN\n"); }
+"disable"             { printf("DISABLE\n"); }
+"edge"                { printf("EDGE\n"); }
+"else"                { printf("ELSE\n"); }
+"end"                 { printf("END\n"); }
+"endcase"             { printf("ENDCASE\n"); }
+"endconfig"           { printf("ENDCONFIG\n"); }
+"endfunction"         { printf("ENDFUNCTION\n"); }
+"endgenerate"         { printf("ENDGENERATE\n"); }
+"endmodule"           { printf("ENDMODULE\n"); }
+"endprimitive"        { printf("ENDPRIMITIVE\n"); }
+"endspecify"          { printf("ENDSPECIFY\n"); }
+"endtable"            { printf("ENDTABLE\n"); }
+"endtask"             { printf("ENDTASK\n"); }
+"event"               { printf("EVENT\n"); }
+"for"                 { printf("FOR\n"); }
+"force"               { printf("FORCE\n"); }
+"forever"             { printf("FOREVER\n"); }
+"fork"                { printf("FORK\n"); }
+"function"            { printf("FUNCTION\n"); }
+"generate"            { printf("GENERATE\n"); }
+"genvar"              { printf("GENVAR\n"); }
+"highz0"              { printf("HIGHZ0\n"); }
+"highz1"              { printf("HIGHZ1\n"); }
+"if"                  { printf("IF\n"); }
+"ifnone"              { printf("IFNONE\n"); }
+"initial"             { printf("INITIAL\n"); }
+"instance"            { printf("INSTANCE\n"); }
+"inout"               { printf("INOUT\n"); }
+"input"               { printf("INPUT\n"); }
+"integer"             { printf("INTEGER\n"); }
+"join"                { printf("JOIN\n"); }
+"large"               { printf("LARGE\n"); }
+"liblist"             { printf("LIBLIST\n"); }
+"localparam"          { printf("LOCALPARAM\n"); }
+"macromodule"         { printf("MACROMODULE\n"); }
+"medium"              { printf("MEDIUM\n"); }
+"module"              { printf("MODULE\n"); }
+"nand"                { printf("NAND\n"); }
+"negedge"             { printf("NEGEDGE\n"); }
+"nmos"                { printf("NMOS\n"); }
+"nor"                 { printf("NOR\n"); }
+"not"                 { printf("NOT\n"); }
+"noshowcancelled"     { printf("NOSHOWCANCELLED\n"); } 
+"notif0"              { printf("NOTIF0\n"); }
+"notif1"              { printf("NOTIF1\n"); }
+"or"                  { printf("OR\n"); }
+"output"              { printf("OUTPUT\n"); }
+"parameter"           { printf("PARAMETER\n"); }
+"pmos"                { printf("PMOS\n"); }
+"posedge"             { printf("POSEDGE\n"); }
+"primitive"           { printf("PRIMITIVE\n"); }
+"pull0"               { printf("PULL0\n"); }
+"pull1"               { printf("PULL1\n"); }
+"pulldown"            { printf("PULLDOWN\n"); }
+"pullup"              { printf("PULLUP\n"); }
+"pulsestyle_onevent"  { printf("PULSESTYLE_ONEVENT\n"); }
+"pulsestyle_ondetect" { printf("PULSESTYLE_ONDETECT\n"); }
+"rcmos"               { printf("RCMOS\n"); }
+"real"                { printf("REAL\n"); }
+"realtime"            { printf("REALTIME\n"); }
+"reg"                 { printf("REG\n"); }
+"release"             { printf("RELEASE\n"); }
+"repeat"              { printf("REPEAT\n"); }
+"rnmos"               { printf("RNMOS\n"); }
+"rpmos"               { printf("RPMOS\n"); }
+"rtran"               { printf("RTRAN\n"); }
+"rtranif0"            { printf("RTRANIF0\n"); }
+"rtranif1"            { printf("RTRANIF1\n"); }
+"scalared"            { printf("SCALARED\n"); }
+"signed"              { printf("SIGNED\n"); }
+"showcancelled"       { printf("SHOWCANCELLED\n"); }
+"small"               { printf("SMALL\n"); }
+"specify"             { printf("SPECIFY\n"); }
+"specparam"           { printf("SPECPARAM\n"); }
+"strength"            { printf("STRENGTH\n"); }
+"strong0"             { printf("STRONG0\n"); }
+"strong1"             { printf("STRONG1\n"); }
+"supply0"             { printf("SUPPLY0\n"); }
+"supply1"             { printf("SUPPLY1\n"); }
+"table"               { printf("TABLE\n"); }
+"task"                { printf("TASK\n"); }
+"time"                { printf("TIME\n"); }
+"tran"                { printf("TRAN\n"); }
+"tranif0"             { printf("TRANIF0\n"); }
+"tranif1"             { printf("TRANIF1\n"); }
+"tri"                 { printf("TRI\n"); }
+"tri0"                { printf("TRI0\n"); }
+"tri1"                { printf("TRI1\n"); }
+"triand"              { printf("TRIAND\n"); }
+"trior"               { printf("TRIOR\n"); }
+"trireg"              { printf("TRIREG\n"); }
+"unsigned"            { printf("UNSIGNED\n"); }
+"use"                 { printf("USE\n"); }
+"vectored"            { printf("VECTORED\n"); }
+"wait"                { printf("WAIT\n"); }
+"wand"                { printf("WAND\n"); }
+"weak0"               { printf("WEAK0\n"); }
+"weak1"               { printf("WEAK1\n"); }
+"while"               { printf("WHILE\n"); }
+"wire"                { printf("WIRE\n"); }
+"wor"                 { printf("WOR\n"); }
+"xnor"                { printf("XNOR\n"); }
+"xor"                 { printf("XOR\n"); }
+
+[//].*[\n]            { printf("COMMENTS : %s",yytext); }
+[/][*].*[*][/]        { printf("COMMENTS : %s \n",yytext); }
+
+"@"                   { printf("AT : %s \n",yytext); }
+"("                   { printf("OPENPARENTHESES : %s \n",yytext); }
+")"                   { printf("CLOSEPARENTHESES : %s \n",yytext); }
+"["                   { printf("OPENBRANCH : %s \n",yytext); }
+"]"                   { printf("CLOSEBRANCH : %s \n",yytext); }
+","                   { printf("COMMA : %s \n",yytext); }
+";"                   { printf("SEMICOLON : %s \n",yytext); }
+
+[a-zA-Z_][[a-zA-Z0-9_$]*  { printf("IDENTEFIER : %s \n",yytext); }
+
+"&"                   { printf("AND : %s \n",yytext); }
+"|"                   { printf("OR : %s \n",yytext); }
+"+"                   { printf("ADDITION : %s \n",yytext); }
+"-"                   { printf("SUBTRACTION : %s \n",yytext); }
+"="                   { printf("EQUAL : %s \n",yytext); }
+"<"                   { printf("LESSTHAN : %s \n",yytext); }
+">"                   { printf("GREATERTHAN : %s \n",yytext); }
+
+[\n\r]+               { printf("NEWLINE\n"); }
+[ ]                   { }
+[\t]                  { }
+.                     { printf("UNIDENTIFIED : %c\n",yytext[0]); }
 
 %%
