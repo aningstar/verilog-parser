@@ -141,6 +141,9 @@
 "="                   { printf("EQUAL : %s \n",yytext); }
 "<"                   { printf("LESSTHAN : %s \n",yytext); }
 ">"                   { printf("GREATERTHAN : %s \n",yytext); }
+":"                   { printf("COLON : %s \n",yytext); }
+"?"                   { printf("QUESTION MARK : %s \n",yytext); }
+"~"                   { printf("NEGATION : %s \n",yytext); }
 
 [a-zA-Z_][[a-zA-Z0-9_$]*  { printf("IDENTEFIER : %s \n",yytext); }
 
