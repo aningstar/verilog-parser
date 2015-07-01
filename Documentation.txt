@@ -1,0 +1,4 @@
+Scanner - Lexical Analyzer
+    -Keywords
+    -Literal Real Numbers
+    -Literal Integer Numbers

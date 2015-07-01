@@ -24,4 +24,11 @@ module ALU (out, zero, inA, inB, op);
    else   zero = 0;
   end
 
+  b = 0.4;
+  i = 13.4156;
+  d = 13.4_4_2;
+  f = 13e5;
+  g = 12e-5;
+  h = 12.4e4;
+
 endmodule

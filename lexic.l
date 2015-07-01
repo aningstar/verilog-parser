@@ -133,7 +133,6 @@
 ","                   { printf("COMMA : %s \n",yytext); }
 ";"                   { printf("SEMICOLON : %s \n",yytext); }
 
-[a-zA-Z_][[a-zA-Z0-9_$]*  { printf("IDENTEFIER : %s \n",yytext); }
 
 "&"                   { printf("AND : %s \n",yytext); }
 "|"                   { printf("OR : %s \n",yytext); }
@@ -142,6 +141,26 @@
 "="                   { printf("EQUAL : %s \n",yytext); }
 "<"                   { printf("LESSTHAN : %s \n",yytext); }
 ">"                   { printf("GREATERTHAN : %s \n",yytext); }
+
+[a-zA-Z_][[a-zA-Z0-9_$]*  { printf("IDENTEFIER : %s \n",yytext); }
+
+[0-9]+[.][0-9][0-9_]*     { printf("REAL NUMBER : %s \n",yytext); }
+[0-9]+[.][0-9][0-9_]*[eE]-?[0-9]+ { printf("REAL NUMBER : %s \n",yytext); }
+[0-9]+[0-9_]*[eE]-?[0-9]+ { printf("REAL NUMBER : %s \n",yytext); }
+
+
+[0-9]+                  { printf("UNSIGNED DECIMAL INTEGER : %s \n",yytext); }
+
+[0-9]*['][bB]+[^_][01xXzZ?_]+        { printf("UNSIGNED BINARY : %s \n",yytext); } 
+[0-9]*['][oO]+[^_][0-7xXzZ?_]+       { printf("UNSIGNED OCTAL : %s \n",yytext); }
+[0-9]*['][dD]+[^_][0-9_]+            { printf("UNSIGNED DECIMAL : %s \n",yytext); }
+[0-9]*['][hH]+[^_][0-9a-fA-FxXzZ?_]+ { printf("UNSIGNED HEXADECIMAL : %s \n",yytext); }
+
+[0-9]*['][s][bB]+[^_][01xXzZ?_]+        { printf("SIGNED BINARY : %s \n",yytext); } 
+[0-9]*['][s][oO]+[^_][0-7xXzZ?_]+       { printf("SIGNED OCTAL : %s \n",yytext); }
+[0-9]*['][s][dD]+[^_][0-9_]+            { printf("SIGNED DECIMAL : %s \n",yytext); }
+[0-9]*['][s][hH]+[^_][0-9a-fA-FxXzZ?_]+ { printf("SIGNED HEXADECIMAL : %s \n",yytext); }
+
 
 [\n\r]+               { printf("NEWLINE\n"); }
 [ ]                   { }
