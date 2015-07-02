@@ -1,5 +1,6 @@
 %%
 
+    /* Match Verilog 2001 keywords. */
 "always"              { printf("ALWAYS : %s \n",yytext); }
 "and"                 { printf("AND : %s \n",yytext); }
 "assign"              { printf("ASSIGN\n"); }
@@ -122,18 +123,21 @@
 "xnor"                { printf("XNOR\n"); }
 "xor"                 { printf("XOR\n"); }
 
+    /* Match Verilog 2001 comments. */
 [//].*[\n]            { printf("COMMENTS : %s",yytext); }
 [/][*].*[*][/]        { printf("COMMENTS : %s \n",yytext); }
 
+    /* Match Verilog 2001 symbols. */
 "@"                   { printf("AT : %s \n",yytext); }
 "("                   { printf("OPENPARENTHESES : %s \n",yytext); }
 ")"                   { printf("CLOSEPARENTHESES : %s \n",yytext); }
-"["                   { printf("OPENBRANCH : %s \n",yytext); }
-"]"                   { printf("CLOSEBRANCH : %s \n",yytext); }
+"["                   { printf("OPENBRACKETS : %s \n",yytext); }
+"]"                   { printf("CLOSEBRACKETS : %s \n",yytext); }
+"{"                   { printf("OPENBRACES : %s \n",yytext); }
+"}"                   { printf("CLOSEBRACES : %s \n",yytext); }
 ","                   { printf("COMMA : %s \n",yytext); }
 ";"                   { printf("SEMICOLON : %s \n",yytext); }
-
-
+"#"                   { printf("HASH : %s \n",yytext); }
 "&"                   { printf("AND : %s \n",yytext); }
 "|"                   { printf("OR : %s \n",yytext); }
 "+"                   { printf("ADDITION : %s \n",yytext); }
@@ -144,29 +148,37 @@
 ":"                   { printf("COLON : %s \n",yytext); }
 "?"                   { printf("QUESTION MARK : %s \n",yytext); }
 "~"                   { printf("NEGATION : %s \n",yytext); }
+"%"                   { printf("MODULUS : %s \n",yytext); }
 
-[a-zA-Z_][[a-zA-Z0-9_$]*  { printf("IDENTEFIER : %s \n",yytext); }
+    /* Match Verilog 2001 identifiers. */
+[a-zA-Z_][a-zA-Z0-9_$]*  { printf("IDENTIFIER : %s \n",yytext); }
 
+    /* Match Verilog 2001 real numbers. */
 [0-9]+[.][0-9][0-9_]*     { printf("REAL NUMBER : %s \n",yytext); }
 [0-9]+[.][0-9][0-9_]*[eE]-?[0-9]+ { printf("REAL NUMBER : %s \n",yytext); }
 [0-9]+[0-9_]*[eE]-?[0-9]+ { printf("REAL NUMBER : %s \n",yytext); }
 
-
+    /* Match Verilog 2001 integers. */
 [0-9]+                  { printf("UNSIGNED DECIMAL INTEGER : %s \n",yytext); }
 
+    /* Match Verilog 2001 unsigned numbers. */
 [0-9]*['][bB][01xXzZ?][01xXzZ?_]*        { printf("UNSIGNED BINARY : %s \n",yytext); } 
 [0-9]*['][oO][0-7xXzZ?][0-7xXzZ?_]*       { printf("UNSIGNED OCTAL : %s \n",yytext); }
 [0-9]*['][dD][0-9][0-9_]*            { printf("UNSIGNED DECIMAL : %s \n",yytext); }
 [0-9]*['][hH][0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]* { printf("UNSIGNED HEXADECIMAL : %s \n",yytext); }
 
+    /* Match Verilog 2001 signed numbers. */
 [0-9]*['][s][bB][01xXzZ?][01xXzZ?_]*        { printf("SIGNED BINARY : %s \n",yytext); } 
 [0-9]*['][s][oO][0-7xXzZ?][0-7xXzZ?_]*       { printf("SIGNED OCTAL : %s \n",yytext); }
 [0-9]*['][s][dD][0-9][0-9_]*            { printf("SIGNED DECIMAL : %s \n",yytext); }
 [0-9]*['][s][hH][0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]* { printf("SIGNED HEXADECIMAL : %s \n",yytext); }
 
+    /* Match newlines, carriage returns, spaces and tabs. */
 [\n\r]+               { printf("NEWLINE\n"); }
 [ ]                   { }
 [\t]                  { }
+
+    /* Any single character that doesn't match the above rules. */
 .                     { printf("UNIDENTIFIED : %c\n",yytext[0]); }
 
 %%

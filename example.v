@@ -17,6 +17,7 @@ module ALU (out, zero, inA, inB, op);
     4'b0110: out = inA - inB;         // op = 6
     4'b0111: out = ((inA < inB)?1:0); // op = 7
     4'b1100: out = ~(inA|inB);        // op = 12
+    4'b1101: out[1:0] = {inA[0], inB[0]}; // op = 13
     default: out = 32'bx;
    endcase
 
@@ -30,5 +31,7 @@ module ALU (out, zero, inA, inB, op);
   f = 13e5;
   g = 12e-5;
   h = 12.4e4;
+
+  #5 j = 7 % 2;
 
 endmodule
