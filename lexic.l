@@ -152,7 +152,8 @@
 
     /* Match Verilog 2001 identifiers. */
 [a-zA-Z_][a-zA-Z0-9_$]*  { printf("IDENTIFIER : %s \n",yytext); }
-
+[\\][^\n\t ]+         { printf("IDENTIFIER : %s \n",&yytext[1]); }
+ 
     /* Match Verilog 2001 real numbers. */
 [0-9]+[.][0-9][0-9_]*     { printf("REAL NUMBER : %s \n",yytext); }
 [0-9]+[.][0-9][0-9_]*[eE]-?[0-9]+ { printf("REAL NUMBER : %s \n",yytext); }

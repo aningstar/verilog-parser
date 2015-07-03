@@ -7,7 +7,7 @@ module ALU (out, zero, inA, inB, op);
   input wire [N-1:0] inA;
   input wire [N-1:0] inB;
   input wire [3:0] op;
-
+  input wire [1:0] \!@#$%^&*(){}[]":"| ;
 
   always@(inA,inB,op) begin
    case(op)
