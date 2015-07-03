@@ -149,6 +149,8 @@
 "?"                   { printf("QUESTION MARK : %s \n",yytext); }
 "~"                   { printf("NEGATION : %s \n",yytext); }
 "%"                   { printf("MODULUS : %s \n",yytext); }
+"."                   { printf("PERIOD : %s \n",yytext); }
+"$"                   { printf("DOLLAR : %s \n",yytext); }
 
     /* Match Verilog 2001 identifiers. */
 [a-zA-Z_][a-zA-Z0-9_$]*  { printf("IDENTIFIER : %s \n",yytext); }
