@@ -1,3 +1,8 @@
+%{
+#include "verilog_parser.tab.h"
+#include "string.h"
+%}
+
 %%
 
     /* Match Verilog 2001 keywords. */
@@ -136,13 +141,15 @@
 "{"                   { printf("OPENBRACES : %s \n",yytext); }
 "}"                   { printf("CLOSEBRACES : %s \n",yytext); }
 ","                   { printf("COMMA : %s \n",yytext); }
-";"                   { printf("SEMICOLON : %s \n",yytext); }
+";"                   { return SEMICOLON; }
+ /* ";"                   { printf("SEMICOLON : %s \n",yytext); } */
 "#"                   { printf("HASH : %s \n",yytext); }
 "&"                   { printf("AND : %s \n",yytext); }
 "|"                   { printf("OR : %s \n",yytext); }
 "+"                   { printf("ADDITION : %s \n",yytext); }
 "-"                   { printf("SUBTRACTION : %s \n",yytext); }
-"="                   { printf("EQUAL : %s \n",yytext); }
+"="                   { return EQUAL; }
+ /* "="                   { printf("EQUAL : %s \n",yytext); } */
 "<"                   { printf("LESSTHAN : %s \n",yytext); }
 ">"                   { printf("GREATERTHAN : %s \n",yytext); }
 ":"                   { printf("COLON : %s \n",yytext); }
@@ -153,7 +160,8 @@
 "$"                   { printf("DOLLAR : %s \n",yytext); }
 
     /* Match Verilog 2001 identifiers. */
-[a-zA-Z_][a-zA-Z0-9_$]*  { printf("IDENTIFIER : %s \n",yytext); }
+[a-zA-Z_][a-zA-Z0-9_$]*  { yylval.name = yytext[0]; return IDENTIFIER; }
+ /* [a-zA-Z_][a-zA-Z0-9_$]*  { printf("IDENTIFIER : %s \n",yytext); } */
 [\\][^\n\t ]+         { printf("IDENTIFIER : %s \n",&yytext[1]); }
  
     /* Match Verilog 2001 real numbers. */
@@ -165,13 +173,14 @@
 [0-9]+                  { printf("UNSIGNED DECIMAL INTEGER : %s \n",yytext); }
 
     /* Match Verilog 2001 unsigned numbers. */
-[0-9]*['][bB][01xXzZ?][01xXzZ?_]*        { printf("UNSIGNED BINARY : %s \n",yytext); } 
+[0-9]*['][bB][01xXzZ?][01xXzZ?_]*        { strtok(yytext, "'b"); yylval.num = atoi(strtok(NULL, "'b")); return UNSIG_BIN; }            /* Remove binary prefix XX'b from number. */
+ /* [0-9]*['][bB][01xXzZ?][01xXzZ?_]*        { printf("UNSIGNED BINARY : %s \n",yytext); } */
 [0-9]*['][oO][0-7xXzZ?][0-7xXzZ?_]*       { printf("UNSIGNED OCTAL : %s \n",yytext); }
 [0-9]*['][dD][0-9][0-9_]*            { printf("UNSIGNED DECIMAL : %s \n",yytext); }
 [0-9]*['][hH][0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]* { printf("UNSIGNED HEXADECIMAL : %s \n",yytext); }
 
     /* Match Verilog 2001 signed numbers. */
-[0-9]*['][s][bB][01xXzZ?][01xXzZ?_]*        { printf("SIGNED BINARY : %s \n",yytext); } 
+[0-9]*['][s][bB][01xXzZ?][01xXzZ?_]*        { printf("SIGNED BINARY : %s \n",yytext); }
 [0-9]*['][s][oO][0-7xXzZ?][0-7xXzZ?_]*       { printf("SIGNED OCTAL : %s \n",yytext); }
 [0-9]*['][s][dD][0-9][0-9_]*            { printf("SIGNED DECIMAL : %s \n",yytext); }
 [0-9]*['][s][hH][0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]* { printf("SIGNED HEXADECIMAL : %s \n",yytext); }
