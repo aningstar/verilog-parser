@@ -166,13 +166,13 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "$"                   { printf("DOLLAR : %s \n",yytext); }
 
     /* Match Verilog 2001 identifiers. */
-[a-zA-Z_][a-zA-Z0-9_$]*  { return IDENTIFIER; }
-[\\][^\n\t ]+            { return IDENTIFIER; }
+[a-zA-Z_][a-zA-Z0-9_$]*                            { return IDENTIFIER; }
+[\\][^\n\t ]+                                      { return IDENTIFIER; }
  
     /* Match Verilog 2001 real numbers. */
-[0-9]+[.][0-9][0-9_]*     { printf("REAL NUMBER : %s \n",yytext); }
-[0-9]+[.][0-9][0-9_]*[eE]-?[0-9]+ { printf("REAL NUMBER : %s \n",yytext); }
-[0-9]+[0-9_]*[eE]-?[0-9]+ { printf("REAL NUMBER : %s \n",yytext); }
+[0-9]+[.][0-9][0-9_]*                              { return REAL; }
+[0-9]+[.][0-9][0-9_]*[eE]-?[0-9]+                  { return REAL; }
+[0-9]+[0-9_]*[eE]-?[0-9]+                          { return REAL; }
 
     /* Match Verilog 2001 integers. */
 [0-9]+                                             { return UNSIG_DEC; }

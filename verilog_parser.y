@@ -9,6 +9,7 @@
 %token IDENTIFIER
 %token UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
+%token REAL
 %token MODULE ENDMODULE
 %token EQUAL COMMA SEMICOLON OPENPARENTHESES CLOSEPARENTHESES
 
@@ -42,10 +43,11 @@ number: UNSIG_BIN { }
  |      UNSIG_OCT { }
  |      UNSIG_DEC { }
  |      UNSIG_HEX { }
- |      SIG_BIN { printf("Sbin.\n"); }
- |      SIG_OCT { printf("Soct.\n"); }
- |      SIG_DEC { printf("Sdec.\n"); }
- |      SIG_HEX { printf("Shex.\n"); }
+ |      SIG_BIN { }
+ |      SIG_OCT { }
+ |      SIG_DEC { }
+ |      SIG_HEX { }
+ |      REAL { }
  ;
 
 %%
