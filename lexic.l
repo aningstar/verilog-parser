@@ -167,7 +167,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 
     /* Match Verilog 2001 identifiers. */
 [a-zA-Z_][a-zA-Z0-9_$]*  { return IDENTIFIER; }
-[\\][^\n\t ]+         { printf("IDENTIFIER : %s \n",&yytext[1]); }
+[\\][^\n\t ]+            { return IDENTIFIER; }
  
     /* Match Verilog 2001 real numbers. */
 [0-9]+[.][0-9][0-9_]*     { printf("REAL NUMBER : %s \n",yytext); }
@@ -175,7 +175,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 [0-9]+[0-9_]*[eE]-?[0-9]+ { printf("REAL NUMBER : %s \n",yytext); }
 
     /* Match Verilog 2001 integers. */
-[0-9]+                  { printf("UNSIGNED DECIMAL INTEGER : %s \n",yytext); }
+[0-9]+                                             { return UNSIG_DEC; }
 
     /* Match Verilog 2001 unsigned numbers. */
 [0-9]*['][bB][01xXzZ?][01xXzZ?_]*                  { return UNSIG_BIN; }
@@ -184,10 +184,10 @@ long int convert_str_to_hex(char *hexadecimal_string);
 [0-9]*['][hH][0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]*    { return UNSIG_HEX; }
 
     /* Match Verilog 2001 signed numbers. */
-[0-9]*['][s][bB][01xXzZ?][01xXzZ?_]*        { printf("SIGNED BINARY : %s \n",yytext); }
-[0-9]*['][s][oO][0-7xXzZ?][0-7xXzZ?_]*       { printf("SIGNED OCTAL : %s \n",yytext); }
-[0-9]*['][s][dD][0-9][0-9_]*            { printf("SIGNED DECIMAL : %s \n",yytext); }
-[0-9]*['][s][hH][0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]* { printf("SIGNED HEXADECIMAL : %s \n",yytext); }
+[0-9]*['][sS][bB][01xXzZ?][01xXzZ?_]*               { return SIG_BIN; }
+[0-9]*['][sS][oO][0-7xXzZ?][0-7xXzZ?_]*             { return SIG_OCT; }
+[0-9]*['][sS][dD][0-9][0-9_]*                       { return SIG_DEC; }
+[0-9]*['][sS][hH][0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]* { return SIG_HEX; }
 
     /* Match newlines, carriage returns, spaces and tabs. */
 [\n\r]+               { }
