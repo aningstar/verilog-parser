@@ -4,19 +4,12 @@
 #include <stdio.h>
 %}
 
-%union {
-	long int num;
-	char name;                   /* Currently the identifier's first letter. */
-}
-
 /* Token declarations */
 
-%token <name> IDENTIFIER
-%token <num> UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
+%token IDENTIFIER
+%token UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
 %token MODULE ENDMODULE
 %token EQUAL COMMA SEMICOLON OPENPARENTHESES CLOSEPARENTHESES
-
-%type <num> statement expression number
 
 %%
 
@@ -25,7 +18,7 @@ description: /* empty */
  ;
 
 module: MODULE IDENTIFIER OPENPARENTHESES port_list CLOSEPARENTHESES SEMICOLON
-        block ENDMODULE { }
+        block ENDMODULE { printf("Module.\n"); }
  ;
 
 port_list: /* empty */
@@ -37,12 +30,10 @@ block: /* empty */
  | block statement  { }
  ;
 
-statement: expression SEMICOLON { $$ = $1;
-                     printf("Statement %d\n", $1); }
+statement: expression SEMICOLON { printf("Statement.\n"); }
  ;
 
-expression: IDENTIFIER EQUAL number { $$ = $3;
-                     printf("Assigned value %d to identifier %c\n", $3, $1); }
+expression: IDENTIFIER EQUAL number { printf("Assignment.\n"); }
  |          number { }
  ;
 
