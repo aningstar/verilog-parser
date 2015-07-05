@@ -5,14 +5,14 @@
 %}
 
 %union {
-	int num;
+	long int num;
 	char name;                   /* Currently the identifier's first letter. */
 }
 
 /* Token declarations */
 
 %token <name> IDENTIFIER
-%token <num> UNSIG_BIN
+%token <num> UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
 %token EQUAL SEMICOLON
 
 %type <num> statement number
@@ -30,6 +30,9 @@ statement: IDENTIFIER EQUAL number SEMICOLON
  ;
 
 number: UNSIG_BIN { }
+ |      UNSIG_OCT { }
+ |      UNSIG_DEC { }
+ |      UNSIG_HEX { }
  ;
 
 %%

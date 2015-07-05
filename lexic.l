@@ -1,6 +1,13 @@
 %{
 #include "verilog_parser.tab.h"
-#include "string.h"
+#include <string.h>
+#include <stdlib.h>
+
+/* Lexer function prototypes. */
+long int convert_str_to_bin(char *binary_string);
+long int convert_str_to_oct(char *octal_string);
+long int convert_str_to_dec(char *decimal_string);
+long int convert_str_to_hex(char *hexadecimal_string);
 %}
 
 %%
@@ -173,11 +180,14 @@
 [0-9]+                  { printf("UNSIGNED DECIMAL INTEGER : %s \n",yytext); }
 
     /* Match Verilog 2001 unsigned numbers. */
-[0-9]*['][bB][01xXzZ?][01xXzZ?_]*        { strtok(yytext, "'b"); yylval.num = atoi(strtok(NULL, "'b")); return UNSIG_BIN; }            /* Remove binary prefix XX'b from number. */
- /* [0-9]*['][bB][01xXzZ?][01xXzZ?_]*        { printf("UNSIGNED BINARY : %s \n",yytext); } */
-[0-9]*['][oO][0-7xXzZ?][0-7xXzZ?_]*       { printf("UNSIGNED OCTAL : %s \n",yytext); }
-[0-9]*['][dD][0-9][0-9_]*            { printf("UNSIGNED DECIMAL : %s \n",yytext); }
-[0-9]*['][hH][0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]* { printf("UNSIGNED HEXADECIMAL : %s \n",yytext); }
+[0-9]*['][bB][01xXzZ?][01xXzZ?_]*                  {
+                 yylval.num = convert_str_to_bin(yytext); return UNSIG_BIN; }
+[0-9]*['][oO][0-7xXzZ?][0-7xXzZ?_]*                {
+                 yylval.num = convert_str_to_oct(yytext); return UNSIG_OCT; }
+[0-9]*['][dD][0-9][0-9_]*                          {
+                 yylval.num = convert_str_to_dec(yytext); return UNSIG_DEC; }
+[0-9]*['][hH][0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]*    {
+                 yylval.num = convert_str_to_hex(yytext); return UNSIG_HEX; }
 
     /* Match Verilog 2001 signed numbers. */
 [0-9]*['][s][bB][01xXzZ?][01xXzZ?_]*        { printf("SIGNED BINARY : %s \n",yytext); }
@@ -194,3 +204,63 @@
 .                     { printf("UNIDENTIFIED : %c\n",yytext[0]); }
 
 %%
+
+long int convert_str_to_bin(char *binary_string) {
+	long int result;
+	char *number_start;
+	
+	/* Remove binary prefix XX'b or XX'B from number. */
+	strtok(binary_string, "'");
+	number_start = strtok(NULL, "'");
+	number_start++;
+	
+	/* Convert to base 2. */
+	result = strtol(number_start, NULL, 2);
+	
+	return(result);
+}
+
+long int convert_str_to_oct(char *octal_string) {
+	long int result;
+	char *number_start;
+	
+	/* Remove octal prefix XX'o or XX'O from number. */
+	strtok(octal_string, "'");
+	number_start = strtok(NULL, "'");
+	number_start++;
+	
+	/* Convert to base 8. */
+	result = strtol(number_start, NULL, 8);
+	
+	return(result);
+}
+
+long int convert_str_to_dec(char *decimal_string) {
+	long int result;
+	char *number_start;
+	
+	/* Remove decimal prefix XX'd or XX'D from number. */
+	strtok(decimal_string, "'");
+	number_start = strtok(NULL, "'");
+	number_start++;
+	
+	/* Convert to base 10. */
+	result = strtol(number_start, NULL, 10);
+	
+	return(result);
+}
+
+long int convert_str_to_hex(char *hexadecimal_string) {
+	long int result;
+	char *number_start;
+	
+	/* Remove hexadecimal prefix XX'o or XX'O from number. */
+	strtok(hexadecimal_string, "'");
+	number_start = strtok(NULL, "'");
+	number_start++;
+	
+	/* Convert to base 16. */
+	result = strtol(number_start, NULL, 16);
+	
+	return(result);
+}
