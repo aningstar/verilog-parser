@@ -39,7 +39,8 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "endconfig"           { printf("ENDCONFIG\n"); }
 "endfunction"         { printf("ENDFUNCTION\n"); }
 "endgenerate"         { printf("ENDGENERATE\n"); }
-"endmodule"           { printf("ENDMODULE\n"); }
+"endmodule"           { return ENDMODULE; }
+ /* { printf("ENDMODULE\n"); } */
 "endprimitive"        { printf("ENDPRIMITIVE\n"); }
 "endspecify"          { printf("ENDSPECIFY\n"); }
 "endtable"            { printf("ENDTABLE\n"); }
@@ -67,7 +68,8 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "localparam"          { printf("LOCALPARAM\n"); }
 "macromodule"         { printf("MACROMODULE\n"); }
 "medium"              { printf("MEDIUM\n"); }
-"module"              { printf("MODULE\n"); }
+"module"              { return MODULE; }
+ /* { printf("MODULE\n"); } */
 "nand"                { printf("NAND\n"); }
 "negedge"             { printf("NEGEDGE\n"); }
 "nmos"                { printf("NMOS\n"); }
@@ -141,13 +143,16 @@ long int convert_str_to_hex(char *hexadecimal_string);
 
     /* Match Verilog 2001 symbols. */
 "@"                   { printf("AT : %s \n",yytext); }
-"("                   { printf("OPENPARENTHESES : %s \n",yytext); }
-")"                   { printf("CLOSEPARENTHESES : %s \n",yytext); }
+"("                   { return OPENPARENTHESES; }
+ /* { printf("OPENPARENTHESES : %s \n",yytext); } */
+")"                   { return CLOSEPARENTHESES; }
+ /* { printf("CLOSEPARENTHESES : %s \n",yytext); } */
 "["                   { printf("OPENBRACKETS : %s \n",yytext); }
 "]"                   { printf("CLOSEBRACKETS : %s \n",yytext); }
 "{"                   { printf("OPENBRACES : %s \n",yytext); }
 "}"                   { printf("CLOSEBRACES : %s \n",yytext); }
-","                   { printf("COMMA : %s \n",yytext); }
+","                   { return COMMA; }
+ /* { printf("COMMA : %s \n",yytext); } */
 ";"                   { return SEMICOLON; }
  /* ";"                   { printf("SEMICOLON : %s \n",yytext); } */
 "#"                   { printf("HASH : %s \n",yytext); }
