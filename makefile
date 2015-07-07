@@ -10,4 +10,4 @@ clean:
 	rm lex.yy.c
 	rm verilog_parser.tab.h
 	rm verilog_parser.tab.c
-	rm parser
+	rm verilog_parser
