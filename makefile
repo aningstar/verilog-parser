@@ -1,4 +1,7 @@
-run: parser 
+port_declarations: parser
+	./verilog_parser < port_declarations_grammar.v
+
+grammar_example: parser
 	./verilog_parser < grammar_example.v
 
 parser: lexic.l verilog_parser.y

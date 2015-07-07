@@ -153,15 +153,15 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "#"                   { printf("HASH : %s \n",yytext); }
 "&"                   { printf("AND : %s \n",yytext); }
 "|"                   { printf("OR : %s \n",yytext); }
-"+"                   { printf("ADDITION : %s \n",yytext); }
-"-"                   { printf("SUBTRACTION : %s \n",yytext); }
+"+"                   { return ADDITION; }
+"-"                   { return SUBTRACTION; }
 "="                   { return EQUAL; }
 "<"                   { printf("LESSTHAN : %s \n",yytext); }
 ">"                   { printf("GREATERTHAN : %s \n",yytext); }
 ":"                   { return COLON; }
 "?"                   { printf("QUESTION MARK : %s \n",yytext); }
 "~"                   { printf("NEGATION : %s \n",yytext); }
-"%"                   { printf("MODULUS : %s \n",yytext); }
+"%"                   { return MODULUS; }
 "."                   { printf("PERIOD : %s \n",yytext); }
 "$"                   { printf("DOLLAR : %s \n",yytext); }
 

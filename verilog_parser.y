@@ -15,6 +15,7 @@
 %token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS
 %token INPUT OUTPUT INOUT WIRE REG
 %token SIGNED
+%token ADDITION SUBTRACTION MODULUS
 
 %%
 
@@ -41,26 +42,45 @@ statement: expression SEMICOLON { printf("\n"); }
 
 declaration: port_declaration { }
  ;
-            /* Port Declarations */
+
+/* ##################################### */
+/* Port Declarations */
+/* #################################### */
 port_declaration: port_direction data_type signed range identifier_list { }
 |                 port_direction signed range identifier_list { }
 ;
-
+/* port direction is declared as:
+    input, output, and inout ports */
 port_direction : INPUT  {printf("input "); }
 |                OUTPUT {printf("output "); }
 |                INOUT  {printf("inout "); }
 ;
 
-data_type :  { }
+data_type :       { }
+|          REG    { printf("reg "); }
 ;
-
+/* range is optional and is from [msb :lsb] */
 range :
 |      OPENBRACKETS range_value COLON range_value CLOSEBRACKETS {printf("range ");}
 ;
 
-range_value: number
+range_value: number                        { }
+|            constants                     { }
+|            constants ADDITION number     { }
+|            constants SUBTRACTION number  { }
+|            constants MODULUS number      { }
+|            number ADDITION constants     { }
+|            number SUBTRACTION constants  { }
+|            number MODULUS constants      { }
 ;
 
+constants: IDENTIFIER      { }
+|          function_call   { }
+
+function_call: IDENTIFIER OPENPARENTHESES IDENTIFIER CLOSEPARENTHESES { }
+|              IDENTIFIER OPENPARENTHESES number CLOSEPARENTHESES { }
+;
+/* signed is optional */
 signed : 
 |       SIGNED { printf("signed "); }
 ;
