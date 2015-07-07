@@ -92,7 +92,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "rcmos"               { printf("RCMOS\n"); }
 "real"                { printf("REAL\n"); }
 "realtime"            { printf("REALTIME\n"); }
-"reg"                 { printf("REG\n"); }
+"reg"                 { return REG; }
 "release"             { printf("RELEASE\n"); }
 "repeat"              { printf("REPEAT\n"); }
 "rnmos"               { printf("RNMOS\n"); }

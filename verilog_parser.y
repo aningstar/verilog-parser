@@ -13,7 +13,7 @@
 %token MODULE ENDMODULE
 %token EQUAL COMMA COLON SEMICOLON
 %token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS
-%token INPUT OUTPUT INOUT WIRE
+%token INPUT OUTPUT INOUT WIRE REG
 
 %%
 
@@ -40,6 +40,7 @@ statement: expression SEMICOLON { printf("Statement.\n"); }
 
 declaration: io_declaration { }
  |           wire_declaration { }
+ |           reg_declaration { }
  ;
 
 io_declaration: INPUT identifier_list { }
@@ -57,6 +58,11 @@ io_declaration: INPUT identifier_list { }
 wire_declaration: WIRE identifier_list { }
  |                WIRE OPENBRACKETS number COLON number CLOSEBRACKETS
                   identifier_list { }
+ ;
+
+reg_declaration: REG identifier_list { }
+ |               REG OPENBRACKETS number COLON number CLOSEBRACKETS
+                 identifier_list { }
  ;
 
 expression: IDENTIFIER EQUAL number { printf("Assignment.\n"); }
