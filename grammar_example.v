@@ -1,6 +1,6 @@
 module abc (id3, id4);
-out = 32'b11;
-out = 32'o11;
-out = 32'd11;
-out = 32'h11;
+input [5:0] id3;
+output [6:8] id4;
+wire [2              : 0] e;
+
 endmodule

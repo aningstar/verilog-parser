@@ -59,8 +59,8 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "ifnone"              { printf("IFNONE\n"); }
 "initial"             { printf("INITIAL\n"); }
 "instance"            { printf("INSTANCE\n"); }
-"inout"               { printf("INOUT\n"); }
-"input"               { printf("INPUT\n"); }
+"inout"               { return INOUT; }
+"input"               { return INPUT; }
 "integer"             { printf("INTEGER\n"); }
 "join"                { printf("JOIN\n"); }
 "large"               { printf("LARGE\n"); }
@@ -78,7 +78,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "notif0"              { printf("NOTIF0\n"); }
 "notif1"              { printf("NOTIF1\n"); }
 "or"                  { printf("OR\n"); }
-"output"              { printf("OUTPUT\n"); }
+"output"              { return OUTPUT; }
 "parameter"           { printf("PARAMETER\n"); }
 "pmos"                { printf("PMOS\n"); }
 "posedge"             { printf("POSEDGE\n"); }
@@ -131,7 +131,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "weak0"               { printf("WEAK0\n"); }
 "weak1"               { printf("WEAK1\n"); }
 "while"               { printf("WHILE\n"); }
-"wire"                { printf("WIRE\n"); }
+"wire"                { return WIRE; }
 "wor"                 { printf("WOR\n"); }
 "xnor"                { printf("XNOR\n"); }
 "xor"                 { printf("XOR\n"); }
@@ -144,8 +144,8 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "@"                   { printf("AT : %s \n",yytext); }
 "("                   { return OPENPARENTHESES; }
 ")"                   { return CLOSEPARENTHESES; }
-"["                   { printf("OPENBRACKETS : %s \n",yytext); }
-"]"                   { printf("CLOSEBRACKETS : %s \n",yytext); }
+"["                   { return OPENBRACKETS; }
+"]"                   { return CLOSEBRACKETS; }
 "{"                   { printf("OPENBRACES : %s \n",yytext); }
 "}"                   { printf("CLOSEBRACES : %s \n",yytext); }
 ","                   { return COMMA; }
@@ -158,7 +158,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "="                   { return EQUAL; }
 "<"                   { printf("LESSTHAN : %s \n",yytext); }
 ">"                   { printf("GREATERTHAN : %s \n",yytext); }
-":"                   { printf("COLON : %s \n",yytext); }
+":"                   { return COLON; }
 "?"                   { printf("QUESTION MARK : %s \n",yytext); }
 "~"                   { printf("NEGATION : %s \n",yytext); }
 "%"                   { printf("MODULUS : %s \n",yytext); }
