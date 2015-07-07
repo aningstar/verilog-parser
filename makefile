@@ -1,8 +1,10 @@
+run: parser 
+	./verilog_parser < grammar_example.v
+
 parser: lexic.l verilog_parser.y
 	bison -d verilog_parser.y
 	lex lexic.l
-	gcc lex.yy.c verilog_parser.tab.c -lfl -o $@
-	./$@ < grammar_example.v
+	gcc lex.yy.c verilog_parser.tab.c -lfl -o verilog_parser
 
 clean: 
 	rm lex.yy.c
