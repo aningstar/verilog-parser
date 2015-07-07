@@ -14,6 +14,7 @@
 %token EQUAL COMMA COLON SEMICOLON
 %token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS
 %token INPUT OUTPUT INOUT WIRE REG
+%token SIGNED
 
 %%
 
@@ -26,7 +27,7 @@ module: MODULE IDENTIFIER OPENPARENTHESES identifier_list CLOSEPARENTHESES
  ;
 
 identifier_list: /* empty */
- | IDENTIFIER { }
+ | IDENTIFIER { printf("identifier ");}
  | IDENTIFIER COMMA identifier_list { }
  ;
 
@@ -34,36 +35,35 @@ block: /* empty */
  | block statement  { }
  ;
 
-statement: expression SEMICOLON { printf("Statement.\n"); }
- |         declaration SEMICOLON { printf("Declaration.\n"); }
+statement: expression SEMICOLON { printf("\n"); }
+ |         declaration SEMICOLON { printf("\n"); }
  ;
 
-declaration: io_declaration { }
- |           wire_declaration { }
- |           reg_declaration { }
+declaration: port_declaration { }
  ;
+            /* Port Declarations */
+port_declaration: port_direction data_type signed range identifier_list { }
+|                 port_direction signed range identifier_list { }
+;
 
-io_declaration: INPUT identifier_list { }
- |              OUTPUT identifier_list { }
- |              INOUT identifier_list { }
- |              INPUT OPENBRACKETS number COLON number CLOSEBRACKETS
-                identifier_list { }
- |              OUTPUT OPENBRACKETS number COLON number CLOSEBRACKETS
-                identifier_list { }
- |              INOUT OPENBRACKETS number COLON number CLOSEBRACKETS
-                identifier_list { }
- |
- ;
+port_direction : INPUT  {printf("input "); }
+|                OUTPUT {printf("output "); }
+|                INOUT  {printf("inout "); }
+;
 
-wire_declaration: WIRE identifier_list { }
- |                WIRE OPENBRACKETS number COLON number CLOSEBRACKETS
-                  identifier_list { }
- ;
+data_type :  { }
+;
 
-reg_declaration: REG identifier_list { }
- |               REG OPENBRACKETS number COLON number CLOSEBRACKETS
-                 identifier_list { }
- ;
+range :
+|      OPENBRACKETS range_value COLON range_value CLOSEBRACKETS {printf("range ");}
+;
+
+range_value: number
+;
+
+signed : 
+|       SIGNED { printf("signed "); }
+;
 
 expression: IDENTIFIER EQUAL number { printf("Assignment.\n"); }
  |          number { }

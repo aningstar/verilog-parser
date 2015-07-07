@@ -101,7 +101,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "rtranif0"            { printf("RTRANIF0\n"); }
 "rtranif1"            { printf("RTRANIF1\n"); }
 "scalared"            { printf("SCALARED\n"); }
-"signed"              { printf("SIGNED\n"); }
+"signed"              { return SIGNED; }
 "showcancelled"       { printf("SHOWCANCELLED\n"); }
 "small"               { printf("SMALL\n"); }
 "specify"             { printf("SPECIFY\n"); }
