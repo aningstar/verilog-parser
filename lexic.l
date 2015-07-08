@@ -11,6 +11,13 @@ long int convert_str_to_hex(char *hexadecimal_string);
 */
 %}
 
+%{
+/* Exlusive start conditions used to match comments. Patterns aren't recognised
+inside them. */
+%}
+%x multi_line_comment
+%x single_line_comment
+
 %%
 
     /* Match Verilog 2001 keywords. */
@@ -136,9 +143,17 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "xnor"                { printf("XNOR\n"); }
 "xor"                 { printf("XOR\n"); }
 
-    /* Match Verilog 2001 comments. */
-[//].*[\n]            { printf("COMMENTS : %s",yytext); }
-[/][*].*[*][/]        { printf("COMMENTS : %s \n",yytext); }
+    /* Match Verilog 2001 comments. Tokens are not returned for comments (so
+that comments are invisible to the parser). */
+<INITIAL>{
+[/][*]                BEGIN(multi_line_comment);
+}
+<multi_line_comment>{
+[*][/]                BEGIN(INITIAL);
+[^*]+                 // eat comment in chunks
+[*]
+}
+[/][/].*[\n]
 
     /* Match Verilog 2001 symbols. */
 "@"                   { printf("AT : %s \n",yytext); }
@@ -155,13 +170,15 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "|"                   { printf("OR : %s \n",yytext); }
 "+"                   { return ADDITION; }
 "-"                   { return SUBTRACTION; }
+"*"                   { printf("MULTIPLICATION : %s \n",yytext); }
+"/"                   { printf("DIVISION : %s \n",yytext); }
+"%"                   { return MODULUS; }
 "="                   { return EQUAL; }
 "<"                   { printf("LESSTHAN : %s \n",yytext); }
 ">"                   { printf("GREATERTHAN : %s \n",yytext); }
 ":"                   { return COLON; }
 "?"                   { printf("QUESTION MARK : %s \n",yytext); }
 "~"                   { printf("NEGATION : %s \n",yytext); }
-"%"                   { return MODULUS; }
 "."                   { printf("PERIOD : %s \n",yytext); }
 "$"                   { printf("DOLLAR : %s \n",yytext); }
 

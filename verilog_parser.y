@@ -24,6 +24,8 @@
 %token PARAMETER LOCALPARAM SPECPARAM
 %token GENVAR EVENT
 
+%error-verbose
+
 %%
 
 description: /* empty */
