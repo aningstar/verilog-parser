@@ -1,7 +1,7 @@
 module abc (id3, id4);
-input signed [2:WORD] id3;
-input signed [WORD:1] id3;
-output  signed id4;
+input reg signed [2:WORD] id3;
+input wire signed [WORD:1] id3;
+output  parameter signed id4;
 input a,b,sel;
 input signed [15:0] a, b;
 output signed [31:0] result;

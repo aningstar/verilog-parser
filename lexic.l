@@ -45,14 +45,14 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "endspecify"          { printf("ENDSPECIFY\n"); }
 "endtable"            { printf("ENDTABLE\n"); }
 "endtask"             { printf("ENDTASK\n"); }
-"event"               { printf("EVENT\n"); }
+"event"               { return EVENT; }
 "for"                 { printf("FOR\n"); }
 "force"               { printf("FORCE\n"); }
 "forever"             { printf("FOREVER\n"); }
 "fork"                { printf("FORK\n"); }
 "function"            { printf("FUNCTION\n"); }
 "generate"            { printf("GENERATE\n"); }
-"genvar"              { printf("GENVAR\n"); }
+"genvar"              { return GENVAR; }
 "highz0"              { printf("HIGHZ0\n"); }
 "highz1"              { printf("HIGHZ1\n"); }
 "if"                  { printf("IF\n"); }
@@ -65,7 +65,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "join"                { printf("JOIN\n"); }
 "large"               { printf("LARGE\n"); }
 "liblist"             { printf("LIBLIST\n"); }
-"localparam"          { printf("LOCALPARAM\n"); }
+"localparam"          { return LOCALPARAM; }
 "macromodule"         { printf("MACROMODULE\n"); }
 "medium"              { printf("MEDIUM\n"); }
 "module"              { return MODULE; }
@@ -79,7 +79,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "notif1"              { printf("NOTIF1\n"); }
 "or"                  { printf("OR\n"); }
 "output"              { return OUTPUT; }
-"parameter"           { printf("PARAMETER\n"); }
+"parameter"           { return PARAMETER;}
 "pmos"                { printf("PMOS\n"); }
 "posedge"             { printf("POSEDGE\n"); }
 "primitive"           { printf("PRIMITIVE\n"); }
@@ -91,7 +91,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "pulsestyle_ondetect" { printf("PULSESTYLE_ONDETECT\n"); }
 "rcmos"               { printf("RCMOS\n"); }
 "real"                { printf("REAL\n"); }
-"realtime"            { printf("REALTIME\n"); }
+"realtime"            { return REALTIME; }
 "reg"                 { return REG; }
 "release"             { printf("RELEASE\n"); }
 "repeat"              { printf("REPEAT\n"); }
@@ -105,34 +105,34 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "showcancelled"       { printf("SHOWCANCELLED\n"); }
 "small"               { printf("SMALL\n"); }
 "specify"             { printf("SPECIFY\n"); }
-"specparam"           { printf("SPECPARAM\n"); }
+"specparam"           { return SPECPARAM; }
 "strength"            { printf("STRENGTH\n"); }
 "strong0"             { printf("STRONG0\n"); }
 "strong1"             { printf("STRONG1\n"); }
-"supply0"             { printf("SUPPLY0\n"); }
-"supply1"             { printf("SUPPLY1\n"); }
+"supply0"             { return SUPPLY0; }
+"supply1"             { return SUPPLY1; }
 "table"               { printf("TABLE\n"); }
 "task"                { printf("TASK\n"); }
-"time"                { printf("TIME\n"); }
+"time"                { return TIME;}
 "tran"                { printf("TRAN\n"); }
 "tranif0"             { printf("TRANIF0\n"); }
 "tranif1"             { printf("TRANIF1\n"); }
-"tri"                 { printf("TRI\n"); }
-"tri0"                { printf("TRI0\n"); }
-"tri1"                { printf("TRI1\n"); }
-"triand"              { printf("TRIAND\n"); }
-"trior"               { printf("TRIOR\n"); }
-"trireg"              { printf("TRIREG\n"); }
+"tri"                 { return TRI; }
+"tri0"                { return TRI0; }
+"tri1"                { return TRI1; }
+"triand"              { return TRIAND; }
+"trior"               { return TRIOR; }
+"trireg"              { return TRIREG; }
 "unsigned"            { printf("UNSIGNED\n"); }
 "use"                 { printf("USE\n"); }
 "vectored"            { printf("VECTORED\n"); }
 "wait"                { printf("WAIT\n"); }
-"wand"                { printf("WAND\n"); }
+"wand"                { return WAND; }
 "weak0"               { printf("WEAK0\n"); }
 "weak1"               { printf("WEAK1\n"); }
 "while"               { printf("WHILE\n"); }
 "wire"                { return WIRE; }
-"wor"                 { printf("WOR\n"); }
+"wor"                 { return WOR; }
 "xnor"                { printf("XNOR\n"); }
 "xor"                 { printf("XOR\n"); }
 

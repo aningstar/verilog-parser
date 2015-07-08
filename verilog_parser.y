@@ -9,13 +9,20 @@
 %token IDENTIFIER
 %token UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
-%token REAL
 %token MODULE ENDMODULE
 %token EQUAL COMMA COLON SEMICOLON
 %token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS
-%token INPUT OUTPUT INOUT WIRE REG
+%token INPUT OUTPUT INOUT
 %token SIGNED
 %token ADDITION SUBTRACTION MODULUS
+/* net types */
+%token WIRE WOR WAND SUPPLY0 SUPPLY1 
+%token TRI0 TRI1 TRI TRIOR TRIAND TRIREG
+/* variable types */
+%token REG INTEGER TIME REAL REALTIME
+/* other types */
+%token PARAMETER LOCALPARAM SPECPARAM
+%token GENVAR EVENT
 
 %%
 
@@ -56,9 +63,6 @@ port_direction : INPUT  {printf("input "); }
 |                INOUT  {printf("inout "); }
 ;
 
-data_type :       { }
-|          REG    { printf("reg "); }
-;
 /* range is optional and is from [msb :lsb] */
 range :
 |      OPENBRACKETS range_value COLON range_value CLOSEBRACKETS {printf("range ");}
@@ -84,7 +88,37 @@ function_call: IDENTIFIER OPENPARENTHESES IDENTIFIER CLOSEPARENTHESES { }
 signed : 
 |       SIGNED { printf("signed "); }
 ;
-
+/* ####################### */
+/* Data types */
+data_type : net_type      { printf("data_type "); }
+|           variable_type { printf("data_type "); }
+|           other_type    { printf("data_type "); }
+;
+net_type: WIRE    { }
+|         WOR     { } 
+|         WAND    { }
+|         SUPPLY0 { }
+|         SUPPLY1 { }
+|         TRI0    { } 
+|         TRI1    { }
+|         TRI     { }
+|         TRIOR   { }
+|         TRIAND  { }
+|         TRIREG  { }
+;
+/* except REAL */
+variable_type: REG      { }
+|              INTEGER  { }
+|              TIME     { }
+|              REALTIME { }
+;
+other_type:    PARAMETER  { }
+|              LOCALPARAM { }
+|              SPECPARAM  { }
+|              GENVAR     { }
+|              EVENT      { }
+;
+/* ######################## */
 expression: IDENTIFIER EQUAL number { printf("Assignment.\n"); }
  |          number { }
  ;
