@@ -68,14 +68,14 @@ range :
 |      OPENBRACKETS range_value COLON range_value CLOSEBRACKETS {printf("range ");}
 ;
 
-range_value: INTEGER                        { }
-|            constants                      { }
-|            constants ADDITION INTEGER     { }
-|            constants SUBTRACTION INTEGER  { }
-|            constants MODULUS INTEGER      { }
-|            INTEGER ADDITION constants     { }
-|            INTEGER SUBTRACTION constants  { }
-|            INTEGER MODULUS constants      { }
+range_value: UNSIG_DEC                        { }
+|            constants                        { }
+|            constants ADDITION UNSIG_DEC     { }
+|            constants SUBTRACTION UNSIG_DEC  { }
+|            constants MODULUS UNSIG_DEC      { }
+|            UNSIG_DEC ADDITION constants     { }
+|            UNSIG_DEC SUBTRACTION constants  { }
+|            UNSIG_DEC MODULUS constants      { }
 ;
 
 constants: IDENTIFIER      { }
