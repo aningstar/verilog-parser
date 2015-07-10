@@ -150,7 +150,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "}"                   { printf("CLOSEBRACES : %s \n",yytext); }
 ","                   { return COMMA; }
 ";"                   { return SEMICOLON; }
-"#"                   { printf("HASH : %s \n",yytext); }
+"#"                   { return HASH; }
 "&"                   { printf("AND : %s \n",yytext); }
 "|"                   { printf("OR : %s \n",yytext); }
 "+"                   { return ADDITION; }
@@ -175,6 +175,8 @@ long int convert_str_to_hex(char *hexadecimal_string);
 [0-9]+[0-9_]*[eE]-?[0-9]+                          { return REAL; }
 
     /* Match Verilog 2001 integers. */
+     /* TODO */
+    /* Change UNSIG_DEC tokken for this pattern to integer */
 [0-9]+                                             { return UNSIG_DEC; }
 
     /* Match Verilog 2001 unsigned numbers. */

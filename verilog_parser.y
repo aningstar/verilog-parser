@@ -10,7 +10,7 @@
 %token UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
 %token MODULE ENDMODULE
-%token EQUAL COMMA COLON SEMICOLON
+%token EQUAL COMMA COLON SEMICOLON HASH
 %token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS
 %token INPUT OUTPUT INOUT
 %token SIGNED
@@ -48,26 +48,48 @@ statement: expression SEMICOLON { printf("\n"); }
  ;
 
 declaration: port_declaration { }
+|            net_declaration  { }
  ;
 
-/* ##################################### */
-/* Port Declarations */
-/* #################################### */
+/*  Port Declarations  */
 port_declaration: port_direction data_type signed range identifier_list { }
 |                 port_direction signed range identifier_list { }
 ;
-/* port direction is declared as:
-    input, output, and inout ports */
+/*  Net Declarations   */
+net_declaration: net_type signed range delay net_list { printf("net_declaration\n");}
+;
+/* */
+net_list: IDENTIFIER                      { printf("identifier "); } 
+|         IDENTIFIER COMMA net_list       { printf("identifier "); }
+|         IDENTIFIER array                { printf("identifier "); }
+|         IDENTIFIER array COMMA net_list { printf("identifier "); }
+;
+/* n-dimensional array */
+array: range       { printf("array "); }
+|      range array { printf("array "); }
+;
+/* delays to transitions */
+/* 1 number for all output transitions */
+/* 2 numbers for rise, fall output transitions */
+/* 3 numbers for rise, fall, turn-off output transitions */
+delay:
+|     HASH dec_real                                                  { }
+|     HASH OPENPARENTHESES dec_real CLOSEPARENTHESES                 { }
+|     HASH OPENPARENTHESES dec_real COMMA dec_real CLOSEPARENTHESES  { }
+|     HASH OPENPARENTHESES dec_real COMMA dec_real COMMA dec_real CLOSEPARENTHESES { }
+;
+/* port direction is declared as: */
+/* input, output, and inout ports */
 port_direction : INPUT  {printf("input "); }
 |                OUTPUT {printf("output "); }
 |                INOUT  {printf("inout "); }
 ;
-
 /* range is optional and is from [msb :lsb] */
+/* The msb and lsb must be a literal number, a constant, an expression, */
+/* or a call to a constant function. */
 range :
 |      OPENBRACKETS range_value COLON range_value CLOSEBRACKETS {printf("range ");}
 ;
-
 range_value: UNSIG_DEC                        { }
 |            constants                        { }
 |            constants ADDITION UNSIG_DEC     { }
@@ -80,7 +102,8 @@ range_value: UNSIG_DEC                        { }
 
 constants: IDENTIFIER      { }
 |          function_call   { }
-
+;
+/* call to constant function */
 function_call: IDENTIFIER OPENPARENTHESES IDENTIFIER CLOSEPARENTHESES { }
 |              IDENTIFIER OPENPARENTHESES number CLOSEPARENTHESES { }
 ;
@@ -122,6 +145,10 @@ other_type:    PARAMETER  { }
 expression: IDENTIFIER EQUAL number { printf("Assignment.\n"); }
  |          number { }
  ;
+
+dec_real: UNSIG_DEC { }
+|         REAL      { }
+;
 
 number: UNSIG_BIN { }
  |      UNSIG_OCT { }
