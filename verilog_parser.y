@@ -43,7 +43,7 @@ block: /* empty */
  | block statement  { }
  ;
 
-statement: expression SEMICOLON { printf("\n"); }
+statement: assignment  SEMICOLON { printf("\n"); }
  |         declaration SEMICOLON { printf("\n"); }
  ;
 
@@ -142,9 +142,15 @@ other_type:    PARAMETER  { }
 |              EVENT      { }
 ;
 /* ######################## */
-expression: IDENTIFIER EQUAL number { printf("Assignment.\n"); }
- |          number { }
- ;
+assignment: IDENTIFIER EQUAL expression       { printf("assignment ");}
+;
+expression: number                            { }
+|           IDENTIFIER                        { }
+|           number ADDITION expression        { }
+|           number SUBTRACTION expression     { }
+|           IDENTIFIER ADDITION expression    { }
+|           IDENTIFIER SUBTRACTION expression { }
+;
 
 dec_real: UNSIG_DEC { }
 |         REAL      { }
