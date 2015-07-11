@@ -63,11 +63,11 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "input"               { return INPUT; }
 "integer"             { printf("INTEGER\n"); }
 "join"                { printf("JOIN\n"); }
-"large"               { printf("LARGE\n"); }
+"large"               { return LARGE; }
 "liblist"             { printf("LIBLIST\n"); }
 "localparam"          { return LOCALPARAM; }
 "macromodule"         { printf("MACROMODULE\n"); }
-"medium"              { printf("MEDIUM\n"); }
+"medium"              { return MEDIUM;}
 "module"              { return MODULE; }
 "nand"                { printf("NAND\n"); }
 "negedge"             { printf("NEGEDGE\n"); }
@@ -83,8 +83,8 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "pmos"                { printf("PMOS\n"); }
 "posedge"             { printf("POSEDGE\n"); }
 "primitive"           { printf("PRIMITIVE\n"); }
-"pull0"               { printf("PULL0\n"); }
-"pull1"               { printf("PULL1\n"); }
+"pull0"               { return PULL0; }
+"pull1"               { return PULL1; }
 "pulldown"            { printf("PULLDOWN\n"); }
 "pullup"              { printf("PULLUP\n"); }
 "pulsestyle_onevent"  { printf("PULSESTYLE_ONEVENT\n"); }
@@ -103,12 +103,12 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "scalared"            { printf("SCALARED\n"); }
 "signed"              { return SIGNED; }
 "showcancelled"       { printf("SHOWCANCELLED\n"); }
-"small"               { printf("SMALL\n"); }
+"small"               { return SMALL; }
 "specify"             { printf("SPECIFY\n"); }
 "specparam"           { return SPECPARAM; }
 "strength"            { printf("STRENGTH\n"); }
-"strong0"             { printf("STRONG0\n"); }
-"strong1"             { printf("STRONG1\n"); }
+"strong0"             { return STRONG0; }
+"strong1"             { return STRONG1; }
 "supply0"             { return SUPPLY0; }
 "supply1"             { return SUPPLY1; }
 "table"               { printf("TABLE\n"); }
@@ -128,8 +128,8 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "vectored"            { printf("VECTORED\n"); }
 "wait"                { printf("WAIT\n"); }
 "wand"                { return WAND; }
-"weak0"               { printf("WEAK0\n"); }
-"weak1"               { printf("WEAK1\n"); }
+"weak0"               { return WEAK0; }
+"weak1"               { return WEAK1; }
 "while"               { printf("WHILE\n"); }
 "wire"                { return WIRE; }
 "wor"                 { return WOR; }

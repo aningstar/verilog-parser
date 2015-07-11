@@ -16,13 +16,17 @@
 %token SIGNED
 %token ADDITION SUBTRACTION MODULUS
 /* net types */
-%token WIRE WOR WAND SUPPLY0 SUPPLY1 
+%token WIRE WOR WAND 
 %token TRI0 TRI1 TRI TRIOR TRIAND TRIREG
 /* variable types */
 %token REG INTEGER TIME REAL REALTIME
 /* other types */
 %token PARAMETER LOCALPARAM SPECPARAM
 %token GENVAR EVENT
+/* drive strength */
+%token SUPPLY0 SUPPLY1 STRONG0 STRONG1 PULL0 PULL1 WEAK0 WEAK1
+/* capacitive strength */
+%token LARGE MEDIUM SMALL
 
 %%
 
@@ -56,13 +60,27 @@ port_declaration: port_direction data_type signed range identifier_list { }
 |                 port_direction signed range identifier_list { }
 ;
 /*  Net Declarations   */
-net_declaration: net_type signed range delay net_list { printf("net_declaration\n");}
+/*      TODO           */
+/* strength */
+/* before or after range */
+net_declaration: net_type signed range delay net_name { printf("net_declaration\n");}
+|                net_type strength signed range delay net_name { }
+;
+net_name: net_list   { }
+|         assignment { }
 ;
 /* */
 net_list: IDENTIFIER                      { printf("identifier "); } 
 |         IDENTIFIER COMMA net_list       { printf("identifier "); }
 |         IDENTIFIER array                { printf("identifier "); }
 |         IDENTIFIER array COMMA net_list { printf("identifier "); }
+;
+/* Logic values can have 8 strength levels: */
+/* 4 driving, 3 capacitive, and high        */
+/* impedance (no strength).                 */
+strength: 
+|         OPENPARENTHESES strength0 COMMA strength1 CLOSEPARENTHESES { printf("strength0,strength1 ");}
+|         OPENPARENTHESES strength1 COMMA strength0 CLOSEPARENTHESES { printf("strength1,strength0 ");}
 ;
 /* n-dimensional array */
 array: range       { printf("array "); }
@@ -117,7 +135,7 @@ data_type : net_type      { printf("data_type "); }
 |           variable_type { printf("data_type "); }
 |           other_type    { printf("data_type "); }
 ;
-net_type: WIRE    { }
+net_type: WIRE    { printf("wire ");}
 |         WOR     { } 
 |         WAND    { }
 |         SUPPLY0 { }
@@ -140,6 +158,18 @@ other_type:    PARAMETER  { }
 |              SPECPARAM  { }
 |              GENVAR     { }
 |              EVENT      { }
+;
+/* ######################## */
+/* Drive strength           */
+strength0: SUPPLY0 { }
+|          STRONG0 { }
+|          PULL0   { }
+|          WEAK0   { }
+;
+strength1: SUPPLY1 { }
+|          STRONG1 { }
+|          PULL1   { }
+|          WEAK1   { }
 ;
 /* ######################## */
 assignment: IDENTIFIER EQUAL expression       { printf("assignment ");}
