@@ -55,17 +55,19 @@ declaration: port_declaration { }
 |            net_declaration  { }
  ;
 
-/*  Port Declarations  */
+/*  Port Declarations   */
 port_declaration: port_direction data_type signed range identifier_list { }
 |                 port_direction signed range identifier_list { }
 ;
-/*  Net Declarations   */
-/*      TODO           */
-/* strength */
+/*  Net Declarations     */
+/*      TODO             */
+/*     strength          */
 /* before or after range */
 net_declaration: net_type signed range delay net_name { printf("net_declaration\n");}
 |                net_type strength signed range delay net_name { }
+|                TRIREG capacitive_strength signed range decay_time net_name { } 
 ;
+/* */
 net_name: net_list   { }
 |         assignment { }
 ;
@@ -82,6 +84,9 @@ strength:
 |         OPENPARENTHESES strength0 COMMA strength1 CLOSEPARENTHESES { printf("strength0,strength1 ");}
 |         OPENPARENTHESES strength1 COMMA strength0 CLOSEPARENTHESES { printf("strength1,strength0 ");}
 ;
+capacitive_strength :
+|         OPENPARENTHESES capacitive CLOSEPARENTHESES       { printf("capacitive_strength ");}
+;
 /* n-dimensional array */
 array: range       { printf("array "); }
 |      range array { printf("array "); }
@@ -95,6 +100,9 @@ delay:
 |     HASH OPENPARENTHESES dec_real CLOSEPARENTHESES                 { }
 |     HASH OPENPARENTHESES dec_real COMMA dec_real CLOSEPARENTHESES  { }
 |     HASH OPENPARENTHESES dec_real COMMA dec_real COMMA dec_real CLOSEPARENTHESES { }
+;
+decay_time:
+|       HASH OPENPARENTHESES dec_real COMMA dec_real COMMA dec_real CLOSEPARENTHESES { }
 ;
 /* port direction is declared as: */
 /* input, output, and inout ports */
@@ -145,7 +153,7 @@ net_type: WIRE    { printf("wire ");}
 |         TRI     { }
 |         TRIOR   { }
 |         TRIAND  { }
-|         TRIREG  { }
+|         TRIREG  { printf("trireg "); }
 ;
 /* except REAL */
 variable_type: REG      { }
@@ -170,6 +178,11 @@ strength1: SUPPLY1 { }
 |          STRONG1 { }
 |          PULL1   { }
 |          WEAK1   { }
+;
+/* Capacitive strengths     */
+capacitive: LARGE  { }
+|           MEDIUM { }
+|           SMALL  { }
 ;
 /* ######################## */
 assignment: IDENTIFIER EQUAL expression       { printf("assignment ");}
