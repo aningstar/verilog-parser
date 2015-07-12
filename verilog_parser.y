@@ -7,6 +7,7 @@
 /* Token declarations */
 
 %token IDENTIFIER
+%token REALV
 %token UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
 %token MODULE ENDMODULE
@@ -15,6 +16,7 @@
 %token INPUT OUTPUT INOUT
 %token SIGNED
 %token ADDITION SUBTRACTION MODULUS
+%token VECTORED SCALARED
 /* net types */
 %token WIRE WOR WAND 
 %token TRI0 TRI1 TRI TRIOR TRIAND TRIREG
@@ -51,13 +53,29 @@ statement: assignment  SEMICOLON { printf("\n"); }
  |         declaration SEMICOLON { printf("\n"); }
  ;
 
-declaration: port_declaration { }
-|            net_declaration  { }
- ;
+declaration: port_declaration     { }
+|            net_declaration      { }
+|            variable_declaration { }
+;
 
 /*  Port Declarations   */
-port_declaration: port_direction data_type signed range identifier_list { }
+port_declaration: port_direction port_type signed range identifier_list { }
 |                 port_direction signed range identifier_list { }
+;
+/* port direction is declared as: */
+/* input, output, and inout ports */
+port_direction : INPUT  {printf("input "); }
+|                OUTPUT {printf("output "); }
+|                INOUT  {printf("inout "); }
+;
+/* all data types except real */
+port_type : REG         { }
+|           INTEGER     { }
+|           TIME        { }
+|           REALTIME    { }
+|           net_type    { printf("port_type "); }
+|           other_type  { printf("port_type "); }
+;
 ;
 /*  Net Declarations     */
 /*      TODO             */
@@ -68,14 +86,57 @@ net_declaration: net_type signed range delay net_name { printf("net_declaration\
 |                TRIREG capacitive_strength signed range decay_time net_name { } 
 ;
 /* */
-net_name: net_list   { }
+net_name: array_list   { }
 |         assignment { }
 ;
+/* ################################################################## */
+/* Variable data types declared with 3 ways:                          */
+/*  •variable_type signed [range] variable_name, variable_name, ... ; */
+/*  •variable_type signed [range] variable_name = initial_value, ... ;*/
+/*  •variable_type signed [range] variable_name [array], ... ;        */
+/* signed,range values and keywords vectored, scalared may only be    */
+/* used with reg variables */
+variable_declaration: REG v_o_keywords signed range variable_name { } 
+|                     variable_type variable_name                 { }
+;
+/* The keywords vectored or scalared may be used immediately following */
+/* the reg keyword. Software tools and/or the Verilog PLI may restrict */
+/* access to individual bits within a vector that is declared as       */
+/* vectored. */
+v_o_keywords:         { }
+|            VECTORED { printf("vectored ");}
+|            SCALARED { printf("scalared ");}
+;
+/* The variable names are declared as :       */
+/* •variable_name, variable_name, ... ;       */
+/* •variable_name = initial_value, ... ;      */
+/* •variable_name [array], ... ;              */
+variable_name: IDENTIFIER                     { printf("identifier ");}
+|              IDENTIFIER COMMA variable_name { printf("identifier ");}
+|              array_list                     { }
+|              variable_initial               { }
+;
+/* initial_value (optional) sets the initial value of the variable. */
+/* • The value is set in simulation time 0,                         */
+/*   the same as if the variable had been                           */
+/*   assigned a value in an initial procedure.                      */
+/* • If not initialized, the default value for                      */
+/*   reg, integer and time variables is X,                          */
+/*   and the initial value for real and                             */ 
+/*   realtime variables is 0.0.                                     */
+variable_initial: IDENTIFIER EQUAL dec_real                        { printf("variable initial ");}
+|                 IDENTIFIER EQUAL dec_real COMMA variable_initial { printf("variable initial ");}
+;
+variable_type:  INTEGER  { printf("integer ");}
+|               TIME     { printf("time ");}
+|               REAL     { printf("real ");}
+|               REALTIME { printf("realtime ");}
+;
 /* */
-net_list: IDENTIFIER                      { printf("identifier "); } 
-|         IDENTIFIER COMMA net_list       { printf("identifier "); }
-|         IDENTIFIER array                { printf("identifier "); }
-|         IDENTIFIER array COMMA net_list { printf("identifier "); }
+array_list: IDENTIFIER                        { printf("identifier "); } 
+|           IDENTIFIER COMMA array_list       { printf("identifier "); }
+|           IDENTIFIER array                  { printf("identifier "); }
+|           IDENTIFIER array COMMA array_list { printf("identifier "); }
 ;
 /* Logic values can have 8 strength levels: */
 /* 4 driving, 3 capacitive, and high        */
@@ -102,13 +163,7 @@ delay:
 |     HASH OPENPARENTHESES dec_real COMMA dec_real COMMA dec_real CLOSEPARENTHESES { }
 ;
 decay_time:
-|       HASH OPENPARENTHESES dec_real COMMA dec_real COMMA dec_real CLOSEPARENTHESES { }
-;
-/* port direction is declared as: */
-/* input, output, and inout ports */
-port_direction : INPUT  {printf("input "); }
-|                OUTPUT {printf("output "); }
-|                INOUT  {printf("inout "); }
+          |       HASH OPENPARENTHESES dec_real COMMA dec_real COMMA dec_real CLOSEPARENTHESES { }
 ;
 /* range is optional and is from [msb :lsb] */
 /* The msb and lsb must be a literal number, a constant, an expression, */
@@ -139,10 +194,6 @@ signed :
 ;
 /* ####################### */
 /* Data types */
-data_type : net_type      { printf("data_type "); }
-|           variable_type { printf("data_type "); }
-|           other_type    { printf("data_type "); }
-;
 net_type: WIRE    { printf("wire ");}
 |         WOR     { } 
 |         WAND    { }
@@ -154,12 +205,6 @@ net_type: WIRE    { printf("wire ");}
 |         TRIOR   { }
 |         TRIAND  { }
 |         TRIREG  { printf("trireg "); }
-;
-/* except REAL */
-variable_type: REG      { }
-|              INTEGER  { }
-|              TIME     { }
-|              REALTIME { }
 ;
 other_type:    PARAMETER  { }
 |              LOCALPARAM { }
@@ -196,7 +241,7 @@ expression: number                            { }
 ;
 
 dec_real: UNSIG_DEC { }
-|         REAL      { }
+|         REALV
 ;
 
 number: UNSIG_BIN { }
@@ -207,7 +252,7 @@ number: UNSIG_BIN { }
  |      SIG_OCT { }
  |      SIG_DEC { }
  |      SIG_HEX { }
- |      REAL { }
+ |      REALV{ }
  ;
 
 %%

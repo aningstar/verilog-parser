@@ -61,7 +61,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "instance"            { printf("INSTANCE\n"); }
 "inout"               { return INOUT; }
 "input"               { return INPUT; }
-"integer"             { printf("INTEGER\n"); }
+"integer"             { return INTEGER; }
 "join"                { printf("JOIN\n"); }
 "large"               { return LARGE; }
 "liblist"             { printf("LIBLIST\n"); }
@@ -90,7 +90,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "pulsestyle_onevent"  { printf("PULSESTYLE_ONEVENT\n"); }
 "pulsestyle_ondetect" { printf("PULSESTYLE_ONDETECT\n"); }
 "rcmos"               { printf("RCMOS\n"); }
-"real"                { printf("REAL\n"); }
+"real"                { return REAL; }
 "realtime"            { return REALTIME; }
 "reg"                 { return REG; }
 "release"             { printf("RELEASE\n"); }
@@ -100,7 +100,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "rtran"               { printf("RTRAN\n"); }
 "rtranif0"            { printf("RTRANIF0\n"); }
 "rtranif1"            { printf("RTRANIF1\n"); }
-"scalared"            { printf("SCALARED\n"); }
+"scalared"            { return SCALARED; }
 "signed"              { return SIGNED; }
 "showcancelled"       { printf("SHOWCANCELLED\n"); }
 "small"               { return SMALL; }
@@ -125,7 +125,7 @@ long int convert_str_to_hex(char *hexadecimal_string);
 "trireg"              { return TRIREG; }
 "unsigned"            { printf("UNSIGNED\n"); }
 "use"                 { printf("USE\n"); }
-"vectored"            { printf("VECTORED\n"); }
+"vectored"            { return VECTORED; }
 "wait"                { printf("WAIT\n"); }
 "wand"                { return WAND; }
 "weak0"               { return WEAK0; }
@@ -170,9 +170,9 @@ long int convert_str_to_hex(char *hexadecimal_string);
 [\\][^\n\t ]+                                      { return IDENTIFIER; }
  
     /* Match Verilog 2001 real numbers. */
-[0-9]+[.][0-9][0-9_]*                              { return REAL; }
-[0-9]+[.][0-9][0-9_]*[eE]-?[0-9]+                  { return REAL; }
-[0-9]+[0-9_]*[eE]-?[0-9]+                          { return REAL; }
+[0-9]+[.][0-9][0-9_]*                              { return REALV; }
+[0-9]+[.][0-9][0-9_]*[eE]-?[0-9]+                  { return REALV; }
+[0-9]+[0-9_]*[eE]-?[0-9]+                          { return REALV; }
 
     /* Match Verilog 2001 integers. */
      /* TODO */

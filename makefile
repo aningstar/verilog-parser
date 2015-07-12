@@ -1,4 +1,7 @@
-net_declarations : parser
+variable_declaratios: parser
+	./verilog_parser < variable_declarations_grammar.v
+
+net_declarations: parser
 	./verilog_parser < net_declarations_grammar.v
 
 port_declarations: parser
