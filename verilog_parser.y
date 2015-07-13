@@ -262,14 +262,28 @@ capacitive: LARGE  { }
 /* ######################## */
 assignment: IDENTIFIER EQUAL expression       { printf("assignment ");}
 ;
-expression: number                            { }
-|           IDENTIFIER                        { }
-|           number ADDITION expression        { }
-|           number SUBTRACTION expression     { }
-|           IDENTIFIER ADDITION expression    { }
-|           IDENTIFIER SUBTRACTION expression { }
+expression: expression_term                                                                      {printf("expression "); }
+|           expression_term expression_operation expression_term                                 {printf("expression "); }
+|           expression_term expression_operation expression_term expression_operation expression {printf("expression "); }
 ;
-
+expression_term: number
+|                IDENTIFIER
+|                bit_select
+;
+expression_operation:  ADDITION    { }
+|                      SUBTRACTION { }
+;
+/* Vector Bit Selects and Part Selects */
+bit_select: IDENTIFIER OPENBRACKETS bit_number CLOSEBRACKETS                  {printf("bit_select "); }
+|           IDENTIFIER OPENBRACKETS bit_number COLON bit_number CLOSEBRACKETS {printf("bit_select "); }
+;
+bit_number: UNSIG_DEC                         { }
+|           IDENTIFIER                        { }
+|           IDENTIFIER ADDITION bit_number    { }
+|           IDENTIFIER SUBTRACTION bit_number { }
+|           UNSIG_DEC ADDITION bit_number     { }
+|           UNSIG_DEC SUBTRACTION bit_number  { }
+;
 dec_real: UNSIG_DEC { }
 |         REALV
 ;
