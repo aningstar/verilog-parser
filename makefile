@@ -1,3 +1,9 @@
+all: parser
+	./verilog_parser < variable_declarations_grammar.v
+	./verilog_parser < net_declarations_grammar.v
+	./verilog_parser < port_declarations_grammar.v
+	./verilog_parser < grammar_example.v
+
 variable_declaratios: parser
 	./verilog_parser < variable_declarations_grammar.v
 
