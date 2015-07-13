@@ -56,6 +56,7 @@ statement: assignment  SEMICOLON { printf("\n"); }
 declaration: port_declaration     { }
 |            net_declaration      { }
 |            variable_declaration { }
+|            constant_declaration { }
 ;
 
 /*  Port Declarations   */
@@ -131,6 +132,35 @@ variable_type:  INTEGER  { printf("integer ");}
 |               TIME     { printf("time ");}
 |               REAL     { printf("real ");}
 |               REALTIME { printf("realtime ");}
+;
+/* ################################################################ */ 
+/* Constant declarations */
+/*    TODO    */
+/* genvar ??? */
+constant_declaration: PARAMETER signed range constant_variable     {printf("parameter "); }
+|                     PARAMETER constant_type constant_variable    {printf("parameter ");}
+|                     LOCALPARAM signed range constant_variable    {printf("localparam ");}
+|                     LOCALPARAM constant_type constant_variable   {printf("localparam ");}
+|                     SPECPARAM constant_variable                  {printf("specparam "); }
+|                     EVENT event_names                            {printf("event "); }
+;
+/* A constant declared with a type will have the same properties as */
+/* a variable of that type. If no type is specified, the constant   */
+/* will default to the data type of the last value assigned to it,  */
+/* after any parameter redefinitions. */ 
+constant_type:           { }
+|             INTEGER    { printf("integer "); }
+|             TIME       { printf("time ");    }
+|             REAL       { printf("real ");    }
+|             REALTIME   { printf("realtime ");}
+;
+constant_variable: IDENTIFIER EQUAL number                         {printf("constant "); }
+|                  IDENTIFIER EQUAL number COMMA constant_variable {printf("constant "); }
+;
+/* a momentary flag with no logic value or data storage.Can be      */
+/* used for synchronizing concurrent activities within a module.    */
+event_names: IDENTIFIER                   {printf("identifier "); }
+|            IDENTIFIER COMMA event_names {printf("identifier "); }
 ;
 /* */
 array_list: IDENTIFIER                        { printf("identifier "); } 
