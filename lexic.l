@@ -68,13 +68,13 @@ inside them. */
 "instance"            { printf("INSTANCE\n"); }
 "inout"               { return INOUT; }
 "input"               { return INPUT; }
-"integer"             { printf("INTEGER\n"); }
+"integer"             { return INTEGER; }
 "join"                { printf("JOIN\n"); }
-"large"               { printf("LARGE\n"); }
+"large"               { return LARGE; }
 "liblist"             { printf("LIBLIST\n"); }
 "localparam"          { return LOCALPARAM; }
 "macromodule"         { printf("MACROMODULE\n"); }
-"medium"              { printf("MEDIUM\n"); }
+"medium"              { return MEDIUM;}
 "module"              { return MODULE; }
 "nand"                { printf("NAND\n"); }
 "negedge"             { printf("NEGEDGE\n"); }
@@ -90,14 +90,14 @@ inside them. */
 "pmos"                { printf("PMOS\n"); }
 "posedge"             { printf("POSEDGE\n"); }
 "primitive"           { printf("PRIMITIVE\n"); }
-"pull0"               { printf("PULL0\n"); }
-"pull1"               { printf("PULL1\n"); }
+"pull0"               { return PULL0; }
+"pull1"               { return PULL1; }
 "pulldown"            { printf("PULLDOWN\n"); }
 "pullup"              { printf("PULLUP\n"); }
 "pulsestyle_onevent"  { printf("PULSESTYLE_ONEVENT\n"); }
 "pulsestyle_ondetect" { printf("PULSESTYLE_ONDETECT\n"); }
 "rcmos"               { printf("RCMOS\n"); }
-"real"                { printf("REAL\n"); }
+"real"                { return REAL; }
 "realtime"            { return REALTIME; }
 "reg"                 { return REG; }
 "release"             { printf("RELEASE\n"); }
@@ -107,15 +107,15 @@ inside them. */
 "rtran"               { printf("RTRAN\n"); }
 "rtranif0"            { printf("RTRANIF0\n"); }
 "rtranif1"            { printf("RTRANIF1\n"); }
-"scalared"            { printf("SCALARED\n"); }
+"scalared"            { return SCALARED; }
 "signed"              { return SIGNED; }
 "showcancelled"       { printf("SHOWCANCELLED\n"); }
-"small"               { printf("SMALL\n"); }
+"small"               { return SMALL; }
 "specify"             { printf("SPECIFY\n"); }
 "specparam"           { return SPECPARAM; }
 "strength"            { printf("STRENGTH\n"); }
-"strong0"             { printf("STRONG0\n"); }
-"strong1"             { printf("STRONG1\n"); }
+"strong0"             { return STRONG0; }
+"strong1"             { return STRONG1; }
 "supply0"             { return SUPPLY0; }
 "supply1"             { return SUPPLY1; }
 "table"               { printf("TABLE\n"); }
@@ -132,11 +132,11 @@ inside them. */
 "trireg"              { return TRIREG; }
 "unsigned"            { printf("UNSIGNED\n"); }
 "use"                 { printf("USE\n"); }
-"vectored"            { printf("VECTORED\n"); }
+"vectored"            { return VECTORED; }
 "wait"                { printf("WAIT\n"); }
 "wand"                { return WAND; }
-"weak0"               { printf("WEAK0\n"); }
-"weak1"               { printf("WEAK1\n"); }
+"weak0"               { return WEAK0; }
+"weak1"               { return WEAK1; }
 "while"               { printf("WHILE\n"); }
 "wire"                { return WIRE; }
 "wor"                 { return WOR; }
@@ -165,7 +165,7 @@ that comments are invisible to the parser). */
 "}"                   { printf("CLOSEBRACES : %s \n",yytext); }
 ","                   { return COMMA; }
 ";"                   { return SEMICOLON; }
-"#"                   { printf("HASH : %s \n",yytext); }
+"#"                   { return HASH; }
 "&"                   { printf("AND : %s \n",yytext); }
 "|"                   { printf("OR : %s \n",yytext); }
 "+"                   { return ADDITION; }
@@ -187,11 +187,13 @@ that comments are invisible to the parser). */
 [\\][^\n\t ]+                                      { return IDENTIFIER; }
  
     /* Match Verilog 2001 real numbers. */
-[0-9]+[.][0-9][0-9_]*                              { return REAL; }
-[0-9]+[.][0-9][0-9_]*[eE]-?[0-9]+                  { return REAL; }
-[0-9]+[0-9_]*[eE]-?[0-9]+                          { return REAL; }
+[0-9]+[.][0-9][0-9_]*                              { return REALV; }
+[0-9]+[.][0-9][0-9_]*[eE]-?[0-9]+                  { return REALV; }
+[0-9]+[0-9_]*[eE]-?[0-9]+                          { return REALV; }
 
     /* Match Verilog 2001 integers. */
+     /* TODO */
+    /* Change UNSIG_DEC tokken for this pattern to integer */
 [0-9]+                                             { return UNSIG_DEC; }
 
     /* Match Verilog 2001 unsigned numbers. */
