@@ -1,3 +1,7 @@
 *.swp
 *.out
+*.output
+*.tab.c
+*.tab.h
+testcases/
 lex.yy.c

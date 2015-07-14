@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno;
+
 /* Lexer function prototypes.
 long int convert_str_to_bin(char *binary_string);
 long int convert_str_to_oct(char *octal_string);
@@ -10,6 +12,8 @@ long int convert_str_to_dec(char *decimal_string);
 long int convert_str_to_hex(char *hexadecimal_string);
 */
 %}
+
+%option yylineno
 
 %{
 /* Exlusive start conditions used to match comments. Patterns aren't recognised

@@ -27,10 +27,11 @@
 %token GENVAR EVENT
 /* Verilog 2001 drive strength tokens. */
 %token SUPPLY0 SUPPLY1 STRONG0 STRONG1 PULL0 PULL1 WEAK0 WEAK1
-/* Verilog 2001 capacitive strength tokens. */
+/* Verilog 2001 capacitance strength tokens. */
 %token LARGE MEDIUM SMALL
 
 %error-verbose
+%locations
 
 %%
 
@@ -61,15 +62,14 @@ declaration: port_declaration     { }
 |            constant_declaration { }
 ;
 
-/* Combined port declarations (added in Verilog 2001). */
-/* Old style declarations. */
-/*          TODO            */
-/* data_type_declarations (chapter 6) */
-/* implement range correctly */
-port_declaration: port_direction optional_port_type optional_signed
-    optional_range identifier_list { }
-|                 port_direction optional_signed optional_range
-    identifier_list { }
+port_declaration: port_direction port_type SIGNED range identifier_list { }
+|                 port_direction port_type SIGNED identifier_list { }
+|                 port_direction port_type range identifier_list { }
+|                 port_direction port_type identifier_list { }
+|                 port_direction SIGNED range identifier_list { }
+|                 port_direction SIGNED identifier_list { }
+|                 port_direction range identifier_list { }
+|                 port_direction identifier_list { }
 ;
 
 /* Port direction can be 'input', 'output' or 'inout'. */
@@ -79,13 +79,13 @@ port_direction : INPUT  { printf("input "); }
 ;
 
 /* All data types except real. */
-optional_port_type: /* empty */
-| REG         { }
-| INTEGER     { }
-| TIME        { }
-| REALTIME    { }
-| net_type    { printf("port_type "); }
-| other_type  { printf("port_type "); }
+port_type: REG                       { }
+|          INTEGER                   { }
+|          TIME                      { }
+|          REALTIME                  { }
+|          net_type_except_trireg    { printf("port_type "); }
+|          TRIREG                    { }
+|          other_type                { printf("port_type "); }
 ;
 
 /* Many data and port declarations use the optional 'signed' keyword. */
@@ -97,25 +97,68 @@ optional_signed : /* empty */
 /*      TODO             */
 /*     strength          */
 /* before or after range */
-net_declaration: net_type optional_signed optional_range optional_delay net_name
+net_declaration: net_type_except_trireg SIGNED range delay net_name
     { printf("net_declaration\n"); }
-|                net_type optional_strength optional_signed optional_range
-    optional_delay net_name { }
-|                TRIREG capacitive_strength optional_signed optional_range
-    decay_time net_name { }
+|                net_type_except_trireg SIGNED range net_name
+    { printf("net_declaration\n"); }
+|                net_type_except_trireg SIGNED delay net_name
+    { printf("net_declaration\n"); }
+|                net_type_except_trireg SIGNED net_name
+    { printf("net_declaration\n"); }
+|                net_type_except_trireg range delay net_name
+    { printf("net_declaration\n"); }
+|                net_type_except_trireg range net_name
+    { printf("net_declaration\n"); }
+|                net_type_except_trireg delay net_name
+    { printf("net_declaration\n"); }
+|                net_type_except_trireg net_name
+    { printf("net_declaration\n"); }
+|                net_type_except_trireg strength SIGNED range net_name { }
+|                net_type_except_trireg strength SIGNED net_name { }
+|                net_type_except_trireg strength range net_name { }
+|                net_type_except_trireg strength net_name { }
+|                TRIREG SIGNED range delay net_name
+    { printf("net_declaration\n"); }
+|                TRIREG SIGNED range net_name
+    { printf("net_declaration\n"); }
+|                TRIREG SIGNED delay net_name
+    { printf("net_declaration\n"); }
+|                TRIREG SIGNED net_name
+    { printf("net_declaration\n"); }
+|                TRIREG range delay net_name
+    { printf("net_declaration\n"); }
+|                TRIREG range net_name
+    { printf("net_declaration\n"); }
+|                TRIREG delay net_name
+    { printf("net_declaration\n"); }
+|                TRIREG net_name
+    { printf("net_declaration\n"); }
+|                TRIREG strength SIGNED range net_name { }
+|                TRIREG strength SIGNED net_name { }
+|                TRIREG strength range net_name { }
+|                TRIREG strength net_name { }
+|                TRIREG capacitive_strength SIGNED range delay net_name { }
+|                TRIREG capacitive_strength SIGNED range net_name { }
+|                TRIREG capacitive_strength SIGNED delay net_name { }
+|                TRIREG capacitive_strength SIGNED net_name { }
+|                TRIREG capacitive_strength range delay net_name { }
+|                TRIREG capacitive_strength range net_name { }
+|                TRIREG capacitive_strength delay net_name { }
+|                TRIREG capacitive_strength net_name { }
 ;
 
-net_type: WIRE    { printf("wire "); }
-|         WOR     { }
-|         WAND    { }
-|         SUPPLY0 { }
-|         SUPPLY1 { }
-|         TRI0    { }
-|         TRI1    { }
-|         TRI     { }
-|         TRIOR   { }
-|         TRIAND  { }
-|         TRIREG  { printf("trireg "); }
+/* NOTE: trireg can be declared with capacitance strength, so it cannot be */
+/* treated like a regular variable. */
+net_type_except_trireg: WIRE    { printf("wire "); }
+|                       WOR     { }
+|                       WAND    { }
+|                       SUPPLY0 { }
+|                       SUPPLY1 { }
+|                       TRI0    { }
+|                       TRI1    { }
+|                       TRI     { }
+|                       TRIOR   { }
+|                       TRIAND  { }
 ;
 
 /* delays to transitions */
@@ -124,17 +167,17 @@ net_type: WIRE    { printf("wire "); }
 /* 3 numbers for rise, fall, turn-off output transitions */
 /*             TODO             */
 /*    min:typ:max delay range   */
-optional_delay: /* empty */
-| HASH dec_real                                                  { }
-| HASH OPENPARENTHESES dec_real CLOSEPARENTHESES                 { }
-| HASH OPENPARENTHESES dec_real COMMA dec_real CLOSEPARENTHESES  { }
-| HASH OPENPARENTHESES dec_real COMMA dec_real COMMA dec_real CLOSEPARENTHESES
-    { }
+delay: HASH dec_real                                                 { }
+|      HASH OPENPARENTHESES dec_real CLOSEPARENTHESES                { }
+|      HASH OPENPARENTHESES dec_real COMMA dec_real CLOSEPARENTHESES { }
+|      HASH OPENPARENTHESES dec_real COMMA dec_real COMMA dec_real
+    CLOSEPARENTHESES { }
 ;
 
 net_name: array_list { }
 |         assignment { }
 ;
+
 /* ################################################################## */
 /* Variable data types declared with 3 ways:                          */
 /*  •variable_type signed [range] variable_name, variable_name, ... ; */
@@ -144,7 +187,7 @@ net_name: array_list { }
 /* used with reg variables */
 variable_declaration: REG v_o_keywords optional_signed optional_range
     variable_name { }
-|                     variable_type variable_name                 { }
+|                     variable_type variable_name array_list { }
 ;
 
 /* The keywords vectored or scalared may be used immediately following */
@@ -162,7 +205,6 @@ v_o_keywords:         { }
 /* •variable_name [array], ... ;              */
 variable_name: IDENTIFIER                     { printf("identifier "); }
 |              IDENTIFIER COMMA variable_name { printf("identifier "); }
-|              array_list                     { }
 |              variable_initial               { }
 ;
 
@@ -204,12 +246,12 @@ constant_declaration: PARAMETER optional_signed optional_range constant_variable
 /* A constant declared with a type will have the same properties as */
 /* a variable of that type. If no type is specified, the constant   */
 /* will default to the data type of the last value assigned to it,  */
-/* after any parameter redefinitions. */ 
-constant_type: /* empty */
-|             INTEGER    { printf("integer "); }
-|             TIME       { printf("time ");    }
-|             REAL       { printf("real ");    }
-|             REALTIME   { printf("realtime "); }
+/* after any parameter redefinitions. The case where no type is     */
+/* handled in constant_declaration. */
+constant_type: INTEGER    { printf("integer "); }
+|              TIME       { printf("time ");    }
+|              REAL       { printf("real ");    }
+|              REALTIME   { printf("realtime "); }
 ;
 
 constant_variable: IDENTIFIER EQUAL number {printf("constant "); }
@@ -223,8 +265,7 @@ event_names: IDENTIFIER                   { printf("identifier "); }
 |            IDENTIFIER COMMA event_names { printf("identifier "); }
 ;
 
-array_list: IDENTIFIER                        { printf("identifier "); } 
-|           IDENTIFIER COMMA array_list       { printf("identifier "); }
+array_list: IDENTIFIER COMMA array_list       { printf("identifier "); }
 |           IDENTIFIER array                  { printf("identifier "); }
 |           IDENTIFIER array COMMA array_list { printf("identifier "); }
 ;
@@ -232,26 +273,19 @@ array_list: IDENTIFIER                        { printf("identifier "); }
 /* Logic values can have 8 strength levels: */
 /* 4 driving, 3 capacitive, and high        */
 /* impedance (no strength).                 */
-optional_strength: /* empty */
-|         OPENPARENTHESES strength0 COMMA strength1 CLOSEPARENTHESES
+strength: OPENPARENTHESES strength0 COMMA strength1 CLOSEPARENTHESES
     { printf("strength0, strength1 "); }
 |         OPENPARENTHESES strength1 COMMA strength0 CLOSEPARENTHESES
     { printf("strength1, strength0 "); }
 ;
 
-capacitive_strength: /* empty */
-|         OPENPARENTHESES capacitive CLOSEPARENTHESES
+capacitive_strength: OPENPARENTHESES capacitive CLOSEPARENTHESES
     { printf("capacitive_strength "); }
 ;
 
 /* n-dimensional array */
 array: range       { printf("array "); }
 |      range array { printf("array "); }
-;
-
-decay_time: /* empty */
-| HASH OPENPARENTHESES dec_real COMMA dec_real COMMA dec_real CLOSEPARENTHESES
-    { }
 ;
 
 optional_range: /* empty */
@@ -370,5 +404,5 @@ main (int argc, char *argv[]) {
 }
 
 yyerror(char *error_string) {
-    fprintf(stderr, "error: %s\n", error_string);
+    fprintf(stderr, "ERROR in line %d: %s\n", yylloc.first_line, error_string);
 }
