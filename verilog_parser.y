@@ -62,15 +62,13 @@ declaration: port_declaration     { }
 ;
 
 /* Combined port declarations (added in Verilog 2001). */
-port_declaration: port_direction optional_port_type optional_signed
-    optional_range identifier_list { }
-;
-
 /* Old style declarations. */
 /*          TODO            */
 /* data_type_declarations (chapter 6) */
 /* implement range correctly */
-port_declaration: port_direction optional_signed optional_range
+port_declaration: port_direction optional_port_type optional_signed
+    optional_range identifier_list { }
+|                 port_direction optional_signed optional_range
     identifier_list { }
 ;
 
@@ -264,9 +262,11 @@ optional_range: /* empty */
 /* The msb and lsb must be a literal number, a constant, an expression, */
 /* or a call to a constant function. */
 range : OPENBRACKETS range_value COLON range_value CLOSEBRACKETS
-    {printf("range "); }
+    { printf("range "); }
 ;
 
+/*              TODO           */
+/*   Range value expressions   */
 range_value: UNSIG_DEC                        { }
 |            constants                        { }
 |            constants ADDITION UNSIG_DEC     { }
@@ -286,11 +286,11 @@ function_call: IDENTIFIER OPENPARENTHESES IDENTIFIER CLOSEPARENTHESES { }
 |              IDENTIFIER OPENPARENTHESES number CLOSEPARENTHESES { }
 ;
 
-other_type:    PARAMETER  { }
-|              LOCALPARAM { }
-|              SPECPARAM  { }
-|              GENVAR     { }
-|              EVENT      { }
+other_type: PARAMETER  { }
+|           LOCALPARAM { }
+|           SPECPARAM  { }
+|           GENVAR     { }
+|           EVENT      { }
 ;
 
 /* ######################## */
