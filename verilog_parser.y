@@ -161,17 +161,21 @@ net_type_except_trireg: WIRE    { printf("wire "); }
 |                       TRIAND  { }
 ;
 
-/* delays to transitions */
-/* 1 number for all output transitions */
-/* 2 numbers for rise, fall output transitions */
-/* 3 numbers for rise, fall, turn-off output transitions */
-/*             TODO             */
-/*    min:typ:max delay range   */
-delay: HASH dec_real                                                 { }
-|      HASH OPENPARENTHESES dec_real CLOSEPARENTHESES                { }
-|      HASH OPENPARENTHESES dec_real COMMA dec_real CLOSEPARENTHESES { }
-|      HASH OPENPARENTHESES dec_real COMMA dec_real COMMA dec_real
+/* Delays to transitions. */
+/* 1 delay (all transitions) */
+/* 2 delays (rise and fall transitions)
+/* 3 delays (rise, fall and tri-state turn-off transitions) */
+delay: HASH transition                                                   { }
+|      HASH OPENPARENTHESES transition CLOSEPARENTHESES                  { }
+|      HASH OPENPARENTHESES transition COMMA transition CLOSEPARENTHESES { }
+|      HASH OPENPARENTHESES transition COMMA transition COMMA transition
     CLOSEPARENTHESES { }
+;
+
+/* Each delay transition can be a single number or a minimum:typical:max */
+/* delay range. */
+transition: decimal_or_real { }
+|           decimal_or_real COLON decimal_or_real COLON decimal_or_real { }
 ;
 
 net_name: array_list { }
@@ -216,9 +220,9 @@ variable_name: IDENTIFIER                     { printf("identifier "); }
 /*   reg, integer and time variables is X,                          */
 /*   and the initial value for real and                             */ 
 /*   realtime variables is 0.0.                                     */
-variable_initial: IDENTIFIER EQUAL dec_real { printf("variable initial ");}
-|                 IDENTIFIER EQUAL dec_real COMMA variable_initial
-    { printf("variable initial ");}
+/*           TODO multiple initialisations in one line              */
+variable_initial: IDENTIFIER EQUAL decimal_or_real
+    { printf("variable initial "); }
 ;
 
 variable_type:  INTEGER  { printf("integer ");}
@@ -382,8 +386,8 @@ bit_number: UNSIG_DEC                         { }
 |           UNSIG_DEC SUBTRACTION bit_number  { }
 ;
 
-dec_real: UNSIG_DEC { }
-|         REALV { }
+decimal_or_real: UNSIG_DEC { }
+|                REALV { }
 ;
 
 number: UNSIG_BIN { }
