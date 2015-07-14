@@ -193,7 +193,7 @@ that comments are invisible to the parser). */
 
     /* Match Verilog 2001 integers. */
      /* TODO */
-    /* Change UNSIG_DEC tokken for this pattern to integer */
+    /* Change UNSIG_DEC token for this pattern to integer */
 [0-9]+                                             { return UNSIG_DEC; }
 
     /* Match Verilog 2001 unsigned numbers. */
