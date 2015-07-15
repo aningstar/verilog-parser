@@ -15,7 +15,7 @@
 %token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS
 %token INPUT OUTPUT INOUT
 %token SIGNED
-%token ADDITION SUBTRACTION MODULUS
+%token ADDITION SUBTRACTION MULTIPLICATION MODULUS
 %token VECTORED SCALARED
 /* Verilog 2001 net type tokens. */
 %token WIRE WOR WAND 
@@ -53,7 +53,28 @@ block: /* empty */
 ;
 
 statement: assignment  SEMICOLON { printf("\n"); }
-|         declaration SEMICOLON { printf("\n"); }
+|          declaration SEMICOLON { printf("\n"); }
+|          declaration_with_attributes SEMICOLON { printf("\n"); }
+;
+
+declaration_with_attributes: attributes declaration 
+;
+
+/*               TODO                    */
+/* An attribute can appear as a prefix to module items, statements, or port */
+/* connections. An attribute can appear as a suffix to an operator or a call */
+/* to a function. */
+attributes: OPENPARENTHESES MULTIPLICATION attribute_list MULTIPLICATION
+    CLOSEPARENTHESES { printf("attributes"); }
+;
+
+attribute_list: attribute
+|               attribute_list COMMA attribute
+;
+
+attribute: IDENTIFIER
+|          IDENTIFIER EQUAL IDENTIFIER
+|          IDENTIFIER EQUAL number
 ;
 
 declaration: port_declaration     { }

@@ -174,7 +174,7 @@ that comments are invisible to the parser). */
 "|"                   { printf("OR : %s \n",yytext); }
 "+"                   { return ADDITION; }
 "-"                   { return SUBTRACTION; }
-"*"                   { printf("MULTIPLICATION : %s \n",yytext); }
+"*"                   { return MULTIPLICATION; }
 "/"                   { printf("DIVISION : %s \n",yytext); }
 "%"                   { return MODULUS; }
 "="                   { return EQUAL; }
