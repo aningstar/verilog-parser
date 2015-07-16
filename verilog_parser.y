@@ -11,7 +11,7 @@
 %token UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
 %token MODULE ENDMODULE
-%token EQUAL COMMA COLON SEMICOLON HASH
+%token EQUAL COMMA COLON SEMICOLON PERIOD HASH
 %token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS
 %token INPUT OUTPUT INOUT
 %token SIGNED
@@ -57,7 +57,7 @@ statement: assignment  SEMICOLON { printf("\n"); }
 |          declaration_with_attributes SEMICOLON { printf("\n"); }
 ;
 
-declaration_with_attributes: attributes declaration 
+declaration_with_attributes: attributes declaration { }
 ;
 
 /*               TODO                    */
@@ -68,13 +68,13 @@ attributes: OPENPARENTHESES MULTIPLICATION attribute_list MULTIPLICATION
     CLOSEPARENTHESES { printf("attributes"); }
 ;
 
-attribute_list: attribute
-|               attribute_list COMMA attribute
+attribute_list: attribute                      { }
+|               attribute_list COMMA attribute { }
 ;
 
-attribute: IDENTIFIER
-|          IDENTIFIER EQUAL IDENTIFIER
-|          IDENTIFIER EQUAL number
+attribute: IDENTIFIER                  { }
+|          IDENTIFIER EQUAL IDENTIFIER { }
+|          IDENTIFIER EQUAL number     { }
 ;
 
 declaration: port_declaration     { }

@@ -3,5 +3,8 @@
 *.output
 *.tab.c
 *.tab.h
-testcases/
 lex.yy.c
+verilog_parser.tab.h
+verilog_parser.tab.c
+verilog_parser.output
+verilog_parser
