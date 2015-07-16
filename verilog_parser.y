@@ -82,7 +82,7 @@ attribute: IDENTIFIER                  { }
 ;
 
 declaration: port_declaration     { }
-|            net_declaration      { }
+|            net_declaration      { printf("net_declaration"); }
 |            variable_declaration { }
 |            constant_declaration { }
 ;
@@ -109,9 +109,9 @@ port_type: REG                       { }
 |          INTEGER                   { }
 |          TIME                      { }
 |          REALTIME                  { }
-|          net_type_except_trireg    { printf("port_type "); }
+|          net_type_except_trireg    { }
 |          TRIREG                    { }
-|          other_type                { printf("port_type "); }
+|          other_type                { }
 ;
 
 /* Many data and port declarations use the optional 'signed' keyword. */
@@ -119,62 +119,109 @@ optional_signed : /* empty */
 | SIGNED { printf("signed "); }
 ;
 
-/*  Net Declarations     */
-/*      TODO             */
-/*     strength          */
-/* before or after range */
-net_declaration: net_type_except_trireg SIGNED range delay net_name
-    { printf("net_declaration\n"); }
-|                net_type_except_trireg SIGNED range net_name
-    { printf("net_declaration\n"); }
-|                net_type_except_trireg SIGNED delay net_name
-    { printf("net_declaration\n"); }
-|                net_type_except_trireg SIGNED net_name
-    { printf("net_declaration\n"); }
-|                net_type_except_trireg range delay net_name
-    { printf("net_declaration\n"); }
-|                net_type_except_trireg range net_name
-    { printf("net_declaration\n"); }
-|                net_type_except_trireg delay net_name
-    { printf("net_declaration\n"); }
-|                net_type_except_trireg net_name
-    { printf("net_declaration\n"); }
-|                net_type_except_trireg strength SIGNED range net_name { }
-|                net_type_except_trireg strength SIGNED net_name { }
-|                net_type_except_trireg strength range net_name { }
-|                net_type_except_trireg strength net_name { }
-|                TRIREG SIGNED range delay net_name
-    { printf("net_declaration\n"); }
-|                TRIREG SIGNED range net_name
-    { printf("net_declaration\n"); }
-|                TRIREG SIGNED delay net_name
-    { printf("net_declaration\n"); }
-|                TRIREG SIGNED net_name
-    { printf("net_declaration\n"); }
-|                TRIREG range delay net_name
-    { printf("net_declaration\n"); }
-|                TRIREG range net_name
-    { printf("net_declaration\n"); }
-|                TRIREG delay net_name
-    { printf("net_declaration\n"); }
-|                TRIREG net_name
-    { printf("net_declaration\n"); }
-|                TRIREG strength SIGNED range net_name { }
-|                TRIREG strength SIGNED net_name { }
-|                TRIREG strength range net_name { }
-|                TRIREG strength net_name { }
-|                TRIREG capacitive_strength SIGNED range delay net_name { }
-|                TRIREG capacitive_strength SIGNED range net_name { }
-|                TRIREG capacitive_strength SIGNED delay net_name { }
-|                TRIREG capacitive_strength SIGNED net_name { }
-|                TRIREG capacitive_strength range delay net_name { }
-|                TRIREG capacitive_strength range net_name { }
-|                TRIREG capacitive_strength delay net_name { }
-|                TRIREG capacitive_strength net_name { }
+/*             Net Declarations.          */
+/******************************************/
+/* There are 3 types of net declarations. */
+/******************************************/
+/* 1st type: net_type signed [range] #(delay) net_name [array], ... ; */
+/* 2nd type: net_type (drive_strength) signed [range] #(delay) net_name = */
+/*     continuous_assignment; */
+/* 3rd type: trireg (capacitance_strength) signed [range] */
+/*     #(delay, decay_time) net_name [array], ... ; */
+/******************************************/
+/* 'signed', 'range', 'delay' and 'drive_strength' are all optional. 'trireg' */
+/* is treated  separately so that 3rd type declarations can also be matched. */
+/* The keywords 'vectored' or scalared' may be used immediately following the */
+/* net_type keyword. */
+net_declaration: /* 1st type net declarations (except trireg). */
+                 net_type_except_trireg optional_vectored_or_scalared SIGNED
+    range delay net_name_list { }
+|                net_type_except_trireg optional_vectored_or_scalared SIGNED
+    range net_name_list { }
+|                net_type_except_trireg optional_vectored_or_scalared SIGNED
+    delay net_name_list { }
+|                net_type_except_trireg optional_vectored_or_scalared SIGNED
+    net_name_list { }
+|                net_type_except_trireg optional_vectored_or_scalared range
+    delay net_name_list { }
+|                net_type_except_trireg optional_vectored_or_scalared range
+    net_name_list { }
+|                net_type_except_trireg optional_vectored_or_scalared delay
+    net_name_list { }
+|                net_type_except_trireg optional_vectored_or_scalared
+    net_name_list { }
+
+                 /* 1st type net declarations (trireg). */
+|                TRIREG optional_vectored_or_scalared SIGNED range delay
+    net_name_list { }
+|                TRIREG optional_vectored_or_scalared SIGNED range
+    net_name_list { }
+|                TRIREG optional_vectored_or_scalared SIGNED delay
+    net_name_list { }
+|                TRIREG optional_vectored_or_scalared SIGNED net_name_list { }
+|                TRIREG optional_vectored_or_scalared range delay
+    net_name_list { }
+|                TRIREG optional_vectored_or_scalared range net_name_list { }
+|                TRIREG optional_vectored_or_scalared delay net_name_list { }
+|                TRIREG optional_vectored_or_scalared net_name_list { }
+
+                 /* 2nd type net declarations (except trireg). */
+|                net_type_except_trireg optional_vectored_or_scalared strength
+    SIGNED range delay IDENTIFIER EQUAL expression { }
+|                net_type_except_trireg optional_vectored_or_scalared strength
+    SIGNED range IDENTIFIER EQUAL expression { }
+|                net_type_except_trireg optional_vectored_or_scalared strength
+    SIGNED delay IDENTIFIER EQUAL expression { }
+|                net_type_except_trireg optional_vectored_or_scalared strength
+    SIGNED IDENTIFIER EQUAL expression { }
+|                net_type_except_trireg optional_vectored_or_scalared strength
+    range delay IDENTIFIER EQUAL expression { }
+|                net_type_except_trireg optional_vectored_or_scalared strength
+    range IDENTIFIER EQUAL expression { }
+|                net_type_except_trireg optional_vectored_or_scalared strength
+    delay IDENTIFIER EQUAL expression { }
+|                net_type_except_trireg optional_vectored_or_scalared strength
+    IDENTIFIER EQUAL expression { }
+
+                 /* 2nd type net declarations (trireg). */
+|                TRIREG optional_vectored_or_scalared strength SIGNED range
+    delay IDENTIFIER EQUAL expression { }
+|                TRIREG optional_vectored_or_scalared strength SIGNED range
+    IDENTIFIER EQUAL expression { }
+|                TRIREG optional_vectored_or_scalared strength SIGNED delay
+    IDENTIFIER EQUAL expression { }
+|                TRIREG optional_vectored_or_scalared strength SIGNED IDENTIFIER
+    EQUAL expression { }
+|                TRIREG optional_vectored_or_scalared strength range delay
+    IDENTIFIER EQUAL expression { }
+|                TRIREG optional_vectored_or_scalared strength range IDENTIFIER
+    EQUAL expression { }
+|                TRIREG optional_vectored_or_scalared strength delay IDENTIFIER
+    EQUAL expression { }
+|                TRIREG optional_vectored_or_scalared strength IDENTIFIER EQUAL
+    expression { }
+
+                 /* 3rd type net declarations. */
+|                TRIREG optional_vectored_or_scalared capacitance_strength
+    SIGNED range delay net_name_list { }
+|                TRIREG optional_vectored_or_scalared capacitance_strength
+    SIGNED range net_name_list { }
+|                TRIREG optional_vectored_or_scalared capacitance_strength
+    SIGNED delay net_name_list { }
+|                TRIREG optional_vectored_or_scalared capacitance_strength
+    SIGNED net_name_list { }
+|                TRIREG optional_vectored_or_scalared capacitance_strength
+    range delay net_name_list { }
+|                TRIREG optional_vectored_or_scalared capacitance_strength
+    range net_name_list { }
+|                TRIREG optional_vectored_or_scalared capacitance_strength
+    delay net_name_list { }
+|                TRIREG optional_vectored_or_scalared capacitance_strength
+    net_name_list { }
 ;
 
 /* NOTE: trireg can be declared with capacitance strength, so it cannot be */
-/* treated like a regular variable. */
+/* treated like a regular net type. */
 net_type_except_trireg: WIRE    { printf("wire "); }
 |                       WOR     { }
 |                       WAND    { }
@@ -185,6 +232,14 @@ net_type_except_trireg: WIRE    { printf("wire "); }
 |                       TRI     { }
 |                       TRIOR   { }
 |                       TRIAND  { }
+;
+
+net_name_list: net_name                     { }
+|              net_name_list COMMA net_name { }
+;
+
+net_name: IDENTIFIER       { }
+|         IDENTIFIER array { }
 ;
 
 /* Delays to transitions. */
@@ -204,10 +259,6 @@ transition: integer_or_real { }
 |           integer_or_real COLON integer_or_real COLON integer_or_real { }
 ;
 
-net_name: array_list { }
-|         assignment { }
-;
-
 /* ################################################################## */
 /* Variable data types declared with 3 ways:                          */
 /*  •variable_type signed [range] variable_name, variable_name, ... ; */
@@ -215,8 +266,8 @@ net_name: array_list { }
 /*  •variable_type signed [range] variable_name [array], ... ;        */
 /* signed,range values and keywords vectored, scalared may only be    */
 /* used with reg variables */
-variable_declaration: REG v_o_keywords optional_signed optional_range
-    variable_name { }
+variable_declaration: REG optional_vectored_or_scalared optional_signed
+    optional_range variable_name { }
 |                     variable_type variable_name array_list { }
 ;
 
@@ -224,9 +275,9 @@ variable_declaration: REG v_o_keywords optional_signed optional_range
 /* the reg keyword. Software tools and/or the Verilog PLI may restrict */
 /* access to individual bits within a vector that is declared as       */
 /* vectored. */
-v_o_keywords:         { }
-|            VECTORED { printf("vectored "); }
-|            SCALARED { printf("scalared "); }
+optional_vectored_or_scalared: /* empty */        { }
+| VECTORED { printf("vectored "); }
+| SCALARED { printf("scalared "); }
 ;
 
 /* The variable names are declared as :       */
@@ -309,8 +360,8 @@ strength: OPENPARENTHESES strength0 COMMA strength1 CLOSEPARENTHESES
     { printf("strength1, strength0 "); }
 ;
 
-capacitive_strength: OPENPARENTHESES capacitive CLOSEPARENTHESES
-    { printf("capacitive_strength "); }
+capacitance_strength: OPENPARENTHESES capacitance CLOSEPARENTHESES
+    { printf("capacitance_strength "); }
 ;
 
 /* n-dimensional array */
@@ -371,8 +422,8 @@ strength1: SUPPLY1 { }
 |          WEAK1   { }
 ;
 
-/* Capacitive strengths     */
-capacitive: LARGE  { }
+/* Capacitance strengths     */
+capacitance: LARGE  { }
 |           MEDIUM { }
 |           SMALL  { }
 ;
