@@ -183,7 +183,7 @@ that comments are invisible to the parser). */
 ":"                   { return COLON; }
 "?"                   { printf("QUESTION MARK : %s \n",yytext); }
 "~"                   { printf("NEGATION : %s \n",yytext); }
-"."                   { return PERIOD; }
+"."                   { printf("PERIOD : %s \n",yytext); }
 "$"                   { printf("DOLLAR : %s \n",yytext); }
 
     /* Match Verilog 2001 identifiers. */
@@ -195,10 +195,8 @@ that comments are invisible to the parser). */
 [0-9]+[.][0-9][0-9_]*[eE]-?[0-9]+                  { return REALV; }
 [0-9]+[0-9_]*[eE]-?[0-9]+                          { return REALV; }
 
-    /* Match Verilog 2001 integers. */
-     /* TODO */
-    /* Change UNSIG_DEC token for this pattern to integer */
-[0-9]+                                             { return UNSIG_DEC; }
+    /* Match Verilog 2001 integers. Note that INTEGER is a keyword token. */
+[0-9]+                                             { return NUM_INTEGER; }
 
     /* Match Verilog 2001 unsigned numbers. */
 [0-9]*['][bB][01xXzZ?][01xXzZ?_]*                  { return UNSIG_BIN; }

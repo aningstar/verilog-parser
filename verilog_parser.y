@@ -7,11 +7,11 @@
 /* Token declarations */
 
 %token IDENTIFIER
-%token REALV
+%token NUM_INTEGER REALV
 %token UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
 %token MODULE ENDMODULE
-%token EQUAL COMMA COLON SEMICOLON PERIOD HASH
+%token EQUAL COMMA COLON SEMICOLON HASH
 %token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS
 %token INPUT OUTPUT INOUT
 %token SIGNED
@@ -195,8 +195,8 @@ delay: HASH transition                                                   { }
 
 /* Each delay transition can be a single number or a minimum:typical:max */
 /* delay range. */
-transition: decimal_or_real { }
-|           decimal_or_real COLON decimal_or_real COLON decimal_or_real { }
+transition: integer_or_real { }
+|           integer_or_real COLON integer_or_real COLON integer_or_real { }
 ;
 
 net_name: array_list { }
@@ -242,14 +242,14 @@ variable_name: IDENTIFIER                     { printf("identifier "); }
 /*   and the initial value for real and                             */ 
 /*   realtime variables is 0.0.                                     */
 /*           TODO multiple initialisations in one line              */
-variable_initial: IDENTIFIER EQUAL decimal_or_real
+variable_initial: IDENTIFIER EQUAL integer_or_real
     { printf("variable initial "); }
 ;
 
-variable_type:  INTEGER  { printf("integer ");}
-|               TIME     { printf("time ");}
-|               REAL     { printf("real ");}
-|               REALTIME { printf("realtime ");}
+variable_type:  INTEGER  { printf("integer "); }
+|               TIME     { printf("time "); }
+|               REAL     { printf("real "); }
+|               REALTIME { printf("realtime "); }
 ;
 
 /* ################################################################ */ 
@@ -326,14 +326,14 @@ range : OPENBRACKETS range_value COLON range_value CLOSEBRACKETS
 
 /*              TODO           */
 /*   Range value expressions   */
-range_value: UNSIG_DEC                        { }
-|            constants                        { }
-|            constants ADDITION UNSIG_DEC     { }
-|            constants SUBTRACTION UNSIG_DEC  { }
-|            constants MODULUS UNSIG_DEC      { }
-|            UNSIG_DEC ADDITION constants     { }
-|            UNSIG_DEC SUBTRACTION constants  { }
-|            UNSIG_DEC MODULUS constants      { }
+range_value: NUM_INTEGER                        { }
+|            constants                          { }
+|            constants ADDITION NUM_INTEGER     { }
+|            constants SUBTRACTION NUM_INTEGER  { }
+|            constants MODULUS NUM_INTEGER      { }
+|            NUM_INTEGER ADDITION constants     { }
+|            NUM_INTEGER SUBTRACTION constants  { }
+|            NUM_INTEGER MODULUS constants      { }
 ;
 
 constants: IDENTIFIER      { }
@@ -399,16 +399,16 @@ bit_select: IDENTIFIER OPENBRACKETS bit_number CLOSEBRACKETS
     { printf("bit_select "); }
 ;
 
-bit_number: UNSIG_DEC                         { }
-|           IDENTIFIER                        { }
-|           IDENTIFIER ADDITION bit_number    { }
-|           IDENTIFIER SUBTRACTION bit_number { }
-|           UNSIG_DEC ADDITION bit_number     { }
-|           UNSIG_DEC SUBTRACTION bit_number  { }
+bit_number: NUM_INTEGER                         { }
+|           IDENTIFIER                          { }
+|           IDENTIFIER ADDITION bit_number      { }
+|           IDENTIFIER SUBTRACTION bit_number   { }
+|           NUM_INTEGER ADDITION bit_number     { }
+|           NUM_INTEGER SUBTRACTION bit_number  { }
 ;
 
-decimal_or_real: UNSIG_DEC { }
-|                REALV { }
+integer_or_real: NUM_INTEGER { }
+|                REALV       { }
 ;
 
 number: UNSIG_BIN { }
