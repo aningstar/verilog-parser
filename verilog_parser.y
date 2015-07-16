@@ -18,7 +18,7 @@
 %token ADDITION SUBTRACTION MULTIPLICATION MODULUS
 %token VECTORED SCALARED
 /* Verilog 2001 net type tokens. */
-%token WIRE WOR WAND 
+%token WIRE WOR WAND
 %token TRI0 TRI1 TRI TRIOR TRIAND TRIREG
 /* Verilog 2001 variable type tokens. */
 %token REG INTEGER TIME REAL REALTIME
@@ -44,8 +44,12 @@ module: MODULE IDENTIFIER OPENPARENTHESES identifier_list CLOSEPARENTHESES
 ;
 
 identifier_list: /* empty */
-| IDENTIFIER { printf("identifier "); }
-| IDENTIFIER COMMA identifier_list { }
+| nonempty_identifier_list { }
+;
+
+nonempty_identifier_list: IDENTIFIER { }
+|                         IDENTIFIER COMMA identifier_list
+    { printf("nonempty identifier list "); }
 ;
 
 block: /* empty */
@@ -83,14 +87,15 @@ declaration: port_declaration     { }
 |            constant_declaration { }
 ;
 
-port_declaration: port_direction port_type SIGNED range identifier_list { }
-|                 port_direction port_type SIGNED identifier_list { }
-|                 port_direction port_type range identifier_list { }
-|                 port_direction port_type identifier_list { }
-|                 port_direction SIGNED range identifier_list { }
-|                 port_direction SIGNED identifier_list { }
-|                 port_direction range identifier_list { }
-|                 port_direction identifier_list { }
+port_declaration: port_direction port_type SIGNED range nonempty_identifier_list
+    { }
+|                 port_direction port_type SIGNED nonempty_identifier_list { }
+|                 port_direction port_type range nonempty_identifier_list { }
+|                 port_direction port_type nonempty_identifier_list { }
+|                 port_direction SIGNED range nonempty_identifier_list { }
+|                 port_direction SIGNED nonempty_identifier_list { }
+|                 port_direction range nonempty_identifier_list { }
+|                 port_direction nonempty_identifier_list { }
 ;
 
 /* Port direction can be 'input', 'output' or 'inout'. */
