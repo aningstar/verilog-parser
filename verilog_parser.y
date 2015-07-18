@@ -232,6 +232,15 @@ net_declaration: /* 1st type net declarations (except trireg). */
     net_name_list { }
 ;
 
+/* The keywords vectored or scalared may be used immediately following */
+/* data type keywords. Software tools and/or the Verilog PLI may restrict */
+/* access to individual bits within a vector that is declared as */
+/* vectored. */
+optional_vectored_or_scalared: /* empty */
+| VECTORED { printf("vectored "); }
+| SCALARED { printf("scalared "); }
+;
+
 /* NOTE: trireg can be declared with capacitance strength, so it cannot be */
 /* treated like a regular net type. */
 net_type_except_trireg: WIRE    { printf("wire "); }
@@ -246,17 +255,9 @@ net_type_except_trireg: WIRE    { printf("wire "); }
 |                       TRIAND  { }
 ;
 
-net_name_list: net_name                     { }
-|              net_name_list COMMA net_name { }
-;
-
-net_name: IDENTIFIER       { }
-|         IDENTIFIER array { }
-;
-
 /* Delays to transitions. */
 /* 1 delay (all transitions) */
-/* 2 delays (rise and fall transitions)
+/* 2 delays (rise and fall transitions) */
 /* 3 delays (rise, fall and tri-state turn-off transitions) */
 delay: HASH transition                                                   { }
 |      HASH OPENPARENTHESES transition CLOSEPARENTHESES                  { }
@@ -267,57 +268,95 @@ delay: HASH transition                                                   { }
 
 /* Each delay transition can be a single number or a minimum:typical:max */
 /* delay range. */
-transition: integer_or_real { }
+transition: integer_or_real                                             { }
 |           integer_or_real COLON integer_or_real COLON integer_or_real { }
 ;
 
-/* ################################################################## */
-/* Variable data types declared with 3 ways:                          */
-/*  •variable_type signed [range] variable_name, variable_name, ... ; */
-/*  •variable_type signed [range] variable_name = initial_value, ... ;*/
-/*  •variable_type signed [range] variable_name [array], ... ;        */
-/* signed,range values and keywords vectored, scalared may only be    */
-/* used with reg variables */
-variable_declaration: REG optional_vectored_or_scalared optional_signed
-    optional_range variable_name { }
-|                     variable_type variable_name array_list { }
+net_name_list: net_name                     { }
+|              net_name_list COMMA net_name { }
 ;
 
-/* The keywords vectored or scalared may be used immediately following */
-/* the reg keyword. Software tools and/or the Verilog PLI may restrict */
-/* access to individual bits within a vector that is declared as       */
-/* vectored. */
-optional_vectored_or_scalared: /* empty */        { }
-| VECTORED { printf("vectored "); }
-| SCALARED { printf("scalared "); }
+net_name: IDENTIFIER       { }
+|         IDENTIFIER array { }
 ;
 
-/* The variable names are declared as :       */
-/* •variable_name, variable_name, ... ;       */
-/* •variable_name = initial_value, ... ;      */
-/* •variable_name [array], ... ;              */
-variable_name: IDENTIFIER                     { printf("identifier "); }
-|              IDENTIFIER COMMA variable_name { printf("identifier "); }
-|              variable_initial               { }
+/* n-dimensional array */
+array: range       { printf("array "); }
+|      array range { printf("array "); }
 ;
 
-/* initial_value (optional) sets the initial value of the variable. */
-/* • The value is set in simulation time 0,                         */
-/*   the same as if the variable had been                           */
-/*   assigned a value in an initial procedure.                      */
-/* • If not initialized, the default value for                      */
-/*   reg, integer and time variables is X,                          */
-/*   and the initial value for real and                             */ 
-/*   realtime variables is 0.0.                                     */
-/*           TODO multiple initialisations in one line              */
-variable_initial: IDENTIFIER EQUAL integer_or_real
-    { printf("variable initial "); }
+/* range is optional and is from [ msb : lsb ] */
+/* The msb and lsb must be a literal number, a constant, an expression, */
+/* or a call to a constant function. */
+range : OPENBRACKETS range_value COLON range_value CLOSEBRACKETS
+    { printf("range "); }
 ;
 
-variable_type:  INTEGER  { printf("integer "); }
-|               TIME     { printf("time "); }
-|               REAL     { printf("real "); }
-|               REALTIME { printf("realtime "); }
+/*              TODO           */
+/*   Range value expressions   */
+range_value: NUM_INTEGER                        { }
+|            constants                          { }
+|            constants ADDITION NUM_INTEGER     { }
+|            constants SUBTRACTION NUM_INTEGER  { }
+|            constants MODULUS NUM_INTEGER      { }
+|            NUM_INTEGER ADDITION constants     { }
+|            NUM_INTEGER SUBTRACTION constants  { }
+|            NUM_INTEGER MODULUS constants      { }
+;
+
+constants: IDENTIFIER      { }
+|          function_call   { }
+;
+
+/* Call to constant function. */
+function_call: IDENTIFIER OPENPARENTHESES IDENTIFIER CLOSEPARENTHESES { }
+|              IDENTIFIER OPENPARENTHESES number CLOSEPARENTHESES { }
+;
+
+/*            Variable declarations.           */
+/***********************************************/
+/* There are 3 types of variable declarations. */
+/****************************************************/
+/* 1st type: variable_type signed [range] variable_name, variable_name, ... ; */
+/* 2nd type: variable_type signed [range] variable_name = initial_value, */
+/*     ... ; */
+/* 3rd type: variable_type signed [range] variable_name [array], ... ; */
+/***********************************************/
+/* 'signed' and 'range' are both optional and may only be used with reg */
+/* variables. The keywords 'vectored' or scalared' may be used immediately */
+/* following the reg keyword. To match these cases, 'reg' is treated */
+/* separately. 'initial_value' is optional. Any of the 3 types of variable */
+/* declarations can be in the same statement (separated by commas). */
+variable_declaration: /* 1st, 2nd and 3rd type variable declarations (except
+    reg). */
+                      variable_type_except_reg variable_name_list { }
+
+                      /* 1st, 2nd and 3rd type variable declarations (reg). */
+|                     REG optional_vectored_or_scalared SIGNED
+    range variable_name_list { }
+|                     REG optional_vectored_or_scalared SIGNED
+    variable_name_list { }
+|                     REG optional_vectored_or_scalared
+    range variable_name_list { }
+|                     REG optional_vectored_or_scalared variable_name_list { }
+;
+
+/* NOTE: reg can be declared with 'signed', 'range', 'vectored' and */
+/* 'scalared' optional keywords so it cannot be  treated like a regular */
+/* variable type. */
+variable_type_except_reg: INTEGER  { printf("integer "); }
+|                         TIME     { printf("time "); }
+|                         REAL     { printf("real "); }
+|                         REALTIME { printf("realtime "); }
+;
+
+variable_name_list: variable_name_or_assignment                          { }
+|                   variable_name_list COMMA variable_name_or_assignment { }
+;
+
+variable_name_or_assignment: IDENTIFIER                       { }
+|                            IDENTIFIER EQUAL integer_or_real { }
+|                            IDENTIFIER array                 { }
 ;
 
 /* ################################################################ */ 
@@ -358,11 +397,6 @@ event_names: IDENTIFIER                   { printf("identifier "); }
 |            IDENTIFIER COMMA event_names { printf("identifier "); }
 ;
 
-array_list: IDENTIFIER COMMA array_list       { printf("identifier "); }
-|           IDENTIFIER array                  { printf("identifier "); }
-|           IDENTIFIER array COMMA array_list { printf("identifier "); }
-;
-
 /* Logic values can have 8 strength levels: */
 /* 4 driving, 3 capacitive, and high        */
 /* impedance (no strength).                 */
@@ -376,41 +410,8 @@ capacitance_strength: OPENPARENTHESES capacitance CLOSEPARENTHESES
     { printf("capacitance_strength "); }
 ;
 
-/* n-dimensional array */
-array: range       { printf("array "); }
-|      range array { printf("array "); }
-;
-
 optional_range: /* empty */
 | range { }
-;
-
-/* range is optional and is from [msb :lsb] */
-/* The msb and lsb must be a literal number, a constant, an expression, */
-/* or a call to a constant function. */
-range : OPENBRACKETS range_value COLON range_value CLOSEBRACKETS
-    { printf("range "); }
-;
-
-/*              TODO           */
-/*   Range value expressions   */
-range_value: NUM_INTEGER                        { }
-|            constants                          { }
-|            constants ADDITION NUM_INTEGER     { }
-|            constants SUBTRACTION NUM_INTEGER  { }
-|            constants MODULUS NUM_INTEGER      { }
-|            NUM_INTEGER ADDITION constants     { }
-|            NUM_INTEGER SUBTRACTION constants  { }
-|            NUM_INTEGER MODULUS constants      { }
-;
-
-constants: IDENTIFIER      { }
-|          function_call   { }
-;
-
-/* call to constant function */
-function_call: IDENTIFIER OPENPARENTHESES IDENTIFIER CLOSEPARENTHESES { }
-|              IDENTIFIER OPENPARENTHESES number CLOSEPARENTHESES { }
 ;
 
 other_type: PARAMETER  { }
