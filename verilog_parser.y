@@ -87,6 +87,18 @@ declaration: port_declaration     { }
 |            constant_declaration { }
 ;
 
+/*             Port declarations.          */
+/*******************************************/
+/* There are 2 types of port declarations. */
+/*******************************************/
+/* 1st type, combined declarations (added in Verilog-2001): */
+/*     port_direction data_type signed range port_name, port_name, ... ; */
+/* 2nd type, old style declarations: */
+/*     port_direction signed range port_name, port_name, ... ; */
+/*     data_type_declarations */
+/*******************************************/
+/* 2nd type declarations are a subset of 1st type declarations. 'data_type', */
+/* 'signed' and 'range' are all optional. */
 port_declaration: port_direction port_type SIGNED range nonempty_identifier_list
     { }
 |                 port_direction port_type SIGNED nonempty_identifier_list { }
@@ -119,7 +131,7 @@ optional_signed : /* empty */
 | SIGNED { printf("signed "); }
 ;
 
-/*             Net Declarations.          */
+/*             Net declarations.          */
 /******************************************/
 /* There are 3 types of net declarations. */
 /******************************************/
