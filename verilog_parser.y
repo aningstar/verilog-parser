@@ -83,8 +83,9 @@ attribute: IDENTIFIER                  { }
 
 declaration: port_declaration     { }
 |            net_declaration      { printf("net_declaration"); }
-|            variable_declaration { }
-|            constant_declaration { }
+|            variable_declaration { printf("variable_declaration"); }
+|            constant_or_event_declaration
+    { printf("constant_or_event_declaration"); }
 ;
 
 /*             Port declarations.          */
@@ -126,11 +127,6 @@ port_type: REG                       { }
 |          other_type                { }
 ;
 
-/* Many data and port declarations use the optional 'signed' keyword. */
-optional_signed : /* empty */
-| SIGNED { printf("signed "); }
-;
-
 /*             Net declarations.          */
 /******************************************/
 /* There are 3 types of net declarations. */
@@ -162,7 +158,6 @@ net_declaration: /* 1st type net declarations (except trireg). */
     net_name_list { }
 |                net_type_except_trireg optional_vectored_or_scalared
     net_name_list { }
-
                  /* 1st type net declarations (trireg). */
 |                TRIREG optional_vectored_or_scalared SIGNED range delay
     net_name_list { }
@@ -176,7 +171,6 @@ net_declaration: /* 1st type net declarations (except trireg). */
 |                TRIREG optional_vectored_or_scalared range net_name_list { }
 |                TRIREG optional_vectored_or_scalared delay net_name_list { }
 |                TRIREG optional_vectored_or_scalared net_name_list { }
-
                  /* 2nd type net declarations (except trireg). */
 |                net_type_except_trireg optional_vectored_or_scalared strength
     SIGNED range delay IDENTIFIER EQUAL expression { }
@@ -194,7 +188,6 @@ net_declaration: /* 1st type net declarations (except trireg). */
     delay IDENTIFIER EQUAL expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
     IDENTIFIER EQUAL expression { }
-
                  /* 2nd type net declarations (trireg). */
 |                TRIREG optional_vectored_or_scalared strength SIGNED range
     delay IDENTIFIER EQUAL expression { }
@@ -212,7 +205,6 @@ net_declaration: /* 1st type net declarations (except trireg). */
     EQUAL expression { }
 |                TRIREG optional_vectored_or_scalared strength IDENTIFIER EQUAL
     expression { }
-
                  /* 3rd type net declarations. */
 |                TRIREG optional_vectored_or_scalared capacitance_strength
     SIGNED range delay net_name_list { }
@@ -316,7 +308,7 @@ function_call: IDENTIFIER OPENPARENTHESES IDENTIFIER CLOSEPARENTHESES { }
 /*            Variable declarations.           */
 /***********************************************/
 /* There are 3 types of variable declarations. */
-/****************************************************/
+/***********************************************/
 /* 1st type: variable_type signed [range] variable_name, variable_name, ... ; */
 /* 2nd type: variable_type signed [range] variable_name = initial_value, */
 /*     ... ; */
@@ -330,7 +322,6 @@ function_call: IDENTIFIER OPENPARENTHESES IDENTIFIER CLOSEPARENTHESES { }
 variable_declaration: /* 1st, 2nd and 3rd type variable declarations (except
     reg). */
                       variable_type_except_reg variable_name_list { }
-
                       /* 1st, 2nd and 3rd type variable declarations (reg). */
 |                     REG optional_vectored_or_scalared SIGNED
     range variable_name_list { }
@@ -359,42 +350,66 @@ variable_name_or_assignment: IDENTIFIER                       { }
 |                            IDENTIFIER array                 { }
 ;
 
-/* ################################################################ */ 
-/* Constant declarations */
-/*    TODO    */
-/* genvar ??? */
-constant_declaration: PARAMETER optional_signed optional_range constant_variable
+/*            Constant and event declarations.           */
+/*********************************************************/
+/* There are 6 types of constant and event declarations. */
+/*********************************************************/
+/* 1st type: parameter signed [range] constant_name = value, ... ; */
+/* 2nd type: parameter constant_type constant_name = value, ... ; */
+/* 3rd type: localparam signed [range] constant_name = value,...; */
+/* 4th type: localparam constant_type constant_name = value, ... ; */
+/* 5th type: specparam constant_name = value, ... ; */
+/* 6th type: event event_name, ... ; */
+/*********************************************************/
+/* 'signed', 'range' and 'constant_type' are all optional. constant_type can */
+/* be 'integer', 'time', 'real' or 'realtime'. There is also the 'genvar' */
+/* type that can only used within a generate loop. */
+constant_or_event_declaration: /* 1st type constant declarations. */
+                               PARAMETER SIGNED range constant_assignment_list
     { printf("parameter "); }
-|                     PARAMETER constant_type constant_variable
+|                              PARAMETER SIGNED constant_assignment_list
     { printf("parameter "); }
-|                     LOCALPARAM optional_signed optional_range
-    constant_variable { printf("localparam "); }
-|                     LOCALPARAM constant_type constant_variable
+|                              PARAMETER range constant_assignment_list
+    { printf("parameter "); }
+|                              PARAMETER constant_assignment_list
+    { printf("parameter "); }
+                               /* 2nd type constant declarations. */
+|                              PARAMETER constant_type constant_assignment_list
+    { printf("parameter "); }
+                               /* 3rd type constant declarations. */
+|                              LOCALPARAM SIGNED range constant_assignment_list
     { printf("localparam "); }
-|                     SPECPARAM constant_variable { printf("specparam "); }
-|                     EVENT event_names { printf("event "); }
+|                              LOCALPARAM SIGNED constant_assignment_list
+    { printf("localparam "); }
+|                              LOCALPARAM range constant_assignment_list
+    { printf("localparam "); }
+|                              LOCALPARAM constant_assignment_list
+    { printf("localparam "); }
+                               /* 4th type constant declarations. */
+|                              LOCALPARAM constant_type constant_assignment_list
+    { printf("localparam "); }
+                               /* 5th type constant declarations. */
+|                              SPECPARAM constant_assignment_list
+    { printf("specparam "); }
+                               /* 6th type event declarations. */
+|                              EVENT nonempty_identifier_list
+    { printf("event "); }
 ;
 
-/* A constant declared with a type will have the same properties as */
-/* a variable of that type. If no type is specified, the constant   */
-/* will default to the data type of the last value assigned to it,  */
-/* after any parameter redefinitions. The case where no type is     */
-/* handled in constant_declaration. */
+constant_assignment_list: constant_assignment                                { }
+|                         constant_assignment_list COMMA constant_assignment { }
+;
+
+/* Constants may contain integers, real numbers, time, delays, or ASCII */
+/* strings. */
+constant_assignment: IDENTIFIER EQUAL number { printf("constant "); }
+|                    IDENTIFIER EQUAL IDENTIFIER    { printf("constant "); }
+;
+
 constant_type: INTEGER    { printf("integer "); }
-|              TIME       { printf("time ");    }
-|              REAL       { printf("real ");    }
+|              REAL       { printf("real "); }
+|              TIME       { printf("time "); }
 |              REALTIME   { printf("realtime "); }
-;
-
-constant_variable: IDENTIFIER EQUAL number {printf("constant "); }
-|                  IDENTIFIER EQUAL number COMMA constant_variable
-    {printf("constant "); }
-;
-
-/* a momentary flag with no logic value or data storage. Can be      */
-/* used for synchronizing concurrent activities within a module.    */
-event_names: IDENTIFIER                   { printf("identifier "); }
-|            IDENTIFIER COMMA event_names { printf("identifier "); }
 ;
 
 /* Logic values can have 8 strength levels: */
@@ -408,10 +423,6 @@ strength: OPENPARENTHESES strength0 COMMA strength1 CLOSEPARENTHESES
 
 capacitance_strength: OPENPARENTHESES capacitance CLOSEPARENTHESES
     { printf("capacitance_strength "); }
-;
-
-optional_range: /* empty */
-| range { }
 ;
 
 other_type: PARAMETER  { }
@@ -480,15 +491,16 @@ integer_or_real: NUM_INTEGER { }
 |                REALV       { }
 ;
 
-number: UNSIG_BIN { }
-|       UNSIG_OCT { }
-|       UNSIG_DEC { }
-|       UNSIG_HEX { }
-|       SIG_BIN   { }
-|       SIG_OCT   { }
-|       SIG_DEC   { }
-|       SIG_HEX   { }
-|       REALV     { }
+number: NUM_INTEGER { }
+|       UNSIG_BIN   { }
+|       UNSIG_OCT   { }
+|       UNSIG_DEC   { }
+|       UNSIG_HEX   { }
+|       SIG_BIN     { }
+|       SIG_OCT     { }
+|       SIG_DEC     { }
+|       SIG_HEX     { }
+|       REALV       { }
 ;
 
 %%
