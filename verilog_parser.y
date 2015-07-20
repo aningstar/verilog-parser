@@ -473,19 +473,25 @@ expression_operation:  ADDITION    { }
 |                      SUBTRACTION { }
 ;
 
-/*         Vector Bit Selects and Part Selects        */
-/******************************************************/
-/* There are 4 types of bit selects and part selects. */
-/******************************************************/
-/* Bit Select: vector_name[bit_number] */
-/* Constant Part Select: vector_name[bit_number : bit_number] */
-/* Variable Part Select 1: vector_name[starting_bit_number +: */
-/*     part_select_width] */
-/* Variable Part Select 2: vector_name[starting_bit_number -: */
-/*     part_select_width] */
-/******************************************************/
-/* Variable part selects were added in Verilog-2001. A bit select can be an */
-/* integer, a constant, a net, a variable or an expression. */
+/*            Vector Bit Selects and Part Selects                      */
+/***********************************************************************/
+/* There are 2 types of vector and part selects                        */
+/***********************************************************************/
+/* 1st type: vector_name[bit_number]                                   */
+/* 2st type: vector_name[bit_number : bit_number]                      */
+/* 3st type: vector_name[starting_bit_number +: part_select_width]     */
+/* 4st type: vector_name[starting_bit_number -: part_select_width]     */
+/***********************************************************************/
+/* Bit select: bit number can be an integer, a constant, a net,        */
+/* a variable or an expression.                                        */
+/* Constant part select : The bit numbers must be a literal number     */
+/* or a constant.                                                      */
+/* Variable part selects: Starting bit number must be a literal number */
+/* or a constant, and the width of the part select must be a literal   */
+/* number, a constant or a call to a constant function.                */
+/* +: indicates the part select increases from the starting point.     */
+/* -: indicates the part select decreases from the starting point.     */
+/***********************************************************************/
 bit_select: /* Bit Select ('array_index' is a number in brackets). */
             IDENTIFIER array_index
     { printf("bit_select "); }
@@ -495,11 +501,13 @@ bit_select: /* Bit Select ('array_index' is a number in brackets). */
 |           IDENTIFIER OPENBRACKETS bit_number COLON bit_number CLOSEBRACKETS
     { printf("constant_part_select "); }
             /* Variable Part Select 1 */
-|           IDENTIFIER OPENBRACKETS bit_number ADDITION COLON
-    part_select_width CLOSEBRACKETS { printf("variable_part_select_1 "); }
+|           IDENTIFIER OPENBRACKETS bit_number ADDITION COLON part_select_width 
+            CLOSEBRACKETS 
+    { printf("variable_part_select_1 "); }
             /* Variable Part Select 2 */
-|           IDENTIFIER OPENBRACKETS bit_number SUBTRACTION COLON
-    part_select_width CLOSEBRACKETS { printf("variable_part_select_2 "); }
+|           IDENTIFIER OPENBRACKETS bit_number SUBTRACTION COLON 
+            part_select_width CLOSEBRACKETS 
+    { printf("variable_part_select_2 "); }
 ;
 
 /* The bit number must be a literal number or a constant. */
