@@ -8,23 +8,24 @@
 
 %token IDENTIFIER
 %token NUM_INTEGER REALV
+/* Verilog 2001 unsigned literals. */
 %token UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
+/* Verilog 2001 signed literals. */
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
 %token MODULE ENDMODULE
 %token EQUAL COMMA COLON SEMICOLON HASH
 %token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS
+/* Verilog 2001 port diractions. */
 %token INPUT OUTPUT INOUT
 %token SIGNED
 %token ADDITION SUBTRACTION MULTIPLICATION MODULUS
 %token VECTORED SCALARED
 /* Verilog 2001 net type tokens. */
-%token WIRE WOR WAND
-%token TRI0 TRI1 TRI TRIOR TRIAND TRIREG
+%token WIRE WOR WAND TRI0 TRI1 TRI TRIOR TRIAND TRIREG
 /* Verilog 2001 variable type tokens. */
 %token REG INTEGER TIME REAL REALTIME
 /* Verilog 2001 other type tokens. */
-%token PARAMETER LOCALPARAM SPECPARAM
-%token GENVAR EVENT
+%token PARAMETER LOCALPARAM SPECPARAM GENVAR EVENT
 /* Verilog 2001 drive strength tokens. */
 %token SUPPLY0 SUPPLY1 STRONG0 STRONG1 PULL0 PULL1 WEAK0 WEAK1
 /* Verilog 2001 capacitance strength tokens. */
@@ -125,6 +126,13 @@ port_type: REG                       { }
 |          net_type_except_trireg    { }
 |          TRIREG                    { }
 |          other_type                { }
+;
+
+other_type: PARAMETER  { }
+|           LOCALPARAM { }
+|           SPECPARAM  { }
+|           GENVAR     { }
+|           EVENT      { }
 ;
 
 /*             Net declarations.          */
@@ -286,23 +294,57 @@ range : OPENBRACKETS range_value COLON range_value CLOSEBRACKETS
 
 /*              TODO           */
 /*   Range value expressions   */
-range_value: NUM_INTEGER                        { }
-|            constants                          { }
-|            constants ADDITION NUM_INTEGER     { }
-|            constants SUBTRACTION NUM_INTEGER  { }
-|            constants MODULUS NUM_INTEGER      { }
-|            NUM_INTEGER ADDITION constants     { }
-|            NUM_INTEGER SUBTRACTION constants  { }
-|            NUM_INTEGER MODULUS constants      { }
+range_value: NUM_INTEGER                                            { }
+|            constant_or_constant_function                          { }
+|            constant_or_constant_function ADDITION NUM_INTEGER     { }
+|            constant_or_constant_function SUBTRACTION NUM_INTEGER  { }
+|            constant_or_constant_function MODULUS NUM_INTEGER      { }
+|            NUM_INTEGER ADDITION constant_or_constant_function     { }
+|            NUM_INTEGER SUBTRACTION constant_or_constant_function  { }
+|            NUM_INTEGER MODULUS constant_or_constant_function      { }
 ;
 
-constants: IDENTIFIER      { }
-|          function_call   { }
+constant_or_constant_function: IDENTIFIER             { }
+|                              constant_function_call { }
 ;
 
 /* Call to constant function. */
-function_call: IDENTIFIER OPENPARENTHESES IDENTIFIER CLOSEPARENTHESES { }
-|              IDENTIFIER OPENPARENTHESES number CLOSEPARENTHESES { }
+constant_function_call: IDENTIFIER OPENPARENTHESES IDENTIFIER CLOSEPARENTHESES
+    { }
+|                       IDENTIFIER OPENPARENTHESES number CLOSEPARENTHESES
+    { }
+;
+
+/* Logic values can have 8 strength levels: 4 driving, 3 capacitive, and high */
+/* impedance (no strength). */
+strength: OPENPARENTHESES strength0 COMMA strength1 CLOSEPARENTHESES
+    { printf("strength0, strength1 "); }
+|         OPENPARENTHESES strength1 COMMA strength0 CLOSEPARENTHESES
+    { printf("strength1, strength0 "); }
+;
+
+/* Drive strength 0. */
+strength0: SUPPLY0 { }
+|          STRONG0 { }
+|          PULL0   { }
+|          WEAK0   { }
+;
+
+/* Drive strength 1. */
+strength1: SUPPLY1 { }
+|          STRONG1 { }
+|          PULL1   { }
+|          WEAK1   { }
+;
+
+capacitance_strength: OPENPARENTHESES capacitance CLOSEPARENTHESES
+    { printf("capacitance_strength "); }
+;
+
+/* Capacitance strengths. */
+capacitance: LARGE  { }
+|            MEDIUM { }
+|            SMALL  { }
 ;
 
 /*            Variable declarations.           */
@@ -412,79 +454,59 @@ constant_type: INTEGER    { printf("integer "); }
 |              REALTIME   { printf("realtime "); }
 ;
 
-/* Logic values can have 8 strength levels: */
-/* 4 driving, 3 capacitive, and high        */
-/* impedance (no strength).                 */
-strength: OPENPARENTHESES strength0 COMMA strength1 CLOSEPARENTHESES
-    { printf("strength0, strength1 "); }
-|         OPENPARENTHESES strength1 COMMA strength0 CLOSEPARENTHESES
-    { printf("strength1, strength0 "); }
-;
-
-capacitance_strength: OPENPARENTHESES capacitance CLOSEPARENTHESES
-    { printf("capacitance_strength "); }
-;
-
-other_type: PARAMETER  { }
-|           LOCALPARAM { }
-|           SPECPARAM  { }
-|           GENVAR     { }
-|           EVENT      { }
-;
-
-/* ######################## */
-/* Drive strength           */
-strength0: SUPPLY0 { }
-|          STRONG0 { }
-|          PULL0   { }
-|          WEAK0   { }
-;
-
-strength1: SUPPLY1 { }
-|          STRONG1 { }
-|          PULL1   { }
-|          WEAK1   { }
-;
-
-/* Capacitance strengths     */
-capacitance: LARGE  { }
-|           MEDIUM { }
-|           SMALL  { }
-;
-
-/* ######################## */
 assignment: IDENTIFIER EQUAL expression { printf("assignment "); }
 ;
 
 expression: expression_term {printf("expression "); }
-|           expression_term expression_operation expression_term
+|           expression expression_operation expression_term
     {printf("expression "); }
-|           expression_term expression_operation expression_term
-    expression_operation expression {printf("expression "); }
 ;
 
-expression_term: number
-|                IDENTIFIER
-|                bit_select
+expression_term: number     { }
+|                IDENTIFIER { }
+|                bit_select { }
+;
+
+/*         Vector Bit Selects and Part Selects        */
+/******************************************************/
+/* There are 4 types of bit selects and part selects. */
+/******************************************************/
+/* Bit Select: vector_name[bit_number] */
+/* Constant Part Select: vector_name[bit_number : bit_number] */
+/* Variable Part Select 1: vector_name[starting_bit_number +: */
+/*     part_select_width] */
+/* Variable Part Select 2: vector_name[starting_bit_number -: */
+/*     part_select_width] */
+/******************************************************/
+/* Variable part selects were added in Verilog-2001. A bit select can be an */
+/* integer, a constant, a net, a variable or an expression. */
+bit_select: /* Bit Select */
+            IDENTIFIER OPENBRACKETS bit_number CLOSEBRACKETS
+    { printf("bit_select "); }
+            /* Constant Part Select */
+|           IDENTIFIER OPENBRACKETS bit_number COLON bit_number CLOSEBRACKETS
+    { printf("constant_part_select "); }
+            /* Variable Part Select 1 */
+|           IDENTIFIER OPENBRACKETS bit_number ADDITION COLON
+    part_select_width CLOSEBRACKETS { printf("variable_part_select 1 "); }
+            /* Variable Part Select 2 */
+|           IDENTIFIER OPENBRACKETS bit_number SUBTRACTION COLON
+    part_select_width CLOSEBRACKETS { printf("variable_part_select 2 "); }
+;
+
+/* The bit number must be a literal number or a constant. */
+bit_number: NUM_INTEGER { }
+|           IDENTIFIER { }
+;
+
+/* The width of the part select must be a literal number, a constant or a */
+/* call to a constant function. */
+part_select_width: NUM_INTEGER                   { }
+|                  constant_or_constant_function { }
 ;
 
 expression_operation:  ADDITION    { }
 |                      SUBTRACTION { }
-;
-
-/* Vector Bit Selects and Part Selects */
-bit_select: IDENTIFIER OPENBRACKETS bit_number CLOSEBRACKETS
-    { printf("bit_select "); }
-|           IDENTIFIER OPENBRACKETS bit_number COLON bit_number CLOSEBRACKETS
-    { printf("bit_select "); }
-;
-
-bit_number: NUM_INTEGER                         { }
-|           IDENTIFIER                          { }
-|           IDENTIFIER ADDITION bit_number      { }
-|           IDENTIFIER SUBTRACTION bit_number   { }
-|           NUM_INTEGER ADDITION bit_number     { }
-|           NUM_INTEGER SUBTRACTION bit_number  { }
 ;
 
 integer_or_real: NUM_INTEGER { }
