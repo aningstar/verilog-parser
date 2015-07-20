@@ -455,6 +455,8 @@ constant_type: INTEGER    { printf("integer "); }
 ;
 
 assignment: IDENTIFIER EQUAL expression { printf("assignment "); }
+|           IDENTIFIER EQUAL array_select
+    { printf("array_select_assignment "); }
 ;
 
 expression: expression_term {printf("expression "); }
@@ -465,6 +467,10 @@ expression: expression_term {printf("expression "); }
 expression_term: number     { }
 |                IDENTIFIER { }
 |                bit_select { }
+;
+
+expression_operation:  ADDITION    { }
+|                      SUBTRACTION { }
 ;
 
 /*         Vector Bit Selects and Part Selects        */
@@ -480,18 +486,20 @@ expression_term: number     { }
 /******************************************************/
 /* Variable part selects were added in Verilog-2001. A bit select can be an */
 /* integer, a constant, a net, a variable or an expression. */
-bit_select: /* Bit Select */
-            IDENTIFIER OPENBRACKETS bit_number CLOSEBRACKETS
+bit_select: /* Bit Select ('array_index' is a number in brackets). */
+            IDENTIFIER array_index
+    { printf("bit_select "); }
+|           IDENTIFIER OPENBRACKETS IDENTIFIER CLOSEBRACKETS
     { printf("bit_select "); }
             /* Constant Part Select */
 |           IDENTIFIER OPENBRACKETS bit_number COLON bit_number CLOSEBRACKETS
     { printf("constant_part_select "); }
             /* Variable Part Select 1 */
 |           IDENTIFIER OPENBRACKETS bit_number ADDITION COLON
-    part_select_width CLOSEBRACKETS { printf("variable_part_select 1 "); }
+    part_select_width CLOSEBRACKETS { printf("variable_part_select_1 "); }
             /* Variable Part Select 2 */
 |           IDENTIFIER OPENBRACKETS bit_number SUBTRACTION COLON
-    part_select_width CLOSEBRACKETS { printf("variable_part_select 2 "); }
+    part_select_width CLOSEBRACKETS { printf("variable_part_select_2 "); }
 ;
 
 /* The bit number must be a literal number or a constant. */
@@ -505,8 +513,36 @@ part_select_width: NUM_INTEGER                   { }
 |                  constant_or_constant_function { }
 ;
 
-expression_operation:  ADDITION    { }
-|                      SUBTRACTION { }
+/*             Array Selects           */
+/***************************************/
+/* There are 3 types of array selects. */
+/***************************************/
+/* 1st type: array_name[index][index]... */
+/* 2nd type: array_name[index][index]...[bit_number] */
+/* 3rd type: array_name[index][index]...[part_select] */
+/***************************************/
+/* Multiple indices, bit selects and part selects from an array were added in */
+/* Verilog-2001. An array select can be an integer, a net, a variable, or an */
+/* expression. */
+array_select: /* 1st type (and 2nd type with integers) array selects. */
+              IDENTIFIER array_index_list { printf("array_select_integer"); }
+              /* 2nd type (without integers) array selects. */
+|             IDENTIFIER array_index_list OPENBRACKETS IDENTIFIER CLOSEBRACKETS
+    { printf("array_select_constant "); }
+              /* 3rd type array selects. */
+|             IDENTIFIER array_index_list OPENBRACKETS bit_number
+    COLON bit_number CLOSEBRACKETS { printf("array_select_3 "); }
+|             IDENTIFIER array_index_list OPENBRACKETS bit_number ADDITION COLON
+    part_select_width CLOSEBRACKETS { printf("array_select_3 "); }
+|             IDENTIFIER array_index_list OPENBRACKETS bit_number SUBTRACTION
+    COLON part_select_width CLOSEBRACKETS { printf("array_select_3 "); }
+;
+
+array_index_list: array_index array_index { }
+|                 array_index_list array_index { }
+;
+
+array_index: OPENBRACKETS NUM_INTEGER CLOSEBRACKETS  { }
 ;
 
 integer_or_real: NUM_INTEGER { }
