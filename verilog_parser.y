@@ -83,8 +83,10 @@ attribute: IDENTIFIER                  { }
 ;
 
 declaration: port_declaration     { }
-|            net_declaration      { printf("net_declaration"); }
-|            variable_declaration { printf("variable_declaration"); }
+|            net_declaration      
+    { printf("net_declaration"); }
+|            variable_declaration 
+    { printf("variable_declaration"); }
 |            constant_or_event_declaration
     { printf("constant_or_event_declaration"); }
 ;
@@ -503,11 +505,11 @@ bit_select: /* Bit Select ('array_index' is a number in brackets). */
             /* Variable Part Select 1 */
 |           IDENTIFIER OPENBRACKETS bit_number ADDITION COLON part_select_width 
             CLOSEBRACKETS 
-    { printf("variable_part_select_1 "); }
+    { printf("variable_part_select "); }
             /* Variable Part Select 2 */
 |           IDENTIFIER OPENBRACKETS bit_number SUBTRACTION COLON 
             part_select_width CLOSEBRACKETS 
-    { printf("variable_part_select_2 "); }
+    { printf("variable_part_select "); }
 ;
 
 /* The bit number must be a literal number or a constant. */
