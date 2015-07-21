@@ -475,41 +475,34 @@ expression_operation:  ADDITION    { }
 |                      SUBTRACTION { }
 ;
 
-/*            Vector Bit Selects and Part Selects                      */
-/***********************************************************************/
-/* There are 2 types of vector and part selects                        */
-/***********************************************************************/
+/*      Vector Bit Selects and Part Selects.     */
+/*************************************************/
+/* There are 4 types of vector and part selects. */
+/*************************************************/
 /* 1st type: vector_name[bit_number]                                   */
-/* 2st type: vector_name[bit_number : bit_number]                      */
-/* 3st type: vector_name[starting_bit_number +: part_select_width]     */
-/* 4st type: vector_name[starting_bit_number -: part_select_width]     */
-/***********************************************************************/
-/* Bit select: bit number can be an integer, a constant, a net,        */
-/* a variable or an expression.                                        */
-/* Constant part select : The bit numbers must be a literal number     */
-/* or a constant.                                                      */
-/* Variable part selects: Starting bit number must be a literal number */
-/* or a constant, and the width of the part select must be a literal   */
-/* number, a constant or a call to a constant function.                */
-/* +: indicates the part select increases from the starting point.     */
-/* -: indicates the part select decreases from the starting point.     */
-/***********************************************************************/
-bit_select: /* Bit Select ('array_index' is a number in brackets). */
-            IDENTIFIER array_index
-    { printf("bit_select "); }
-|           IDENTIFIER OPENBRACKETS IDENTIFIER CLOSEBRACKETS
-    { printf("bit_select "); }
-            /* Constant Part Select */
+/* 2nd type: vector_name[bit_number : bit_number]                      */
+/* 3rd type: vector_name[starting_bit_number +: part_select_width]     */
+/* 4th type: vector_name[starting_bit_number -: part_select_width]     */
+/*************************************************/
+/* bit_number must be a literal number or a constant. part_select_width must */
+/* be a literal number, a constant or a call to a constant function. */
+/*************************************************/
+bit_select: /* Bit Select (1st type). */
+            IDENTIFIER index { printf("bit_select "); }
+            /* Constant Part Select (2nd type). */
 |           IDENTIFIER OPENBRACKETS bit_number COLON bit_number CLOSEBRACKETS
     { printf("constant_part_select "); }
-            /* Variable Part Select 1 */
+            /* Variable Part Select 1 (3rd type). */
 |           IDENTIFIER OPENBRACKETS bit_number ADDITION COLON part_select_width 
             CLOSEBRACKETS 
     { printf("variable_part_select "); }
-            /* Variable Part Select 2 */
+            /* Variable Part Select 2 (4th type). */
 |           IDENTIFIER OPENBRACKETS bit_number SUBTRACTION COLON 
             part_select_width CLOSEBRACKETS 
     { printf("variable_part_select "); }
+;
+
+index: OPENBRACKETS bit_number CLOSEBRACKETS { }
 ;
 
 /* The bit number must be a literal number or a constant. */
@@ -534,12 +527,9 @@ part_select_width: NUM_INTEGER                   { }
 /* Multiple indices, bit selects and part selects from an array were added in */
 /* Verilog-2001. An array select can be an integer, a net, a variable, or an */
 /* expression. */
-array_select: /* 1st type (and 2nd type with integers) array selects. */
+array_select: /* 1st and 2nd type array selects. */
               IDENTIFIER array_index_list 
     { printf("array_select_integer "); }
-              /* 2nd type (without integers) array selects. */
-|             IDENTIFIER array_index_list OPENBRACKETS IDENTIFIER CLOSEBRACKETS
-    { printf("array_select_constant "); }
               /* 3rd type array selects. */
 |             IDENTIFIER array_index_list OPENBRACKETS bit_number 
               COLON bit_number CLOSEBRACKETS 
@@ -552,11 +542,8 @@ array_select: /* 1st type (and 2nd type with integers) array selects. */
     { printf("array_select_3 "); }
 ;
 
-array_index_list: array_index array_index { }
-|                 array_index_list array_index { }
-;
-
-array_index: OPENBRACKETS NUM_INTEGER CLOSEBRACKETS { }
+array_index_list: index index { }
+|                 array_index_list index { }
 ;
 
 integer_or_real: NUM_INTEGER { }
