@@ -26,18 +26,18 @@ inside them. */
 
     /* Match Verilog 2001 keywords. */
 "always"              { printf("ALWAYS : %s \n",yytext); }
-"and"                 { printf("AND : %s \n",yytext); }
+"and"                 { return AND; }
 "assign"              { printf("ASSIGN\n"); }
 "automatic"           { printf("AUTOMATIC\n"); }
 "begin"               { printf("BEGIN\n"); }
-"buf"                 { printf("BUF\n"); }
-"bufif0"              { printf("BUFIF0\n"); }
-"bufif1"              { printf("BUFIF1\n"); }
+"buf"                 { return BUF; }
+"bufif0"              { return BUFIF0; }
+"bufif1"              { return BUFIF1; }
 "case"                { printf("CASE\n"); }
 "casex"               { printf("CASEX\n"); }
 "casez"               { printf("CASEZ\n"); }
 "cell"                { printf("CELL\n"); }
-"cmos"                { printf("CMOS\n"); }
+"cmos"                { return CMOS; }
 "config"              { printf("CONFIG\n"); }
 "deassign"            { printf("DEASSIGN\n"); }
 "default"             { printf("DEFAULT\n"); }
@@ -80,37 +80,37 @@ inside them. */
 "macromodule"         { printf("MACROMODULE\n"); }
 "medium"              { return MEDIUM;}
 "module"              { return MODULE; }
-"nand"                { printf("NAND\n"); }
+"nand"                { return NAND; }
 "negedge"             { printf("NEGEDGE\n"); }
-"nmos"                { printf("NMOS\n"); }
-"nor"                 { printf("NOR\n"); }
-"not"                 { printf("NOT\n"); }
+"nmos"                { return NMOS; }
+"nor"                 { return NOR; }
+"not"                 { return NOT; }
 "noshowcancelled"     { printf("NOSHOWCANCELLED\n"); } 
-"notif0"              { printf("NOTIF0\n"); }
-"notif1"              { printf("NOTIF1\n"); }
-"or"                  { printf("OR\n"); }
+"notif0"              { return NOTIF0; }
+"notif1"              { return NOTIF1; }
+"or"                  { return OR; }
 "output"              { return OUTPUT; }
 "parameter"           { return PARAMETER;}
-"pmos"                { printf("PMOS\n"); }
+"pmos"                { return PMOS; }
 "posedge"             { printf("POSEDGE\n"); }
 "primitive"           { printf("PRIMITIVE\n"); }
 "pull0"               { return PULL0; }
 "pull1"               { return PULL1; }
-"pulldown"            { printf("PULLDOWN\n"); }
-"pullup"              { printf("PULLUP\n"); }
+"pulldown"            { return PULLDOWN; }
+"pullup"              { return PULLUP; }
 "pulsestyle_onevent"  { printf("PULSESTYLE_ONEVENT\n"); }
 "pulsestyle_ondetect" { printf("PULSESTYLE_ONDETECT\n"); }
-"rcmos"               { printf("RCMOS\n"); }
+"rcmos"               { return RCMOS; }
 "real"                { return REAL; }
 "realtime"            { return REALTIME; }
 "reg"                 { return REG; }
 "release"             { printf("RELEASE\n"); }
 "repeat"              { printf("REPEAT\n"); }
-"rnmos"               { printf("RNMOS\n"); }
-"rpmos"               { printf("RPMOS\n"); }
-"rtran"               { printf("RTRAN\n"); }
-"rtranif0"            { printf("RTRANIF0\n"); }
-"rtranif1"            { printf("RTRANIF1\n"); }
+"rnmos"               { return RNMOS; }
+"rpmos"               { return RPMOS; }
+"rtran"               { return RTRAN; }
+"rtranif0"            { return RTRANIF0; }
+"rtranif1"            { return RTRANIF1; }
 "scalared"            { return SCALARED; }
 "signed"              { return SIGNED; }
 "showcancelled"       { printf("SHOWCANCELLED\n"); }
@@ -125,9 +125,9 @@ inside them. */
 "table"               { printf("TABLE\n"); }
 "task"                { printf("TASK\n"); }
 "time"                { return TIME;}
-"tran"                { printf("TRAN\n"); }
-"tranif0"             { printf("TRANIF0\n"); }
-"tranif1"             { printf("TRANIF1\n"); }
+"tran"                { return TRAN; }
+"tranif0"             { return TRANIF0; }
+"tranif1"             { return TRANIF1; }
 "tri"                 { return TRI; }
 "tri0"                { return TRI0; }
 "tri1"                { return TRI1; }
@@ -144,8 +144,8 @@ inside them. */
 "while"               { printf("WHILE\n"); }
 "wire"                { return WIRE; }
 "wor"                 { return WOR; }
-"xnor"                { printf("XNOR\n"); }
-"xor"                 { printf("XOR\n"); }
+"xnor"                { return XNOR; }
+"xor"                 { return XOR; }
 
     /* Match Verilog 2001 comments. Tokens are not returned for comments (so
 that comments are invisible to the parser). */

@@ -30,6 +30,13 @@
 %token SUPPLY0 SUPPLY1 STRONG0 STRONG1 PULL0 PULL1 WEAK0 WEAK1
 /* Verilog 2001 capacitance strength tokens. */
 %token LARGE MEDIUM SMALL
+/* Verilog 2001 gate primitive tokens. */
+%token AND NAND OR NOR XOR XNOR BUF NOT BUFIF0 NOTIF0 BUFIF1 NOTIF1 PULLUP
+%token PULLDOWN
+
+/* Verilog 2001 switch primitive tokens. */
+%token PMOS NMOS RPMOS RNMOS CMOS RCMOS TRAN RTRAN TRANIF0 TRANIF1 RTRANIF0
+%token RTRANIF1
 
 %error-verbose
 %locations
@@ -60,6 +67,7 @@ block: /* empty */
 statement: assignment  SEMICOLON { printf("\n"); }
 |          declaration SEMICOLON { printf("\n"); }
 |          declaration_with_attributes SEMICOLON { printf("\n"); }
+|          primitive_instance SEMICOLON { printf("primitive_instance\n"); }
 ;
 
 declaration_with_attributes: attributes declaration { }
@@ -258,9 +266,9 @@ net_type_except_trireg: WIRE    { printf("wire "); }
 ;
 
 /* Delays to transitions. */
-/* 1 delay (all transitions) */
-/* 2 delays (rise and fall transitions) */
-/* 3 delays (rise, fall and tri-state turn-off transitions) */
+/* 1 delay (all transitions). */
+/* 2 delays (rise and fall transitions). */
+/* 3 delays (rise, fall and tri-state turn-off transitions). */
 delay: HASH transition                                                   { }
 |      HASH OPENPARENTHESES transition CLOSEPARENTHESES                  { }
 |      HASH OPENPARENTHESES transition COMMA transition CLOSEPARENTHESES { }
@@ -486,7 +494,6 @@ expression_operation:  ADDITION    { }
 /*************************************************/
 /* bit_number must be a literal number or a constant. part_select_width must */
 /* be a literal number, a constant or a call to a constant function. */
-/*************************************************/
 bit_select: /* Bit Select (1st type). */
             IDENTIFIER index { printf("bit_select "); }
             /* Constant Part Select (2nd type). */
@@ -544,6 +551,98 @@ array_select: /* 1st and 2nd type array selects. */
 
 array_index_list: index index { }
 |                 array_index_list index { }
+;
+
+/*             Primitive Instances           */
+/*********************************************/
+/* There are 2 types of primitive instances. */
+/*********************************************/
+/* 1st type: gate_type (drive_strength) #(delay) instance_name */
+/*     [instance_array_range] (terminal, terminal, ... ); */
+/* 2nd type: switch_type #(delay) instance_name[instance_array_range] */
+/*     (terminal, terminal, ... ); */
+/*********************************************/
+/* 'delay', 'drive_strength', 'instance_name'and 'instance_array_range' are */
+/* all optional. Only gate primitives may have the output drive strength */
+/* specified. */
+primitive_instance: /* 1st type primitive instances. */
+                    gate_type strength delay IDENTIFIER range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength delay IDENTIFIER OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength delay range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength delay OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength IDENTIFIER range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength IDENTIFIER OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type delay IDENTIFIER range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type delay IDENTIFIER OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type delay range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type delay OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type IDENTIFIER range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type IDENTIFIER OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+                    /* 2nd type primitive instances. */
+|                   switch_type delay IDENTIFIER range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type delay IDENTIFIER OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type delay range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type delay OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type IDENTIFIER range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type IDENTIFIER OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+;
+
+/*                          Gate Primitive Types.                          */
+/***************************************************************************/
+/* There are 14 types of gate primitive types (not counting user-defined). */
+/***************************************************************************/
+/* (1–output, 1-or-more–inputs): and nand or nor xor xnor */
+/* (1-or-more–outputs, 1–input): buf not */
+/* (1–output, 1–input, 1–control): bufif0 notif0 bufif1 notif1 */
+/* (1–output): pullup pulldown */
+/* (1–output, 1-or-more–inputs): user_defined_primitive */
+/***************************************************************************/
+/* Primitives can be user-defined. */
+gate_type: AND        { }
+|          NAND       { }
+|          OR         { }
+|          NOR        { }
+|          XOR        { }
+|          XNOR       { }
+|          BUF        { }
+|          NOT        { }
+|          BUFIF0     { }
+|          NOTIF0     { }
+|          BUFIF1     { }
+|          NOTIF1     { }
+|          PULLUP     { }
+|          PULLDOWN   { }
+           /* User-defined primitive. */
+|          IDENTIFIER { }
+;
+
+/*            Switch Primitive Types.            */
+/*************************************************/
+/* There are 12 types of switch primitive types. */
+/*************************************************/
+/* (1–output, 1–input, 1–control): pmos nmos rpmos rnmos */
+/* (1–output, 1–input, n-control, p-control): cmos rcmos */
+/* (2–bidirectional-inouts): tran rtran */
+/* (2–bidirectional-inouts, 1–control): tranif0 tranif1 rtranif0 rtranif1 */
+/*************************************************/
+switch_type: PMOS     { }
+|            NMOS     { }
+|            RPMOS    { }
+|            RNMOS    { }
+|            CMOS     { }
+|            RCMOS    { }
+|            TRAN     { }
+|            RTRAN    { }
+|            TRANIF0  { }
+|            TRANIF1  { }
+|            RTRANIF0 { }
+|            RTRANIF1 { }
 ;
 
 integer_or_real: NUM_INTEGER { }
