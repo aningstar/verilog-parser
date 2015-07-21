@@ -1,10 +1,14 @@
 all: parser
+	./verilog_parser < grammar_examples/array_selects.v
 	./verilog_parser < grammar_examples/bit_selects.v
 	./verilog_parser < grammar_examples/constant_declarations_grammar.v
 	./verilog_parser < grammar_examples/variable_declarations_grammar.v
 	./verilog_parser < grammar_examples/net_declarations_grammar.v
 	./verilog_parser < grammar_examples/port_declarations_grammar.v
 	./verilog_parser < grammar_examples/grammar_example.v
+
+array_selects: parser
+	./verilog_parser < grammar_examples/array_selects.v
 
 bit_selects: parser
 	./verilog_parser < grammar_examples/bit_selects.v

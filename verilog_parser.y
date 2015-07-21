@@ -535,24 +535,28 @@ part_select_width: NUM_INTEGER                   { }
 /* Verilog-2001. An array select can be an integer, a net, a variable, or an */
 /* expression. */
 array_select: /* 1st type (and 2nd type with integers) array selects. */
-              IDENTIFIER array_index_list { printf("array_select_integer"); }
+              IDENTIFIER array_index_list 
+    { printf("array_select_integer "); }
               /* 2nd type (without integers) array selects. */
 |             IDENTIFIER array_index_list OPENBRACKETS IDENTIFIER CLOSEBRACKETS
     { printf("array_select_constant "); }
               /* 3rd type array selects. */
-|             IDENTIFIER array_index_list OPENBRACKETS bit_number
-    COLON bit_number CLOSEBRACKETS { printf("array_select_3 "); }
+|             IDENTIFIER array_index_list OPENBRACKETS bit_number 
+              COLON bit_number CLOSEBRACKETS 
+    { printf("array_select_3 "); }
 |             IDENTIFIER array_index_list OPENBRACKETS bit_number ADDITION COLON
-    part_select_width CLOSEBRACKETS { printf("array_select_3 "); }
+              part_select_width CLOSEBRACKETS 
+    { printf("array_select_3 "); }
 |             IDENTIFIER array_index_list OPENBRACKETS bit_number SUBTRACTION
-    COLON part_select_width CLOSEBRACKETS { printf("array_select_3 "); }
+              COLON part_select_width CLOSEBRACKETS 
+    { printf("array_select_3 "); }
 ;
 
 array_index_list: array_index array_index { }
 |                 array_index_list array_index { }
 ;
 
-array_index: OPENBRACKETS NUM_INTEGER CLOSEBRACKETS  { }
+array_index: OPENBRACKETS NUM_INTEGER CLOSEBRACKETS { }
 ;
 
 integer_or_real: NUM_INTEGER { }
