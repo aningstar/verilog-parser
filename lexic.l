@@ -183,7 +183,7 @@ that comments are invisible to the parser). */
 ":"                   { return COLON; }
 "?"                   { printf("QUESTION MARK : %s \n",yytext); }
 "~"                   { printf("NEGATION : %s \n",yytext); }
-"."                   { printf("PERIOD : %s \n",yytext); }
+"."                   { return PERIOD; }
 "$"                   { printf("DOLLAR : %s \n",yytext); }
 
     /* Match Verilog 2001 identifiers. */

@@ -13,7 +13,7 @@
 /* Verilog 2001 signed literals. */
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
 %token MODULE ENDMODULE
-%token EQUAL COMMA COLON SEMICOLON HASH
+%token EQUAL COMMA COLON SEMICOLON HASH PERIOD
 %token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS
 /* Verilog 2001 port diractions. */
 %token INPUT OUTPUT INOUT
@@ -38,6 +38,9 @@
 %token PMOS NMOS RPMOS RNMOS CMOS RCMOS TRAN RTRAN TRANIF0 TRANIF1 RTRANIF0
 %token RTRANIF1
 
+/* Verilog 2001 module instance tokens */
+%token DEFPARAM
+
 %error-verbose
 %locations
 
@@ -57,7 +60,7 @@ identifier_list: /* empty */
 
 nonempty_identifier_list: IDENTIFIER { }
 |                         IDENTIFIER COMMA identifier_list
-    { printf("nonempty identifier list "); }
+    { printf("nonempty_identifier_list "); }
 ;
 
 block: /* empty */
@@ -68,6 +71,7 @@ statement: assignment  SEMICOLON { printf("\n"); }
 |          declaration SEMICOLON { printf("\n"); }
 |          declaration_with_attributes SEMICOLON { printf("\n"); }
 |          primitive_instance SEMICOLON { printf("primitive_instance\n"); }
+|          module_instances SEMICOLON { printf("module_instance\n"); }
 ;
 
 declaration_with_attributes: attributes declaration { }
@@ -553,6 +557,64 @@ array_index_list: index index { }
 |                 array_index_list index { }
 ;
 
+/*              Module Instances             */
+/*********************************************/
+/* There are 5 types of module instances     */
+/*********************************************/
+/* 1st type: module_name instance_name          */
+/*  instance_array_range(signal, signal, ... ); */
+/* 2st type: module_name instance_name instance_array_range */
+/*  ( .port_name(signal), .port_name(signal), ... ); */
+/* 3st type: defparam heirarchy_path.parameter_name = value; */
+/* 4st type: module_name #(value,value, ...) instance_name (signal, ... ); */
+/* 5st type: module_name #(.parameter_name(value),
+/*  .parameter_name(value), ...) instance_name (signal, ... ); */
+/*********************************************/
+/* instance_array_range is optional */
+/* On parameter redefinision Only parameter declarations may */
+/* be redefined. localparam and specparam constants cannot be redefined. */
+
+module_instances:
+                /* 1st and 2st type module instances */
+                IDENTIFIER IDENTIFIER range OPENPARENTHESES connections CLOSEPARENTHESES { }
+|               IDENTIFIER IDENTIFIER OPENPARENTHESES connections CLOSEPARENTHESES { }
+                /* 3st type module instances (explicit parameter redefinition) */
+/* |               DEFPARAM IDENTIFIER PERIOD IDENTIFIER EQUAL number { } */
+                /* 4st and 5st type module instances(implicit and explicit) */
+|               IDENTIFIER HASH OPENPARENTHESES redefinition_list CLOSEPARENTHESES 
+                IDENTIFIER OPENPARENTHESES connections CLOSEPARENTHESES { }
+;
+/* Parameter values are redefined in the same order in which */
+/* they are declared within the module.                      */
+redefinition_list: 
+                  redefinition_value { printf("redefinition ");}
+|                 redefinition_list COMMA redefinition_value {printf("redefinition ");}
+;
+redefinition_value: 
+                  number { }
+|                 PERIOD IDENTIFIER OPENPARENTHESES number CLOSEPARENTHESES { }
+;
+/* Signal can be an identifier, a port name */
+/* connection or nothing */
+connections: 
+             signal                          { }
+|            connections COMMA signal        { }
+;
+signal:                                   { printf("no_signal "); }
+|           IDENTIFIER                    { printf("identifier "); }
+|           IDENTIFIER index              { printf("identifier(index) ");}
+|           port_name_connection          { printf("port_name_connection ");}
+;
+
+/* Port name connections list both the port name */ 
+/* and signal connected to it, in any order. */
+port_name_connection:                      
+                    PERIOD IDENTIFIER OPENPARENTHESES IDENTIFIER
+                    CLOSEPARENTHESES       { }
+|                   PERIOD IDENTIFIER OPENPARENTHESES IDENTIFIER index  
+                    CLOSEPARENTHESES { }
+;
+
 /*             Primitive Instances           */
 /*********************************************/
 /* There are 2 types of primitive instances. */
@@ -618,8 +680,6 @@ gate_type: AND        { }
 |          NOTIF1     { }
 |          PULLUP     { }
 |          PULLDOWN   { }
-           /* User-defined primitive. */
-|          IDENTIFIER { }
 ;
 
 /*            Switch Primitive Types.            */
