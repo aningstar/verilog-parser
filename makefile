@@ -1,4 +1,5 @@
 all: parser
+	./verilog_parser < grammar_examples/generate_blocks.v
 	./verilog_parser < grammar_examples/module_instances_grammar.v
 	./verilog_parser < grammar_examples/array_selects_grammar.v
 	./verilog_parser < grammar_examples/bit_selects_grammar.v
@@ -8,6 +9,9 @@ all: parser
 	./verilog_parser < grammar_examples/port_declarations_grammar.v
 	./verilog_parser < grammar_examples/grammar_example.v
 	./verilog_parser < grammar_examples/primitive_instances_grammar.v
+
+generate_blocks: parser
+	./verilog_parser < grammar_examples/generate_blocks.v
 
 module_instances: parser
 	./verilog_parser < grammar_examples/module_instances_grammar.v

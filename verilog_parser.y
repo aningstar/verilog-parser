@@ -41,6 +41,9 @@
 /* Verilog 2001 module instance tokens */
 %token DEFPARAM
 
+/* Verilog 2001 generate blocks */
+%token GENERATE ENDGENERATE
+
 %error-verbose
 %locations
 
@@ -65,8 +68,49 @@ nonempty_identifier_list: IDENTIFIER { }
 
 block: /* empty */
 | block statement  { }
+| block generate_block { }
 ;
-
+/*          Generate Blocks             */
+/****************************************/
+/* Generate blocks provide control over */
+/* the creation of many types of module */
+/* items. A generate block must be      */
+/* defined within a module, and is used */
+/* to generate code within that module. */
+/*                                      */
+/* genvar genvar_name, ... ;            */
+/* generate                             */
+/*        genvar genvar_name, ... ;     */
+/*        generate_items                */
+/* endgenerate                          */
+/****************************************/
+generate_block:
+            GENERATE genvar generate_items ENDGENERATE { printf("generate\n"); }
+|           GENERATE generate_items ENDGENERATE { printf("generate\n");}
+;
+/* generate_items are: */
+/*  genvar_name = constant_expression; */
+/*  net_declaration */
+/*  variable_declaration */
+/*  module_instance */
+/*  primitive_instance */ 
+/*  continuous_assignment */
+/*  procedural_block */
+/*  task_definition */
+/*  function_definition */
+generate_items:
+              statement { }
+|             generate_items statement { }
+;
+/* genvar is an integer variable which must be a positive */
+/* value. They may only be used within a generate block. */
+/* Genvar variables only have a value during elaboration, */
+/* and do not exist during simulation. Genvar variables must */
+/* be declared within the module where the genvar is used. */
+/* They may be declared either inside or outside of a generate block. */
+genvar: 
+      GENVAR nonempty_identifier_list SEMICOLON {printf("genvar\n"); }
+;
 statement: assignment  SEMICOLON { printf("\n"); }
 |          declaration SEMICOLON { printf("\n"); }
 |          declaration_with_attributes SEMICOLON { printf("\n"); }
@@ -101,6 +145,8 @@ declaration: port_declaration     { }
     { printf("variable_declaration"); }
 |            constant_or_event_declaration
     { printf("constant_or_event_declaration"); }
+|            genvar
+    { printf("genvar_declaration"); }
 ;
 
 /*             Port declarations.          */

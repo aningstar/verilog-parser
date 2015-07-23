@@ -50,7 +50,7 @@ inside them. */
 "endcase"             { printf("ENDCASE\n"); }
 "endconfig"           { printf("ENDCONFIG\n"); }
 "endfunction"         { printf("ENDFUNCTION\n"); }
-"endgenerate"         { printf("ENDGENERATE\n"); }
+"endgenerate"         { return ENDGENERATE; }
 "endmodule"           { return ENDMODULE; }
 "endprimitive"        { printf("ENDPRIMITIVE\n"); }
 "endspecify"          { printf("ENDSPECIFY\n"); }
@@ -62,7 +62,7 @@ inside them. */
 "forever"             { printf("FOREVER\n"); }
 "fork"                { printf("FORK\n"); }
 "function"            { printf("FUNCTION\n"); }
-"generate"            { printf("GENERATE\n"); }
+"generate"            { return GENERATE; }
 "genvar"              { return GENVAR; }
 "highz0"              { printf("HIGHZ0\n"); }
 "highz1"              { printf("HIGHZ1\n"); }
