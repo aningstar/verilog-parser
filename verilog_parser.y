@@ -111,6 +111,7 @@ generate_items:
 genvar: 
       GENVAR nonempty_identifier_list SEMICOLON {printf("genvar\n"); }
 ;
+
 statement: assignment  SEMICOLON { printf("\n"); }
 |          declaration SEMICOLON { printf("\n"); }
 |          declaration_with_attributes SEMICOLON { printf("\n"); }
