@@ -25,11 +25,11 @@ inside them. */
 %%
 
     /* Match Verilog 2001 keywords. */
-"always"              { printf("ALWAYS : %s \n",yytext); }
+"always"              { return ALWAYS; }
 "and"                 { return AND; }
 "assign"              { printf("ASSIGN\n"); }
 "automatic"           { printf("AUTOMATIC\n"); }
-"begin"               { printf("BEGIN\n"); }
+"begin"               { return BEGIN; }
 "buf"                 { return BUF; }
 "bufif0"              { return BUFIF0; }
 "bufif1"              { return BUFIF1; }
@@ -43,10 +43,10 @@ inside them. */
 "default"             { printf("DEFAULT\n"); }
 "defparam"            { printf("DEFPARAM\n"); }
 "design"              { printf("DESIGN\n"); }
-"disable"             { printf("DISABLE\n"); }
+"disable"             { return DISABLE; }
 "edge"                { printf("EDGE\n"); }
 "else"                { printf("ELSE\n"); }
-"end"                 { printf("END\n"); }
+"end"                 { return END; }
 "endcase"             { printf("ENDCASE\n"); }
 "endconfig"           { printf("ENDCONFIG\n"); }
 "endfunction"         { printf("ENDFUNCTION\n"); }
@@ -60,7 +60,7 @@ inside them. */
 "for"                 { printf("FOR\n"); }
 "force"               { printf("FORCE\n"); }
 "forever"             { printf("FOREVER\n"); }
-"fork"                { printf("FORK\n"); }
+"fork"                { return FORK; }
 "function"            { printf("FUNCTION\n"); }
 "generate"            { printf("GENERATE\n"); }
 "genvar"              { return GENVAR; }
@@ -68,12 +68,12 @@ inside them. */
 "highz1"              { printf("HIGHZ1\n"); }
 "if"                  { printf("IF\n"); }
 "ifnone"              { printf("IFNONE\n"); }
-"initial"             { printf("INITIAL\n"); }
+"initial"             { return INITIAL; }
 "instance"            { printf("INSTANCE\n"); }
 "inout"               { return INOUT; }
 "input"               { return INPUT; }
 "integer"             { return INTEGER; }
-"join"                { printf("JOIN\n"); }
+"join"                { return JOIN; }
 "large"               { return LARGE; }
 "liblist"             { printf("LIBLIST\n"); }
 "localparam"          { return LOCALPARAM; }
@@ -81,7 +81,7 @@ inside them. */
 "medium"              { return MEDIUM;}
 "module"              { return MODULE; }
 "nand"                { return NAND; }
-"negedge"             { printf("NEGEDGE\n"); }
+"negedge"             { return NEGEDGE; }
 "nmos"                { return NMOS; }
 "nor"                 { return NOR; }
 "not"                 { return NOT; }
@@ -92,7 +92,7 @@ inside them. */
 "output"              { return OUTPUT; }
 "parameter"           { return PARAMETER;}
 "pmos"                { return PMOS; }
-"posedge"             { printf("POSEDGE\n"); }
+"posedge"             { return POSEDGE; }
 "primitive"           { printf("PRIMITIVE\n"); }
 "pull0"               { return PULL0; }
 "pull1"               { return PULL1; }
@@ -160,7 +160,7 @@ that comments are invisible to the parser). */
 [/][/].*[\n]
 
     /* Match Verilog 2001 symbols. */
-"@"                   { printf("AT : %s \n",yytext); }
+"@"                   { return AT; }
 "("                   { return OPENPARENTHESES; }
 ")"                   { return CLOSEPARENTHESES; }
 "["                   { return OPENBRACKETS; }

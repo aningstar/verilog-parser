@@ -33,13 +33,13 @@
 /* Verilog 2001 gate primitive tokens. */
 %token AND NAND OR NOR XOR XNOR BUF NOT BUFIF0 NOTIF0 BUFIF1 NOTIF1 PULLUP
 %token PULLDOWN
-
 /* Verilog 2001 switch primitive tokens. */
 %token PMOS NMOS RPMOS RNMOS CMOS RCMOS TRAN RTRAN TRANIF0 TRANIF1 RTRANIF0
 %token RTRANIF1
-
 /* Verilog 2001 module instance tokens */
 %token DEFPARAM
+/* Verilog 2001 procedural block tokens */
+%token INITIAL ALWAYS AT POSEDGE NEGEDGE BEGIN END FORK JOIN DISABLE
 
 %error-verbose
 %locations
@@ -628,69 +628,93 @@ port_name_connection:
 /* all optional. Only gate primitives may have the output drive strength */
 /* specified. */
 primitive_instance: /* 1st type primitive instances. */
-                    gate_type strength delay IDENTIFIER range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type strength delay IDENTIFIER OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type strength delay range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type strength delay OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type strength IDENTIFIER range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type strength IDENTIFIER OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type strength range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type strength OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type delay IDENTIFIER range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type delay IDENTIFIER OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type delay range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type delay OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type IDENTIFIER range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type IDENTIFIER OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+                    gate_type strength delay IDENTIFIER range OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength delay IDENTIFIER OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength delay range OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength delay OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength IDENTIFIER range OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength IDENTIFIER OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength range OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength OPENPARENTHESES nonempty_identifier_list
+    CLOSEPARENTHESES { }
+|                   gate_type delay IDENTIFIER range OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type delay IDENTIFIER OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type delay range OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type delay OPENPARENTHESES nonempty_identifier_list
+    CLOSEPARENTHESES { }
+|                   gate_type IDENTIFIER range OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type IDENTIFIER OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type range OPENPARENTHESES nonempty_identifier_list
+    CLOSEPARENTHESES { }
+|                   gate_type OPENPARENTHESES nonempty_identifier_list
+    CLOSEPARENTHESES { }
                     /* 2nd type primitive instances. */
-|                   switch_type delay IDENTIFIER range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   switch_type delay IDENTIFIER OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   switch_type delay range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   switch_type delay OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   switch_type IDENTIFIER range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   switch_type IDENTIFIER OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   switch_type range OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
-|                   switch_type OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type delay IDENTIFIER range OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type delay IDENTIFIER OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type delay range OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type delay OPENPARENTHESES nonempty_identifier_list
+    CLOSEPARENTHESES { }
+|                   switch_type IDENTIFIER range OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type IDENTIFIER OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type range OPENPARENTHESES nonempty_identifier_list
+    CLOSEPARENTHESES { }
+|                   switch_type OPENPARENTHESES nonempty_identifier_list
+    CLOSEPARENTHESES { }
 ;
 
-/*                          Gate Primitive Types.                          */
-/***************************************************************************/
-/* There are 14 types of gate primitive types (not counting user-defined). */
-/***************************************************************************/
+/*                      Gate Primitive Types.                     */
+/******************************************************************/
+/* There are 14 gate primitive types (not counting user-defined). */
+/******************************************************************/
 /* (1–output, 1-or-more–inputs): and nand or nor xor xnor */
 /* (1-or-more–outputs, 1–input): buf not */
 /* (1–output, 1–input, 1–control): bufif0 notif0 bufif1 notif1 */
 /* (1–output): pullup pulldown */
 /* (1–output, 1-or-more–inputs): user_defined_primitive */
-/***************************************************************************/
+/******************************************************************/
 /* Primitives can be user-defined. */
-gate_type: AND        { }
-|          NAND       { }
-|          OR         { }
-|          NOR        { }
-|          XOR        { }
-|          XNOR       { }
-|          BUF        { }
-|          NOT        { }
-|          BUFIF0     { }
-|          NOTIF0     { }
-|          BUFIF1     { }
-|          NOTIF1     { }
-|          PULLUP     { }
-|          PULLDOWN   { }
+gate_type: AND      { }
+|          NAND     { }
+|          OR       { }
+|          NOR      { }
+|          XOR      { }
+|          XNOR     { }
+|          BUF      { }
+|          NOT      { }
+|          BUFIF0   { }
+|          NOTIF0   { }
+|          BUFIF1   { }
+|          NOTIF1   { }
+|          PULLUP   { }
+|          PULLDOWN { }
 ;
 
-/*            Switch Primitive Types.            */
-/*************************************************/
-/* There are 12 types of switch primitive types. */
-/*************************************************/
+/*        Switch Primitive Types.       */
+/****************************************/
+/* There are 12 switch primitive types. */
+/****************************************/
 /* (1–output, 1–input, 1–control): pmos nmos rpmos rnmos */
 /* (1–output, 1–input, n-control, p-control): cmos rcmos */
 /* (2–bidirectional-inouts): tran rtran */
 /* (2–bidirectional-inouts, 1–control): tranif0 tranif1 rtranif0 rtranif1 */
-/*************************************************/
+/****************************************/
 switch_type: PMOS     { }
 |            NMOS     { }
 |            RPMOS    { }
@@ -703,6 +727,106 @@ switch_type: PMOS     { }
 |            TRANIF1  { }
 |            RTRANIF0 { }
 |            RTRANIF1 { }
+;
+
+/*           Procedural Blocks.          */
+/*****************************************/
+/* There is 1 type of procedural blocks. */
+/*****************************************/
+/* procedural_block: type_of_block @(sensitivity_list) statement_group */
+/* :group_name local_variable_declarations time_control procedural_statements */
+/* end_of_statement_group */
+/*****************************************/
+/* 'sensitivity_list', 'group_name', and 'local_variable_declarations' are */
+/* all optional. type_of_block is either 'initial' or 'always'. The */
+/* sensitivity list is used at the beginning of an always procedure to infer */
+/* combinational logic or sequential logic behavior in simulation. */
+procedural_block: INITIAL statement_group
+|                 ALWAYS sensitivity_list statement_group
+;
+
+/* begin—end groups two or more statements together sequentially. fork—join */
+/* groups two or more statements together in parallel. A statement group is */
+/* not required if there is only one procedural statement. Named groups may */
+/* have local variables, and may be aborted with a disable statement. */
+statement_group: named_begin_group    { }
+|                unnamed_begin_group  { }
+|                named_fork_group     { }
+|                unnamed_fork_group   { }
+|                procedural_statement { }
+;
+
+named_begin_group: BEGIN COLON IDENTIFIER named_group_procedural_statements END
+    { }
+;
+
+unnamed_begin_group: BEGIN unnamed_group_procedural_statements END { }
+;
+
+named_fork_group: FORK COLON IDENTIFIER named_group_procedural_statements JOIN
+    { }
+;
+
+unnamed_fork_group: FORK unnamed_group_procedural_statements JOIN { }
+;
+
+named_group_procedural_statements: named_group_procedural_statement { }
+|                                  named_group_procedural_statements
+    named_group_procedural_statement { }
+;
+
+/* time_control before procedural statements is optional. */
+named_group_procedural_statement: /* Local variable declaration. */
+                                   variable_declaration SEMICOLON { }
+                                   /* "disable group_name;" discontinues
+    execution of a named group of statements. */
+|                                  DISABLE SEMICOLON { }
+|                                  time_control procedural_statement SEMICOLON
+    { }
+|                                  procedural_statement SEMICOLON { }
+;
+
+unnamed_group_procedural_statements: unnamed_group_procedural_statement { }
+                                     unnamed_group_procedural_statements
+    unnamed_group_procedural_statement { }
+;
+
+/* time_control before procedural statements is optional. */
+unnamed_group_procedural_statement: time_control procedural_statement SEMICOLON
+    { }
+|                                   procedural_statement SEMICOLON { }
+;
+
+/*                        TODO                     */
+/* Time control (10.1), Procedural Assignment Statements (10.3), Procedural */
+/* Programming Statements (10.4) */
+
+/* There are 3 types of sensitivity lists. */
+/*******************************************/
+/* 1st type: always @(signal, signal, ... ) */
+/* 2nd type: always @* */
+/* 3rd type: always @(posedge signal, negedge signal, ... ) */
+/*******************************************/
+/* @* was added in Verilog-2001. */
+sensitivity_list: /* 1st type sensitivity lists. */
+                  AT OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES
+    { }
+                  /* 2nd type sensitivity lists. */
+|                 AT MULTIPLICATION { }
+                  /* 3rd type sensitivity lists. A specific edge should be
+    specified for each signal in the list. */
+|                 AT OPENPARENTHESES signal_list_with_edge CLOSEPARENTHESES { }
+;
+
+signal_list_with_edge: signal_with_edge                             { }
+|                      signal_list_with_edge COMMA signal_with_edge { }
+;
+
+signal_with_edge: edge IDENTIFIER { }
+;
+
+edge: POSEDGE { }
+|     NEGEDGE { }
 ;
 
 integer_or_real: NUM_INTEGER { }
