@@ -33,19 +33,17 @@
 /* Verilog 2001 gate primitive tokens. */
 %token AND NAND OR NOR XOR XNOR BUF NOT BUFIF0 NOTIF0 BUFIF1 NOTIF1 PULLUP
 %token PULLDOWN
-
 /* Verilog 2001 switch primitive tokens. */
 %token PMOS NMOS RPMOS RNMOS CMOS RCMOS TRAN RTRAN TRANIF0 TRANIF1 RTRANIF0
 %token RTRANIF1
-
 /* Verilog 2001 module instance tokens */
 %token DEFPARAM
-
 /* Verilog 2001 generate blocks */
 %token GENERATE ENDGENERATE
-
 /* Verilog 2001 continuous assignment */
 %token ASSIGN
+/* Version 2001 task definitions */
+%token TASK ENDTASK AUTOMATIC
 
 %error-verbose
 %locations
@@ -72,6 +70,7 @@ nonempty_identifier_list: IDENTIFIER { }
 block: /* empty */
 | block statement  { }
 | block generate_block { }
+| block task_definition { }
 ;
 /*          Generate Blocks             */
 /****************************************/
@@ -115,6 +114,77 @@ genvar:
       GENVAR nonempty_identifier_list SEMICOLON {printf("genvar\n"); }
 ;
 
+/*            Task Definitions            */
+/******************************************/
+/* There are two types of task definition */
+/******************************************/
+/* 1st type: (added in Verilog-2001) */
+/* task automatic task_name ( */
+/*   port_declaration port_name, port_name, ... ,  */
+/*   port_declaration port_name, port_name, ... ); */
+/*   local variable declarations */
+/*   procedural_statement or statement_group */
+/* endtask */
+/* 2st type: (old style) */
+/* task automatic task_name; */
+/*   port_declaration port_name, port_name, ...; */
+/*   port_declaration port_name, port_name, ...; */
+/*   local variable declarations */
+/*   procedural_statement or statement_group */
+/* endtask */
+/*******************************************/
+/* automatic is optional, port_declaration */
+/*  can be: port_direction signed range    */
+/*          port_direction reg signed range*/
+/*          port_direction port_type       */
+task_definition:
+                /* 1st type: (added in Verilog-2001) */
+               TASK AUTOMATIC IDENTIFIER OPENPARENTHESES task_port_list CLOSEPARENTHESES SEMICOLON 
+               task_body ENDTASK { printf("task_definition\n"); }
+|              TASK IDENTIFIER OPENPARENTHESES task_port_list CLOSEPARENTHESES SEMICOLON 
+               task_body ENDTASK { printf("task_definition\n"); }
+                /* 2st type: (old style) */
+|              TASK AUTOMATIC IDENTIFIER SEMICOLON task_port_body 
+               task_body ENDTASK { printf("task_definition\n"); }
+|              TASK IDENTIFIER SEMICOLON task_port_body 
+               task_body ENDTASK { printf("task_definition\n"); }
+;
+
+task_port_list: 
+|                   nonempty_task_port_list { }
+;
+
+nonempty_task_port_list: 
+                         task_port_declaration {printf("task_port_declaration "); }
+|                        task_port_declaration COMMA task_port_list { printf("task_port_declaration "); }
+;
+
+task_port_body:
+              task_port_declaration { printf("task_port_declaration "); }
+|             task_port_body SEMICOLON task_port_declaration SEMICOLON { printf("task_port_declaration "); }
+;
+
+task_port_declaration: 
+                     port_direction SIGNED range IDENTIFIER { }
+|                    port_direction SIGNED IDENTIFIER { }
+|                    port_direction range IDENTIFIER { }
+|                    port_direction REG SIGNED range IDENTIFIER { }
+|                    port_direction REG SIGNED IDENTIFIER { }
+|                    port_direction REG range IDENTIFIER { }
+|                    port_direction task_port_type IDENTIFIER { }
+;
+
+task_port_type: 
+              INTEGER { }
+|             TIME { }
+|             REAL { }
+|             REALTIME { }
+;
+
+task_body: declaration SEMICOLON { }
+|          declaration SEMICOLON task_body { }
+;
+
 statement: assignment  SEMICOLON { printf("\n"); }
 |          declaration SEMICOLON { printf("\n"); }
 |          declaration_with_attributes SEMICOLON { printf("\n"); }
@@ -145,13 +215,13 @@ attribute: IDENTIFIER                  { }
 
 declaration: port_declaration     { }
 |            net_declaration      
-    { printf("net_declaration"); }
+    { printf("net_declaration "); }
 |            variable_declaration 
-    { printf("variable_declaration"); }
+    { printf("variable_declaration "); }
 |            constant_or_event_declaration
-    { printf("constant_or_event_declaration"); }
+    { printf("constant_or_event_declaration "); }
 |            genvar
-    { printf("genvar_declaration"); }
+    { printf("genvar_declaration "); }
 ;
 
 /*             Port declarations.          */

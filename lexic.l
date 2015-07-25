@@ -28,7 +28,7 @@ inside them. */
 "always"              { printf("ALWAYS : %s \n",yytext); }
 "and"                 { return AND; }
 "assign"              { return ASSIGN; }
-"automatic"           { printf("AUTOMATIC\n"); }
+"automatic"           { return AUTOMATIC; }
 "begin"               { printf("BEGIN\n"); }
 "buf"                 { return BUF; }
 "bufif0"              { return BUFIF0; }
@@ -55,7 +55,7 @@ inside them. */
 "endprimitive"        { printf("ENDPRIMITIVE\n"); }
 "endspecify"          { printf("ENDSPECIFY\n"); }
 "endtable"            { printf("ENDTABLE\n"); }
-"endtask"             { printf("ENDTASK\n"); }
+"endtask"             { return ENDTASK; }
 "event"               { return EVENT; }
 "for"                 { printf("FOR\n"); }
 "force"               { printf("FORCE\n"); }
@@ -123,7 +123,7 @@ inside them. */
 "supply0"             { return SUPPLY0; }
 "supply1"             { return SUPPLY1; }
 "table"               { printf("TABLE\n"); }
-"task"                { printf("TASK\n"); }
+"task"                { return TASK; }
 "time"                { return TIME;}
 "tran"                { return TRAN; }
 "tranif0"             { return TRANIF0; }
