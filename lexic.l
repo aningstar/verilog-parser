@@ -27,7 +27,7 @@ inside them. */
     /* Match Verilog 2001 keywords. */
 "always"              { printf("ALWAYS : %s \n",yytext); }
 "and"                 { return AND; }
-"assign"              { printf("ASSIGN\n"); }
+"assign"              { return ASSIGN; }
 "automatic"           { printf("AUTOMATIC\n"); }
 "begin"               { printf("BEGIN\n"); }
 "buf"                 { return BUF; }

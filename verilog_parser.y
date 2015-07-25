@@ -44,6 +44,9 @@
 /* Verilog 2001 generate blocks */
 %token GENERATE ENDGENERATE
 
+/* Verilog 2001 continuous assignment */
+%token ASSIGN
+
 %error-verbose
 %locations
 
@@ -117,6 +120,7 @@ statement: assignment  SEMICOLON { printf("\n"); }
 |          declaration_with_attributes SEMICOLON { printf("\n"); }
 |          primitive_instance SEMICOLON { printf("primitive_instance\n"); }
 |          module_instances SEMICOLON { printf("module_instance\n"); }
+|          continuous_assignment SEMICOLON { }
 ;
 
 declaration_with_attributes: attributes declaration { }
@@ -518,6 +522,21 @@ constant_type: INTEGER    { printf("integer "); }
 assignment: IDENTIFIER EQUAL expression { printf("assignment "); }
 |           IDENTIFIER EQUAL array_select
     { printf("array_select_assignment "); }
+;
+
+/*            Continuous Assignments           */
+/***********************************************/
+/* There are 2 types of continuous assignments */
+/* 1st type : assign #(delay) net_name = expression; */
+/* 2st type : net_type (strength) [size] #(delay) net_name = expression; */
+/***********************************************/
+/* 2st type implemented on net declaration */
+/* delay , strength and size are optional */
+continuous_assignment: /* Explicit Continuous Assignment */
+                      ASSIGN delay IDENTIFIER EQUAL expression 
+                      { printf("explicit_continuous_assignment\n"); }
+|                     ASSIGN IDENTIFIER EQUAL expression
+                      { printf("explicit_continuous_assignment\n"); }
 ;
 
 expression: expression_term {printf("expression "); }
