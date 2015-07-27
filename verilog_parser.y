@@ -39,7 +39,7 @@
 /* Verilog 2001 module instance tokens */
 %token DEFPARAM
 /* Verilog 2001 procedural block tokens */
-%token INITIAL ALWAYS AT POSEDGE NEGEDGE BEGIN END FORK JOIN DISABLE
+%token INITIAL ALWAYS AT POSEDGE NEGEDGE BEGIN END FORK JOIN DISABLE WAIT
 
 %error-verbose
 %locations
@@ -165,83 +165,84 @@ other_type: PARAMETER  { }
 /* net_type keyword. */
 net_declaration: /* 1st type net declarations (except trireg). */
                  net_type_except_trireg optional_vectored_or_scalared SIGNED
-    range delay net_name_list { }
+    range transition_delay net_name_list { }
 |                net_type_except_trireg optional_vectored_or_scalared SIGNED
     range net_name_list { }
 |                net_type_except_trireg optional_vectored_or_scalared SIGNED
-    delay net_name_list { }
+    transition_delay net_name_list { }
 |                net_type_except_trireg optional_vectored_or_scalared SIGNED
     net_name_list { }
 |                net_type_except_trireg optional_vectored_or_scalared range
-    delay net_name_list { }
+    transition_delay net_name_list { }
 |                net_type_except_trireg optional_vectored_or_scalared range
     net_name_list { }
-|                net_type_except_trireg optional_vectored_or_scalared delay
-    net_name_list { }
+|                net_type_except_trireg optional_vectored_or_scalared
+    transition_delay net_name_list { }
 |                net_type_except_trireg optional_vectored_or_scalared
     net_name_list { }
                  /* 1st type net declarations (trireg). */
-|                TRIREG optional_vectored_or_scalared SIGNED range delay
-    net_name_list { }
+|                TRIREG optional_vectored_or_scalared SIGNED range
+    transition_delay net_name_list { }
 |                TRIREG optional_vectored_or_scalared SIGNED range
     net_name_list { }
-|                TRIREG optional_vectored_or_scalared SIGNED delay
+|                TRIREG optional_vectored_or_scalared SIGNED transition_delay
     net_name_list { }
 |                TRIREG optional_vectored_or_scalared SIGNED net_name_list { }
-|                TRIREG optional_vectored_or_scalared range delay
+|                TRIREG optional_vectored_or_scalared range transition_delay
     net_name_list { }
 |                TRIREG optional_vectored_or_scalared range net_name_list { }
-|                TRIREG optional_vectored_or_scalared delay net_name_list { }
+|                TRIREG optional_vectored_or_scalared transition_delay
+    net_name_list { }
 |                TRIREG optional_vectored_or_scalared net_name_list { }
                  /* 2nd type net declarations (except trireg). */
 |                net_type_except_trireg optional_vectored_or_scalared strength
-    SIGNED range delay IDENTIFIER EQUAL expression { }
+    SIGNED range transition_delay IDENTIFIER EQUAL expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
     SIGNED range IDENTIFIER EQUAL expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
-    SIGNED delay IDENTIFIER EQUAL expression { }
+    SIGNED transition_delay IDENTIFIER EQUAL expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
     SIGNED IDENTIFIER EQUAL expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
-    range delay IDENTIFIER EQUAL expression { }
+    range transition_delay IDENTIFIER EQUAL expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
     range IDENTIFIER EQUAL expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
-    delay IDENTIFIER EQUAL expression { }
+    transition_delay IDENTIFIER EQUAL expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
     IDENTIFIER EQUAL expression { }
                  /* 2nd type net declarations (trireg). */
 |                TRIREG optional_vectored_or_scalared strength SIGNED range
-    delay IDENTIFIER EQUAL expression { }
+    transition_delay IDENTIFIER EQUAL expression { }
 |                TRIREG optional_vectored_or_scalared strength SIGNED range
     IDENTIFIER EQUAL expression { }
-|                TRIREG optional_vectored_or_scalared strength SIGNED delay
-    IDENTIFIER EQUAL expression { }
+|                TRIREG optional_vectored_or_scalared strength SIGNED
+    transition_delay IDENTIFIER EQUAL expression { }
 |                TRIREG optional_vectored_or_scalared strength SIGNED IDENTIFIER
     EQUAL expression { }
-|                TRIREG optional_vectored_or_scalared strength range delay
-    IDENTIFIER EQUAL expression { }
+|                TRIREG optional_vectored_or_scalared strength range
+    transition_delay IDENTIFIER EQUAL expression { }
 |                TRIREG optional_vectored_or_scalared strength range IDENTIFIER
     EQUAL expression { }
-|                TRIREG optional_vectored_or_scalared strength delay IDENTIFIER
-    EQUAL expression { }
+|                TRIREG optional_vectored_or_scalared strength transition_delay
+    IDENTIFIER EQUAL expression { }
 |                TRIREG optional_vectored_or_scalared strength IDENTIFIER EQUAL
     expression { }
                  /* 3rd type net declarations. */
 |                TRIREG optional_vectored_or_scalared capacitance_strength
-    SIGNED range delay net_name_list { }
+    SIGNED range transition_delay net_name_list { }
 |                TRIREG optional_vectored_or_scalared capacitance_strength
     SIGNED range net_name_list { }
 |                TRIREG optional_vectored_or_scalared capacitance_strength
-    SIGNED delay net_name_list { }
+    SIGNED transition_delay net_name_list { }
 |                TRIREG optional_vectored_or_scalared capacitance_strength
     SIGNED net_name_list { }
 |                TRIREG optional_vectored_or_scalared capacitance_strength
-    range delay net_name_list { }
+    range transition_delay net_name_list { }
 |                TRIREG optional_vectored_or_scalared capacitance_strength
     range net_name_list { }
 |                TRIREG optional_vectored_or_scalared capacitance_strength
-    delay net_name_list { }
+    transition_delay net_name_list { }
 |                TRIREG optional_vectored_or_scalared capacitance_strength
     net_name_list { }
 ;
@@ -269,20 +270,22 @@ net_type_except_trireg: WIRE    { printf("wire "); }
 |                       TRIAND  { }
 ;
 
-/* Delays to transitions. */
+/* Delays to transitions. Each delay is actually a delay unit. */
 /* 1 delay (all transitions). */
 /* 2 delays (rise and fall transitions). */
 /* 3 delays (rise, fall and tri-state turn-off transitions). */
-delay: HASH transition                                                   { }
-|      HASH OPENPARENTHESES transition CLOSEPARENTHESES                  { }
-|      HASH OPENPARENTHESES transition COMMA transition CLOSEPARENTHESES { }
-|      HASH OPENPARENTHESES transition COMMA transition COMMA transition
-    CLOSEPARENTHESES { }
+transition_delay: HASH transition_delay_unit { }
+|                 HASH OPENPARENTHESES transition_delay_unit CLOSEPARENTHESES
+    { }
+|                 HASH OPENPARENTHESES transition_delay_unit COMMA
+    transition_delay_unit CLOSEPARENTHESES { }
+|                 HASH OPENPARENTHESES transition_delay_unit COMMA
+    transition_delay_unit COMMA transition_delay_unit CLOSEPARENTHESES { }
 ;
 
-/* Each delay transition can be a single number or a minimum:typical:max */
-/* delay range. */
-transition: integer_or_real                                             { }
+/* Each delay unit can be a single number or a minimum:typical:max delay */
+/* range. */
+transition_delay_unit: integer_or_real                                  { }
 |           integer_or_real COLON integer_or_real COLON integer_or_real { }
 ;
 
@@ -628,13 +631,13 @@ port_name_connection:
 /* all optional. Only gate primitives may have the output drive strength */
 /* specified. */
 primitive_instance: /* 1st type primitive instances. */
-                    gate_type strength delay IDENTIFIER range OPENPARENTHESES
+                    gate_type strength transition_delay IDENTIFIER range
+    OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength transition_delay IDENTIFIER
+    OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   gate_type strength transition_delay range OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type strength delay IDENTIFIER OPENPARENTHESES
-    nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type strength delay range OPENPARENTHESES
-    nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type strength delay OPENPARENTHESES
+|                   gate_type strength transition_delay OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES { }
 |                   gate_type strength IDENTIFIER range OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES { }
@@ -644,14 +647,14 @@ primitive_instance: /* 1st type primitive instances. */
     nonempty_identifier_list CLOSEPARENTHESES { }
 |                   gate_type strength OPENPARENTHESES nonempty_identifier_list
     CLOSEPARENTHESES { }
-|                   gate_type delay IDENTIFIER range OPENPARENTHESES
+|                   gate_type transition_delay IDENTIFIER range OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type delay IDENTIFIER OPENPARENTHESES
+|                   gate_type transition_delay IDENTIFIER OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type delay range OPENPARENTHESES
+|                   gate_type transition_delay range OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES { }
-|                   gate_type delay OPENPARENTHESES nonempty_identifier_list
-    CLOSEPARENTHESES { }
+|                   gate_type transition_delay OPENPARENTHESES
+    nonempty_identifier_list CLOSEPARENTHESES { }
 |                   gate_type IDENTIFIER range OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES { }
 |                   gate_type IDENTIFIER OPENPARENTHESES
@@ -661,14 +664,14 @@ primitive_instance: /* 1st type primitive instances. */
 |                   gate_type OPENPARENTHESES nonempty_identifier_list
     CLOSEPARENTHESES { }
                     /* 2nd type primitive instances. */
-|                   switch_type delay IDENTIFIER range OPENPARENTHESES
+|                   switch_type transition_delay IDENTIFIER range
+    OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES { }
+|                   switch_type transition_delay IDENTIFIER OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES { }
-|                   switch_type delay IDENTIFIER OPENPARENTHESES
+|                   switch_type transition_delay range OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES { }
-|                   switch_type delay range OPENPARENTHESES
+|                   switch_type transition_delay OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES { }
-|                   switch_type delay OPENPARENTHESES nonempty_identifier_list
-    CLOSEPARENTHESES { }
 |                   switch_type IDENTIFIER range OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES { }
 |                   switch_type IDENTIFIER OPENPARENTHESES
@@ -775,12 +778,11 @@ named_group_procedural_statements: named_group_procedural_statement { }
     named_group_procedural_statement { }
 ;
 
-/* time_control before procedural statements is optional. */
+/* "disable group_name;" discontinues execution of a named group of */
+/* statements. time_control before procedural statements is optional. */
 named_group_procedural_statement: /* Local variable declaration. */
                                    variable_declaration SEMICOLON { }
-                                   /* "disable group_name;" discontinues
-    execution of a named group of statements. */
-|                                  DISABLE SEMICOLON { }
+|                                  DISABLE IDENTIFIER SEMICOLON { }
 |                                  time_control procedural_statement SEMICOLON
     { }
 |                                  procedural_statement SEMICOLON { }
@@ -797,9 +799,67 @@ unnamed_group_procedural_statement: time_control procedural_statement SEMICOLON
 |                                   procedural_statement SEMICOLON { }
 ;
 
-/*                        TODO                     */
-/* Time control (10.1), Procedural Assignment Statements (10.3), Procedural */
-/* Programming Statements (10.4) */
+/*           Procedural Time Control.          */
+/***********************************************/
+/* There is 3 type of procedural time control. */
+/***********************************************/
+/* 1st type: #delay */
+/* 2nd type: @(edge signal or edge signal or ... ) */
+/* 3rd type: @(edge signal, edge signal, ... ) */
+/* 4th type: @(*) */
+/* 5th type: wait (expression) */
+/***********************************************/
+/* edge is optional maybe either 'posedge' or 'negedge'. If no edge is */
+/* specified, then any logic transition is used. The use of commas was added */
+/* in Verilog-2001. signal may be a net type or variable type, and may be any */
+/* vector size. An asterisk in place of the list of signals indicates */
+/* sensitivity to any edge of all signals that are read in the statement or */
+/* statement group that follows. @* was added in Verilog-2001. */
+time_control: /* 1st type procedural time control. Each delay unit can be a
+    single number or a minimum:typical:max delay range. */
+              HASH procedural_delay_type
+|             HASH OPENPARENTHESES procedural_delay_type CLOSEPARENTHESES
+|             OPENPARENTHESES procedural_delay_type COLON procedural_delay_type
+    COLON procedural_delay_type CLOSEPARENTHESES { }
+              /* 2nd type and 3rd type procedural time control. */
+|             AT OPENPARENTHESES procedural_time_conrol_signal_list
+    CLOSEPARENTHESES
+              /* Parenthesis are not required when there is only one signal in
+    the list and no edge is specified. */
+|             AT IDENTIFIER
+              /* 4th type procedural time control. */
+|             AT MULTIPLICATION
+              /* 5th type procedural time control. */
+|             WAIT OPENPARENTHESES expression CLOSEPARENTHESES
+;
+
+/* The procedural delay may be a literal number, a variable, or an */
+/* expression. */
+procedural_delay_type: number     { }
+|                      IDENTIFIER { }
+|                      expression { }
+;
+
+/* Either a comma or the keyword 'or' may be used to specify events on any */
+/* of several signals. The use of commas was added in Verilog-2001. */
+procedural_time_conrol_signal_list: procedural_time_conrol_signal
+                                    /* 2nd type procedural time control. */
+|                                   procedural_time_conrol_signal_list COMMA
+    procedural_time_conrol_signal
+                                    /* 3rd type procedural time control. */
+|                                   procedural_time_conrol_signal_list OR
+    procedural_time_conrol_signal
+;
+
+/* edge is optional maybe either 'posedge' or 'negedge'. If no edge is */
+/* specified, then any logic transition is used. */
+procedural_time_conrol_signal: edge IDENTIFIER
+|                              IDENTIFIER
+;
+
+/*                        TODO                         */
+/* Procedural Assignment Statements (10.3), Procedural Programming Statements */
+/* (10.4) */
 
 /* There are 3 types of sensitivity lists. */
 /*******************************************/

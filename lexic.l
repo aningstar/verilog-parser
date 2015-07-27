@@ -137,7 +137,7 @@ inside them. */
 "unsigned"            { printf("UNSIGNED\n"); }
 "use"                 { printf("USE\n"); }
 "vectored"            { return VECTORED; }
-"wait"                { printf("WAIT\n"); }
+"wait"                { return WAIT; }
 "wand"                { return WAND; }
 "weak0"               { return WEAK0; }
 "weak1"               { return WEAK1; }
