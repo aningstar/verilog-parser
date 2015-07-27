@@ -13,7 +13,7 @@
 /* Verilog 2001 signed literals. */
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
 %token MODULE ENDMODULE
-%token EQUAL COMMA COLON SEMICOLON HASH PERIOD
+%token EQUAL LESSTHAN COMMA COLON SEMICOLON HASH PERIOD
 %token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS
 /* Verilog 2001 port diractions. */
 %token INPUT OUTPUT INOUT
@@ -40,6 +40,7 @@
 %token DEFPARAM
 /* Verilog 2001 procedural block tokens */
 %token INITIAL ALWAYS AT POSEDGE NEGEDGE BEGIN END FORK JOIN DISABLE WAIT
+%token ASSIGN DEASSIGN FORCE RELEASE
 
 %error-verbose
 %locations
@@ -857,10 +858,65 @@ procedural_time_conrol_signal: edge IDENTIFIER
 |                              IDENTIFIER
 ;
 
-/*                        TODO                         */
-/* Procedural Assignment Statements (10.3), Procedural Programming Statements */
-/* (10.4) */
+procedural_statement: procedural_assignment_statement
+|                     procedural_programming_statement
+;
 
+/*            Procedural Assignment Statements.            */
+/***********************************************************/
+/* There are 10 types of procedural assignment statements. */
+/***********************************************************/
+/* 1st type: variable = expression; */
+/* 2nd type: variable <= expression; */
+/* 3rd type: timing_control variable = expression; */
+/* 4th type: timing_control variable <= expression; */
+/* 5th type: variable = timing_control expression; */
+/* 6th type: variable <= timing_control expression; */
+/* 7th type: assign variable = expression; */
+/* 8th type: deassign variable; */
+/* 9th type: force net_or_variable = expression; */
+/* 10th type: release net_or_variable; */
+/***********************************************************/
+/* 1st type is blocking procedural assignment. */
+procedural_assignment_statement: /* 1st type procedural assignment statement
+    (blocking procedural assignment). */
+                                 IDENTIFIER EQUAL expression
+                                 /* 2nd type procedural assignment statement
+    (non-blocking procedural assignment). */
+|                                IDENTIFIER LESSTHAN EQUAL expression
+                                 /* 3rd type procedural assignment statement
+    (delayed blocking procedural assignment). */
+|                                time_control IDENTIFIER EQUAL expression
+                                 /* 4th type procedural assignment statement
+    (delayed non-blocking procedural assignment). */
+|                                time_control IDENTIFIER LESSTHAN EQUAL
+    expression
+                                 /* 5th type procedural assignment statement
+    (blocking intra-assignment delay). */
+|                                IDENTIFIER EQUAL time_control expression
+                                 /* 6th type procedural assignment statement
+    (non-blocking intra-assignment delay). */
+|                                IDENTIFIER LESSTHAN EQUAL time_control
+    expression
+                                 /* 7th type procedural assignment statement
+    (procedural continuous assignment). */
+|                                ASSIGN IDENTIFIER EQUAL expression
+                                 /* 8th type procedural assignment statement
+    (de-activates a procedural continuous assignment). */
+|                                DEASSIGN IDENTIFIER
+                                 /* 9th type procedural assignment statement
+    (forces any data type to a value, overriding all other logic). */
+|                                FORCE IDENTIFIER EQUAL expression
+                                 /* 10th type procedural assignment statement
+    (removes the effect of a force). */
+|                                RELEASE IDENTIFIER
+;
+
+/*                   TODO                   */
+/* Procedural Programming Statements (10.4) */
+
+/*            Sensitivity Lists.           */
+/*******************************************/
 /* There are 3 types of sensitivity lists. */
 /*******************************************/
 /* 1st type: always @(signal, signal, ... ) */

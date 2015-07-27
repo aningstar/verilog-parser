@@ -27,7 +27,7 @@ inside them. */
     /* Match Verilog 2001 keywords. */
 "always"              { return ALWAYS; }
 "and"                 { return AND; }
-"assign"              { printf("ASSIGN\n"); }
+"assign"              { ASSIGN; }
 "automatic"           { printf("AUTOMATIC\n"); }
 "begin"               { return BEGIN; }
 "buf"                 { return BUF; }
@@ -39,7 +39,7 @@ inside them. */
 "cell"                { printf("CELL\n"); }
 "cmos"                { return CMOS; }
 "config"              { printf("CONFIG\n"); }
-"deassign"            { printf("DEASSIGN\n"); }
+"deassign"            { DEASSIGN; }
 "default"             { printf("DEFAULT\n"); }
 "defparam"            { printf("DEFPARAM\n"); }
 "design"              { printf("DESIGN\n"); }
@@ -58,7 +58,7 @@ inside them. */
 "endtask"             { printf("ENDTASK\n"); }
 "event"               { return EVENT; }
 "for"                 { printf("FOR\n"); }
-"force"               { printf("FORCE\n"); }
+"force"               { FORCE; }
 "forever"             { printf("FOREVER\n"); }
 "fork"                { return FORK; }
 "function"            { printf("FUNCTION\n"); }
@@ -104,7 +104,7 @@ inside them. */
 "real"                { return REAL; }
 "realtime"            { return REALTIME; }
 "reg"                 { return REG; }
-"release"             { printf("RELEASE\n"); }
+"release"             { return RELEASE; }
 "repeat"              { printf("REPEAT\n"); }
 "rnmos"               { return RNMOS; }
 "rpmos"               { return RPMOS; }
@@ -178,7 +178,7 @@ that comments are invisible to the parser). */
 "/"                   { printf("DIVISION : %s \n",yytext); }
 "%"                   { return MODULUS; }
 "="                   { return EQUAL; }
-"<"                   { printf("LESSTHAN : %s \n",yytext); }
+"<"                   { return LESSTHAN; }
 ">"                   { printf("GREATERTHAN : %s \n",yytext); }
 ":"                   { return COLON; }
 "?"                   { printf("QUESTION MARK : %s \n",yytext); }
