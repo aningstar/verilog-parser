@@ -27,27 +27,27 @@ inside them. */
     /* Match Verilog 2001 keywords. */
 "always"              { return ALWAYS; }
 "and"                 { return AND; }
-"assign"              { ASSIGN; }
+"assign"              { return ASSIGN; }
 "automatic"           { printf("AUTOMATIC\n"); }
-"begin"               { return BEGIN; }
+"begin"               { return BEGIN_TOKEN; }
 "buf"                 { return BUF; }
 "bufif0"              { return BUFIF0; }
 "bufif1"              { return BUFIF1; }
-"case"                { printf("CASE\n"); }
-"casex"               { printf("CASEX\n"); }
-"casez"               { printf("CASEZ\n"); }
+"case"                { return CASE; }
+"casex"               { return CASEX; }
+"casez"               { return CASEZ; }
 "cell"                { printf("CELL\n"); }
 "cmos"                { return CMOS; }
 "config"              { printf("CONFIG\n"); }
-"deassign"            { DEASSIGN; }
-"default"             { printf("DEFAULT\n"); }
+"deassign"            { return DEASSIGN; }
+"default"             { return DEFAULT; }
 "defparam"            { printf("DEFPARAM\n"); }
 "design"              { printf("DESIGN\n"); }
 "disable"             { return DISABLE; }
 "edge"                { printf("EDGE\n"); }
-"else"                { printf("ELSE\n"); }
+"else"                { return ELSE; }
 "end"                 { return END; }
-"endcase"             { printf("ENDCASE\n"); }
+"endcase"             { return ENDCASE; }
 "endconfig"           { printf("ENDCONFIG\n"); }
 "endfunction"         { printf("ENDFUNCTION\n"); }
 "endgenerate"         { printf("ENDGENERATE\n"); }
@@ -57,16 +57,16 @@ inside them. */
 "endtable"            { printf("ENDTABLE\n"); }
 "endtask"             { printf("ENDTASK\n"); }
 "event"               { return EVENT; }
-"for"                 { printf("FOR\n"); }
-"force"               { FORCE; }
-"forever"             { printf("FOREVER\n"); }
+"for"                 { return FOR; }
+"force"               { return FORCE; }
+"forever"             { return FOREVER; }
 "fork"                { return FORK; }
 "function"            { printf("FUNCTION\n"); }
 "generate"            { printf("GENERATE\n"); }
 "genvar"              { return GENVAR; }
 "highz0"              { printf("HIGHZ0\n"); }
 "highz1"              { printf("HIGHZ1\n"); }
-"if"                  { printf("IF\n"); }
+"if"                  { return IF; }
 "ifnone"              { printf("IFNONE\n"); }
 "initial"             { return INITIAL; }
 "instance"            { printf("INSTANCE\n"); }
@@ -105,7 +105,7 @@ inside them. */
 "realtime"            { return REALTIME; }
 "reg"                 { return REG; }
 "release"             { return RELEASE; }
-"repeat"              { printf("REPEAT\n"); }
+"repeat"              { return REPEAT; }
 "rnmos"               { return RNMOS; }
 "rpmos"               { return RPMOS; }
 "rtran"               { return RTRAN; }
@@ -141,7 +141,7 @@ inside them. */
 "wand"                { return WAND; }
 "weak0"               { return WEAK0; }
 "weak1"               { return WEAK1; }
-"while"               { printf("WHILE\n"); }
+"while"               { return WHILE; }
 "wire"                { return WIRE; }
 "wor"                 { return WOR; }
 "xnor"                { return XNOR; }

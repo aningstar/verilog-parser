@@ -36,11 +36,10 @@
 /* Verilog 2001 switch primitive tokens. */
 %token PMOS NMOS RPMOS RNMOS CMOS RCMOS TRAN RTRAN TRANIF0 TRANIF1 RTRANIF0
 %token RTRANIF1
-/* Verilog 2001 module instance tokens */
-%token DEFPARAM
 /* Verilog 2001 procedural block tokens */
-%token INITIAL ALWAYS AT POSEDGE NEGEDGE BEGIN END FORK JOIN DISABLE WAIT
-%token ASSIGN DEASSIGN FORCE RELEASE
+%token INITIAL ALWAYS AT POSEDGE NEGEDGE BEGIN_TOKEN END FORK JOIN DISABLE WAIT
+%token ASSIGN DEASSIGN FORCE RELEASE IF ELSE CASE ENDCASE DEFAULT CASEZ CASEX
+%token FOR WHILE REPEAT FOREVER
 
 %error-verbose
 %locations
@@ -73,6 +72,7 @@ statement: assignment  SEMICOLON { printf("\n"); }
 |          declaration_with_attributes SEMICOLON { printf("\n"); }
 |          primitive_instance SEMICOLON { printf("primitive_instance\n"); }
 |          module_instances SEMICOLON { printf("module_instance\n"); }
+|          procedural_block { printf("procedural_block\n"); }
 ;
 
 declaration_with_attributes: attributes declaration { }
@@ -287,7 +287,8 @@ transition_delay: HASH transition_delay_unit { }
 /* Each delay unit can be a single number or a minimum:typical:max delay */
 /* range. */
 transition_delay_unit: integer_or_real                                  { }
-|           integer_or_real COLON integer_or_real COLON integer_or_real { }
+|                      integer_or_real COLON integer_or_real COLON
+    integer_or_real { }
 ;
 
 net_name_list: net_name                     { }
@@ -745,8 +746,8 @@ switch_type: PMOS     { }
 /* all optional. type_of_block is either 'initial' or 'always'. The */
 /* sensitivity list is used at the beginning of an always procedure to infer */
 /* combinational logic or sequential logic behavior in simulation. */
-procedural_block: INITIAL statement_group
-|                 ALWAYS sensitivity_list statement_group
+procedural_block: INITIAL statement_group                 { }
+|                 ALWAYS sensitivity_list statement_group { }
 ;
 
 /* begin—end groups two or more statements together sequentially. fork—join */
@@ -760,11 +761,13 @@ statement_group: named_begin_group    { }
 |                procedural_statement { }
 ;
 
-named_begin_group: BEGIN COLON IDENTIFIER named_group_procedural_statements END
+/* NOTE: BEGIN is a keyword reserved for start conditions in flex. */
+/* BEGIN_TOKEN is used as the Verilog token instead. */
+named_begin_group: BEGIN_TOKEN COLON IDENTIFIER named_group_procedural_statements END
     { }
 ;
 
-unnamed_begin_group: BEGIN unnamed_group_procedural_statements END { }
+unnamed_begin_group: BEGIN_TOKEN unnamed_group_procedural_statements END { }
 ;
 
 named_fork_group: FORK COLON IDENTIFIER named_group_procedural_statements JOIN
@@ -782,22 +785,20 @@ named_group_procedural_statements: named_group_procedural_statement { }
 /* "disable group_name;" discontinues execution of a named group of */
 /* statements. time_control before procedural statements is optional. */
 named_group_procedural_statement: /* Local variable declaration. */
-                                   variable_declaration SEMICOLON { }
-|                                  DISABLE IDENTIFIER SEMICOLON { }
-|                                  time_control procedural_statement SEMICOLON
-    { }
-|                                  procedural_statement SEMICOLON { }
+                                   variable_declaration SEMICOLON    { }
+|                                  DISABLE IDENTIFIER SEMICOLON      { }
+|                                  time_control procedural_statement { }
+|                                  procedural_statement              { }
 ;
 
 unnamed_group_procedural_statements: unnamed_group_procedural_statement { }
-                                     unnamed_group_procedural_statements
+|                                    unnamed_group_procedural_statements
     unnamed_group_procedural_statement { }
 ;
 
 /* time_control before procedural statements is optional. */
-unnamed_group_procedural_statement: time_control procedural_statement SEMICOLON
-    { }
-|                                   procedural_statement SEMICOLON { }
+unnamed_group_procedural_statement: time_control procedural_statement { }
+|                                   procedural_statement              { }
 ;
 
 /*           Procedural Time Control.          */
@@ -818,48 +819,46 @@ unnamed_group_procedural_statement: time_control procedural_statement SEMICOLON
 /* statement group that follows. @* was added in Verilog-2001. */
 time_control: /* 1st type procedural time control. Each delay unit can be a
     single number or a minimum:typical:max delay range. */
-              HASH procedural_delay_type
-|             HASH OPENPARENTHESES procedural_delay_type CLOSEPARENTHESES
+              HASH procedural_delay_type { }
+|             HASH OPENPARENTHESES procedural_delay_type CLOSEPARENTHESES { }
 |             OPENPARENTHESES procedural_delay_type COLON procedural_delay_type
     COLON procedural_delay_type CLOSEPARENTHESES { }
               /* 2nd type and 3rd type procedural time control. */
 |             AT OPENPARENTHESES procedural_time_conrol_signal_list
-    CLOSEPARENTHESES
+    CLOSEPARENTHESES { }
               /* Parenthesis are not required when there is only one signal in
     the list and no edge is specified. */
-|             AT IDENTIFIER
+|             AT IDENTIFIER { }
               /* 4th type procedural time control. */
-|             AT MULTIPLICATION
+|             AT MULTIPLICATION { }
               /* 5th type procedural time control. */
-|             WAIT OPENPARENTHESES expression CLOSEPARENTHESES
+|             WAIT OPENPARENTHESES expression CLOSEPARENTHESES { }
 ;
 
 /* The procedural delay may be a literal number, a variable, or an */
 /* expression. */
-procedural_delay_type: number     { }
-|                      IDENTIFIER { }
-|                      expression { }
+procedural_delay_type: expression { }
 ;
 
 /* Either a comma or the keyword 'or' may be used to specify events on any */
 /* of several signals. The use of commas was added in Verilog-2001. */
-procedural_time_conrol_signal_list: procedural_time_conrol_signal
+procedural_time_conrol_signal_list: procedural_time_conrol_signal { }
                                     /* 2nd type procedural time control. */
 |                                   procedural_time_conrol_signal_list COMMA
-    procedural_time_conrol_signal
+    procedural_time_conrol_signal { }
                                     /* 3rd type procedural time control. */
 |                                   procedural_time_conrol_signal_list OR
-    procedural_time_conrol_signal
+    procedural_time_conrol_signal { }
 ;
 
 /* edge is optional maybe either 'posedge' or 'negedge'. If no edge is */
 /* specified, then any logic transition is used. */
-procedural_time_conrol_signal: edge IDENTIFIER
-|                              IDENTIFIER
+procedural_time_conrol_signal: edge IDENTIFIER { }
+|                              IDENTIFIER      { }
 ;
 
-procedural_statement: procedural_assignment_statement
-|                     procedural_programming_statement
+procedural_statement: procedural_assignment_statement SEMICOLON { }
+|                     procedural_programming_statement          { }
 ;
 
 /*            Procedural Assignment Statements.            */
@@ -877,43 +876,134 @@ procedural_statement: procedural_assignment_statement
 /* 9th type: force net_or_variable = expression; */
 /* 10th type: release net_or_variable; */
 /***********************************************************/
-/* 1st type is blocking procedural assignment. */
+/* NOTE: 3rd type and 4th type procedural assignment statements have been */
+/* covered already (time_control can precede any procedural_statement). */
 procedural_assignment_statement: /* 1st type procedural assignment statement
     (blocking procedural assignment). */
-                                 IDENTIFIER EQUAL expression
+                                 IDENTIFIER EQUAL expression { }
                                  /* 2nd type procedural assignment statement
     (non-blocking procedural assignment). */
-|                                IDENTIFIER LESSTHAN EQUAL expression
-                                 /* 3rd type procedural assignment statement
-    (delayed blocking procedural assignment). */
-|                                time_control IDENTIFIER EQUAL expression
-                                 /* 4th type procedural assignment statement
-    (delayed non-blocking procedural assignment). */
-|                                time_control IDENTIFIER LESSTHAN EQUAL
-    expression
+|                                IDENTIFIER LESSTHAN EQUAL expression { }
                                  /* 5th type procedural assignment statement
     (blocking intra-assignment delay). */
-|                                IDENTIFIER EQUAL time_control expression
+|                                IDENTIFIER EQUAL time_control expression { }
                                  /* 6th type procedural assignment statement
     (non-blocking intra-assignment delay). */
 |                                IDENTIFIER LESSTHAN EQUAL time_control
-    expression
+    expression { }
                                  /* 7th type procedural assignment statement
     (procedural continuous assignment). */
-|                                ASSIGN IDENTIFIER EQUAL expression
+|                                ASSIGN IDENTIFIER EQUAL expression { }
                                  /* 8th type procedural assignment statement
     (de-activates a procedural continuous assignment). */
-|                                DEASSIGN IDENTIFIER
+|                                DEASSIGN IDENTIFIER { }
                                  /* 9th type procedural assignment statement
     (forces any data type to a value, overriding all other logic). */
-|                                FORCE IDENTIFIER EQUAL expression
+|                                FORCE IDENTIFIER EQUAL expression { }
                                  /* 10th type procedural assignment statement
     (removes the effect of a force). */
-|                                RELEASE IDENTIFIER
+|                                RELEASE IDENTIFIER { }
 ;
 
-/*                   TODO                   */
-/* Procedural Programming Statements (10.4) */
+/*             Procedural Programming Statements.           */
+/************************************************************/
+/* There are 10 types of procedural programming statements. */
+/************************************************************/
+/* 1st type: if ( expression ) statement_or_statement_group */
+/* 2nd type: if ( expression ) statement_or_statement_group else */
+/*     statement_or_statement_group */
+/* 3rd type: case ( expression ) */
+/*               case_item: statement_or_statement_group */
+/*               case_item, case_item: statement_or_statement_group */
+/*               default: statement_or_statement_group */
+/*           endcase */
+/* 4th type: casez ( expression ) */
+/*               case_item: statement_or_statement_group */
+/*               case_item, case_item: statement_or_statement_group */
+/*               default: statement_or_statement_group */
+/*           endcase */
+/* 5th type: casex ( expression ) */
+/*               case_item: statement_or_statement_group */
+/*               case_item, case_item: statement_or_statement_group */
+/*               default: statement_or_statement_group */
+/*           endcase */
+/* 6th type: for ( initial_assignment; expression; step_assignment ) */
+/*     statement_or_statement_group */
+/* 7th type: while ( expression ) statement_or_statement_group */
+/* 8th type: repeat ( number ) statement_or_statement_group */
+/* 9th type: forever statement_or_statement_group */
+/* 10th type: disable group_name; */
+/***********************************************************/
+/* NOTE: The default case is optional in 3rd, 4th and 5th type procedural */
+/* programming statements. 10th type procedural programming statements are */
+/* included in named group statements only and as such aren't declared here. */
+procedural_programming_statement: /* 1st and 2nd type procedural programming
+    statements. */
+                                  if_statement { }
+                                  /* 3rd type procedural programming statement
+    (the default case is optional). */
+                                  CASE OPENPARENTHESES expression
+    CLOSEPARENTHESES case_list_with_optional_default_case ENDCASE { }
+                                  /* 4th type procedural programming statement
+    (special version of the case statement which uses a Z logic value to
+    represent don't-care bits in either the case expression or a case item). */
+|                                 CASEZ OPENPARENTHESES expression
+    CLOSEPARENTHESES case_list_with_optional_default_case ENDCASE { }
+                                  /* 5th type procedural programming statement
+    (special version of the case statement which uses Z or X logic values to
+    represent don't-care bits in either the case expression or a case item). */
+|                                 CASEX OPENPARENTHESES expression
+    CLOSEPARENTHESES case_list_with_optional_default_case ENDCASE { }
+                                  /* 6th type procedural programming statement.
+    */
+|                                 FOR OPENPARENTHESES
+    procedural_assignment_statement SEMICOLON expression SEMICOLON
+    procedural_assignment_statement CLOSEPARENTHESES statement_group { }
+                                  /* 7th type procedural programming statement.
+    */
+|                                 WHILE OPENPARENTHESES expression
+    CLOSEPARENTHESES statement_group { }
+                                  /* 8th type procedural programming statement
+    (the number may be an expression). */
+|                                 REPEAT OPENPARENTHESES expression
+    CLOSEPARENTHESES statement_group { }
+                                  /* 9th type procedural programming statement.
+    */
+|                                 FOREVER statement_group { }
+                                  /* NOTE: 10th type procedural programming
+    statement is declared in named_group_procedural_statement. */
+;
+
+if_statement: simple_if_statement                      { }
+|             simple_if_statement ELSE statement_group { }
+;
+
+simple_if_statement: IF OPENPARENTHESES expression CLOSEPARENTHESES
+    statement_group { }
+;
+
+/* case_item: statement_or_statement_group */
+/* case_item, case_item: statement_or_statement_group */
+/* default: statement_or_statement_group */
+case_list_with_optional_default_case: case_list              { }
+|                                     case_list default_case { }
+;
+
+case_list: case           { }
+|          case_list case { }
+;
+
+case: case_item_list COLON statement_group { }
+;
+
+/* The case expression can be a literal, a constant expression or a bit */
+/* select. */
+case_item_list: expression_term                      { }
+|               case_item_list COMMA expression_term { }
+;
+
+default_case: DEFAULT COLON statement_group { }
+;
 
 /*            Sensitivity Lists.           */
 /*******************************************/
