@@ -44,6 +44,8 @@
 %token ASSIGN
 /* Version 2001 task definitions */
 %token TASK ENDTASK AUTOMATIC
+/* Version 2001 function definitions */
+%token FUNCTION ENDFUNCTION
 
 %error-verbose
 %locations
@@ -71,6 +73,7 @@ block: /* empty */
 | block statement  { }
 | block generate_block { }
 | block task_definition { }
+| block function_definition { }
 ;
 /*          Generate Blocks             */
 /****************************************/
@@ -183,6 +186,53 @@ task_port_type:
 
 task_body: declaration SEMICOLON { }
 |          declaration SEMICOLON task_body { }
+;
+
+/*           Function Definitions            */
+/* There are 2 types of function definitions */
+/*********************************************/
+/* 1st type: */
+/* function automatic range_or_type function_name ( */
+/*     input range_or_type port_name, port_name, ... , */
+/*     input range_or_type port_name, port_name, ... ); */
+/*     local variable declarations */
+/*     procedural_statement or statement_group */
+/* endfunction */
+/* 2st type: */
+/* function automatic [range_or_type] function_name; */
+/*     input range_or_type port_name, port_name, ... ; */
+/*     input range_or_type port_name, port_name, ... ; */
+/*     local variable declarations */
+/*     procedural_statement or statement_group */
+/* endfunction */
+/*********************************************/
+
+function_definition:
+                   FUNCTION AUTOMATIC range_or_type IDENTIFIER OPENPARENTHESES function_parameters CLOSEPARENTHESES SEMICOLON function_body ENDFUNCTION { printf("function_definition\n"); }
+|                  FUNCTION range_or_type IDENTIFIER OPENPARENTHESES function_parameters CLOSEPARENTHESES SEMICOLON function_body ENDFUNCTION { printf("function_definition\n"); }
+|                  FUNCTION AUTOMATIC range_or_type IDENTIFIER SEMICOLON function_body ENDFUNCTION { printf("function_definition\n"); }
+|                  FUNCTION range_or_type IDENTIFIER SEMICOLON function_body ENDFUNCTION { printf("function_definition\n"); }
+;
+
+function_parameters: 
+                   INPUT range_or_type nonempty_identifier_list { }
+;
+
+function_body: 
+|             INPUT range_or_type nonempty_identifier_list SEMICOLON { }
+|             variable_declaration SEMICOLON{ }
+|             assignment SEMICOLON { }
+;
+
+range_or_type: 
+|            range { }
+|            SIGNED range { }
+|            REG SIGNED range { }
+|            REG range { }
+|            INTEGER { }
+|            TIME { }
+|            REAL { }
+|            REALTIME { }
 ;
 
 statement: assignment  SEMICOLON { printf("\n"); }
