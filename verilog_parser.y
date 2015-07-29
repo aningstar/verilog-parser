@@ -37,7 +37,7 @@
 %token PMOS NMOS RPMOS RNMOS CMOS RCMOS TRAN RTRAN TRANIF0 TRANIF1 RTRANIF0
 %token RTRANIF1
 /* Verilog 2001 procedural block tokens */
-%token INITIAL ALWAYS AT POSEDGE NEGEDGE BEGIN_TOKEN END FORK JOIN DISABLE WAIT
+%token INITIAL_TOKEN ALWAYS AT POSEDGE NEGEDGE BEGIN_TOKEN END FORK JOIN DISABLE WAIT
 %token ASSIGN DEASSIGN FORCE RELEASE IF ELSE CASE ENDCASE DEFAULT CASEZ CASEX
 %token FOR WHILE REPEAT FOREVER
 
@@ -64,7 +64,7 @@ nonempty_identifier_list: IDENTIFIER { }
 ;
 
 block: /* empty */
-| block statement  { }
+| block statement { }
 ;
 
 statement: assignment  SEMICOLON { printf("\n"); }
@@ -488,8 +488,9 @@ expression_term: number     { }
 |                bit_select { }
 ;
 
-expression_operation:  ADDITION    { }
-|                      SUBTRACTION { }
+expression_operation:  ADDITION       { }
+|                      SUBTRACTION    { }
+|                      MULTIPLICATION { }
 ;
 
 /*      Vector Bit Selects and Part Selects.     */
@@ -745,8 +746,10 @@ switch_type: PMOS     { }
 /* 'sensitivity_list', 'group_name', and 'local_variable_declarations' are */
 /* all optional. type_of_block is either 'initial' or 'always'. The */
 /* sensitivity list is used at the beginning of an always procedure to infer */
-/* combinational logic or sequential logic behavior in simulation. */
-procedural_block: INITIAL statement_group                 { }
+/* combinational logic or sequential logic behavior in simulation. NOTE: */
+/* INITIAL is a keyword reserved for start conditions in flex. INITIAL_TOKEN */
+/* is used as the Verilog token instead. */
+procedural_block: INITIAL_TOKEN statement_group           { }
 |                 ALWAYS sensitivity_list statement_group { }
 ;
 
@@ -754,17 +757,23 @@ procedural_block: INITIAL statement_group                 { }
 /* groups two or more statements together in parallel. A statement group is */
 /* not required if there is only one procedural statement. Named groups may */
 /* have local variables, and may be aborted with a disable statement. */
-statement_group: named_begin_group    { }
-|                unnamed_begin_group  { }
-|                named_fork_group     { }
-|                unnamed_fork_group   { }
-|                procedural_statement { }
+/* 'time_control' is optional at the start of a statement group. */
+statement_group: time_control named_begin_group    { }
+|                named_begin_group                 { }
+|                time_control unnamed_begin_group  { }
+|                unnamed_begin_group               { }
+|                time_control named_fork_group     { }
+|                named_fork_group                  { }
+|                time_control unnamed_fork_group   { }
+|                unnamed_fork_group                { }
+|                time_control procedural_statement { }
+|                procedural_statement              { }
 ;
 
 /* NOTE: BEGIN is a keyword reserved for start conditions in flex. */
 /* BEGIN_TOKEN is used as the Verilog token instead. */
-named_begin_group: BEGIN_TOKEN COLON IDENTIFIER named_group_procedural_statements END
-    { }
+named_begin_group: BEGIN_TOKEN COLON IDENTIFIER
+    named_group_procedural_statements END { }
 ;
 
 unnamed_begin_group: BEGIN_TOKEN unnamed_group_procedural_statements END { }
@@ -878,31 +887,40 @@ procedural_statement: procedural_assignment_statement SEMICOLON { }
 /***********************************************************/
 /* NOTE: 3rd type and 4th type procedural assignment statements have been */
 /* covered already (time_control can precede any procedural_statement). */
+/* variable can be a bit select. */
 procedural_assignment_statement: /* 1st type procedural assignment statement
     (blocking procedural assignment). */
-                                 IDENTIFIER EQUAL expression { }
+                                 variable_or_bit_select EQUAL expression { }
                                  /* 2nd type procedural assignment statement
     (non-blocking procedural assignment). */
-|                                IDENTIFIER LESSTHAN EQUAL expression { }
+|                                variable_or_bit_select LESSTHAN EQUAL
+    expression { }
                                  /* 5th type procedural assignment statement
     (blocking intra-assignment delay). */
-|                                IDENTIFIER EQUAL time_control expression { }
+|                                variable_or_bit_select EQUAL time_control
+    expression { }
                                  /* 6th type procedural assignment statement
     (non-blocking intra-assignment delay). */
-|                                IDENTIFIER LESSTHAN EQUAL time_control
-    expression { }
+|                                variable_or_bit_select LESSTHAN EQUAL
+    time_control expression { }
                                  /* 7th type procedural assignment statement
     (procedural continuous assignment). */
-|                                ASSIGN IDENTIFIER EQUAL expression { }
+|                                ASSIGN variable_or_bit_select EQUAL
+    expression { }
                                  /* 8th type procedural assignment statement
     (de-activates a procedural continuous assignment). */
-|                                DEASSIGN IDENTIFIER { }
+|                                DEASSIGN variable_or_bit_select { }
                                  /* 9th type procedural assignment statement
     (forces any data type to a value, overriding all other logic). */
-|                                FORCE IDENTIFIER EQUAL expression { }
+|                                FORCE variable_or_bit_select EQUAL
+    expression { }
                                  /* 10th type procedural assignment statement
     (removes the effect of a force). */
-|                                RELEASE IDENTIFIER { }
+|                                RELEASE variable_or_bit_select { }
+;
+
+variable_or_bit_select: IDENTIFIER { }
+|                       bit_select { }
 ;
 
 /*             Procedural Programming Statements.           */
@@ -942,7 +960,7 @@ procedural_programming_statement: /* 1st and 2nd type procedural programming
                                   if_statement { }
                                   /* 3rd type procedural programming statement
     (the default case is optional). */
-                                  CASE OPENPARENTHESES expression
+|                                 CASE OPENPARENTHESES expression
     CLOSEPARENTHESES case_list_with_optional_default_case ENDCASE { }
                                   /* 4th type procedural programming statement
     (special version of the case statement which uses a Z logic value to
