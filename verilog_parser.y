@@ -208,20 +208,60 @@ task_body: declaration SEMICOLON { }
 /*********************************************/
 
 function_definition:
-                   FUNCTION AUTOMATIC range_or_type IDENTIFIER OPENPARENTHESES function_parameters CLOSEPARENTHESES SEMICOLON function_body ENDFUNCTION { printf("function_definition\n"); }
-|                  FUNCTION range_or_type IDENTIFIER OPENPARENTHESES function_parameters CLOSEPARENTHESES SEMICOLON function_body ENDFUNCTION { printf("function_definition\n"); }
-|                  FUNCTION AUTOMATIC range_or_type IDENTIFIER SEMICOLON function_body ENDFUNCTION { printf("function_definition\n"); }
-|                  FUNCTION range_or_type IDENTIFIER SEMICOLON function_body ENDFUNCTION { printf("function_definition\n"); }
-;
+                   /* 1st type of function definition */
+                   FUNCTION AUTOMATIC range_or_type IDENTIFIER OPENPARENTHESES 
+                   function_parameters CLOSEPARENTHESES SEMICOLON function_body 
+                   ENDFUNCTION { printf("function_definition\n"); }
 
+                   /* without body */
+|                  FUNCTION AUTOMATIC range_or_type IDENTIFIER OPENPARENTHESES 
+                   function_parameters CLOSEPARENTHESES SEMICOLON  
+                   ENDFUNCTION { printf("function_definition\n"); }
+
+|                  FUNCTION range_or_type IDENTIFIER OPENPARENTHESES 
+                   function_parameters CLOSEPARENTHESES SEMICOLON function_body 
+                   ENDFUNCTION { printf("function_definition\n"); }
+                   
+                   /* without body */
+|                  FUNCTION range_or_type IDENTIFIER OPENPARENTHESES 
+                   function_parameters CLOSEPARENTHESES SEMICOLON ENDFUNCTION 
+                   { printf("function_definition\n"); }
+
+                   /* 2st type of function definition */
+|                  FUNCTION AUTOMATIC range_or_type IDENTIFIER SEMICOLON 
+                   function_input_declarations function_body ENDFUNCTION 
+                   { printf("function_definition\n"); }
+
+                   /* without body */
+|                  FUNCTION AUTOMATIC range_or_type IDENTIFIER SEMICOLON 
+                   function_input_declarations ENDFUNCTION 
+                   { printf("function_definition\n"); }
+
+|                  FUNCTION range_or_type IDENTIFIER SEMICOLON 
+                   function_input_declarations function_body ENDFUNCTION 
+                   { printf("function_definition\n"); }
+
+                   /* without body */
+|                  FUNCTION range_or_type IDENTIFIER SEMICOLON 
+                   function_input_declarations ENDFUNCTION 
+                   { printf("function_definition\n"); }
+;
+/* Must have at least one input; may not have outputs or inouts. */
 function_parameters: 
                    INPUT range_or_type nonempty_identifier_list { }
+|                  function_parameters INPUT range_or_type nonempty_identifier_list { }
+;
+
+function_input_declarations:
+                   INPUT range_or_type nonempty_identifier_list SEMICOLON { }
+|                  function_input_declarations INPUT range_or_type nonempty_identifier_list SEMICOLON { }
 ;
 
 function_body: 
-|             INPUT range_or_type nonempty_identifier_list SEMICOLON { }
-|             variable_declaration SEMICOLON{ }
+              variable_declaration SEMICOLON{ }
 |             assignment SEMICOLON { }
+|             function_body variable_declaration SEMICOLON { }
+|             function_body assignment SEMICOLON { }
 ;
 
 range_or_type: 
@@ -765,7 +805,7 @@ module_instances:
                 IDENTIFIER IDENTIFIER range OPENPARENTHESES connections CLOSEPARENTHESES { }
 |               IDENTIFIER IDENTIFIER OPENPARENTHESES connections CLOSEPARENTHESES { }
                 /* 3st type module instances (explicit parameter redefinition) */
-/* |               DEFPARAM IDENTIFIER PERIOD IDENTIFIER EQUAL number { } */
+|               DEFPARAM IDENTIFIER PERIOD IDENTIFIER EQUAL number { }
                 /* 4st and 5st type module instances(implicit and explicit) */
 |               IDENTIFIER HASH OPENPARENTHESES redefinition_list CLOSEPARENTHESES 
                 IDENTIFIER OPENPARENTHESES connections CLOSEPARENTHESES { }

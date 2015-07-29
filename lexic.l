@@ -41,7 +41,7 @@ inside them. */
 "config"              { printf("CONFIG\n"); }
 "deassign"            { printf("DEASSIGN\n"); }
 "default"             { printf("DEFAULT\n"); }
-"defparam"            { printf("DEFPARAM\n"); }
+"defparam"            { return DEFPARAM; }
 "design"              { printf("DESIGN\n"); }
 "disable"             { printf("DISABLE\n"); }
 "edge"                { printf("EDGE\n"); }
