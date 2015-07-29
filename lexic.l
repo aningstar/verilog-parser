@@ -28,7 +28,7 @@ inside them. */
 "always"              { return ALWAYS; }
 "and"                 { return AND; }
 "assign"              { return ASSIGN; }
-"automatic"           { printf("AUTOMATIC\n"); }
+"automatic"           { return AUTOMATIC; }
 "begin"               { return BEGIN_TOKEN; }
 "buf"                 { return BUF; }
 "bufif0"              { return BUFIF0; }
@@ -41,7 +41,7 @@ inside them. */
 "config"              { printf("CONFIG\n"); }
 "deassign"            { return DEASSIGN; }
 "default"             { return DEFAULT; }
-"defparam"            { printf("DEFPARAM\n"); }
+"defparam"            { return DEFPARAM; }
 "design"              { printf("DESIGN\n"); }
 "disable"             { return DISABLE; }
 "edge"                { printf("EDGE\n"); }
@@ -49,20 +49,20 @@ inside them. */
 "end"                 { return END; }
 "endcase"             { return ENDCASE; }
 "endconfig"           { printf("ENDCONFIG\n"); }
-"endfunction"         { printf("ENDFUNCTION\n"); }
-"endgenerate"         { printf("ENDGENERATE\n"); }
+"endfunction"         { return ENDFUNCTION; }
+"endgenerate"         { return ENDGENERATE; }
 "endmodule"           { return ENDMODULE; }
 "endprimitive"        { printf("ENDPRIMITIVE\n"); }
 "endspecify"          { printf("ENDSPECIFY\n"); }
 "endtable"            { printf("ENDTABLE\n"); }
-"endtask"             { printf("ENDTASK\n"); }
+"endtask"             { return ENDTASK; }
 "event"               { return EVENT; }
 "for"                 { return FOR; }
 "force"               { return FORCE; }
 "forever"             { return FOREVER; }
 "fork"                { return FORK; }
-"function"            { printf("FUNCTION\n"); }
-"generate"            { printf("GENERATE\n"); }
+"function"            { return FUNCTION; }
+"generate"            { return GENERATE; }
 "genvar"              { return GENVAR; }
 "highz0"              { printf("HIGHZ0\n"); }
 "highz1"              { printf("HIGHZ1\n"); }
@@ -123,7 +123,7 @@ inside them. */
 "supply0"             { return SUPPLY0; }
 "supply1"             { return SUPPLY1; }
 "table"               { printf("TABLE\n"); }
-"task"                { printf("TASK\n"); }
+"task"                { return TASK; }
 "time"                { return TIME;}
 "tran"                { return TRAN; }
 "tranif0"             { return TRANIF0; }
