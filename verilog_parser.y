@@ -142,29 +142,58 @@ genvar:
 /*          port_direction port_type       */
 task_definition:
                 /* 1st type: (added in Verilog-2001) */
-               TASK AUTOMATIC IDENTIFIER OPENPARENTHESES task_port_list CLOSEPARENTHESES SEMICOLON 
-               task_body ENDTASK { printf("task_definition\n"); }
-|              TASK IDENTIFIER OPENPARENTHESES task_port_list CLOSEPARENTHESES SEMICOLON 
-               task_body ENDTASK { printf("task_definition\n"); }
+               TASK AUTOMATIC IDENTIFIER OPENPARENTHESES task_port_list 
+               CLOSEPARENTHESES SEMICOLON task_body ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without body */
+|              TASK AUTOMATIC IDENTIFIER OPENPARENTHESES task_port_list 
+               CLOSEPARENTHESES SEMICOLON ENDTASK 
+               { printf("task_definition\n"); }
+
+|              TASK IDENTIFIER OPENPARENTHESES task_port_list CLOSEPARENTHESES 
+               SEMICOLON task_body ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without body */
+|              TASK IDENTIFIER OPENPARENTHESES task_port_list CLOSEPARENTHESES 
+               SEMICOLON ENDTASK 
+               { printf("task_definition\n"); }
+
                 /* 2st type: (old style) */
-|              TASK AUTOMATIC IDENTIFIER SEMICOLON task_port_body 
-               task_body ENDTASK { printf("task_definition\n"); }
-|              TASK IDENTIFIER SEMICOLON task_port_body 
-               task_body ENDTASK { printf("task_definition\n"); }
+|              TASK AUTOMATIC IDENTIFIER SEMICOLON task_port_body task_body 
+               ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without body */
+|              TASK AUTOMATIC IDENTIFIER SEMICOLON task_port_body ENDTASK 
+               { printf("task_definition\n"); }
+
+|              TASK IDENTIFIER SEMICOLON task_port_body task_body ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without body */
+|              TASK IDENTIFIER SEMICOLON task_port_body ENDTASK 
+               { printf("task_definition\n"); }
 ;
 
+/* May have any number of input, output or inout ports, including none. */
 task_port_list: 
 |                   nonempty_task_port_list { }
 ;
 
 nonempty_task_port_list: 
-                         task_port_declaration {printf("task_port_declaration "); }
-|                        task_port_declaration COMMA task_port_list { printf("task_port_declaration "); }
+                         task_port_declaration 
+                         {printf("task_port_declaration "); }
+|                        task_port_declaration COMMA task_port_list 
+                         { printf("task_port_declaration "); }
 ;
 
 task_port_body:
-              task_port_declaration { printf("task_port_declaration "); }
-|             task_port_body SEMICOLON task_port_declaration SEMICOLON { printf("task_port_declaration "); }
+              task_port_declaration SEMICOLON
+              { printf("task_port_declaration "); }
+|             task_port_body task_port_declaration SEMICOLON 
+              { printf("task_port_declaration "); }
 ;
 
 task_port_declaration: 
@@ -184,8 +213,9 @@ task_port_type:
 |             REALTIME { }
 ;
 
-task_body: declaration SEMICOLON { }
-|          declaration SEMICOLON task_body { }
+task_body: 
+           variable_declaration SEMICOLON { }
+|          variable_declaration SEMICOLON task_body { }
 ;
 
 /*           Function Definitions            */
