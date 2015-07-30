@@ -167,15 +167,32 @@ task_definition:
                ENDTASK 
                { printf("task_definition\n"); }
 
+               /* without ports */
+|              TASK AUTOMATIC IDENTIFIER SEMICOLON task_body 
+               ENDTASK 
+               { printf("task_definition\n"); }
+
                /* without body */
 |              TASK AUTOMATIC IDENTIFIER SEMICOLON task_port_body ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without ports and body */
+|              TASK AUTOMATIC IDENTIFIER SEMICOLON ENDTASK 
                { printf("task_definition\n"); }
 
 |              TASK IDENTIFIER SEMICOLON task_port_body task_body ENDTASK 
                { printf("task_definition\n"); }
 
+               /* without ports */
+|              TASK IDENTIFIER SEMICOLON task_body ENDTASK 
+               { printf("task_definition\n"); }
+
                /* without body */
 |              TASK IDENTIFIER SEMICOLON task_port_body ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without ports and body */
+|              TASK IDENTIFIER SEMICOLON ENDTASK 
                { printf("task_definition\n"); }
 ;
 
@@ -217,7 +234,9 @@ task_port_type:
 
 task_body: 
            variable_declaration SEMICOLON { }
+|          statement_group { }
 |          variable_declaration SEMICOLON task_body { }
+|          statement_group task_body { }
 ;
 
 /*           Function Definitions            */
