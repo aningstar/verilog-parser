@@ -36,10 +36,17 @@
 /* Verilog 2001 switch primitive tokens. */
 %token PMOS NMOS RPMOS RNMOS CMOS RCMOS TRAN RTRAN TRANIF0 TRANIF1 RTRANIF0
 %token RTRANIF1
-/* Verilog 2001 procedural block tokens */
-%token INITIAL_TOKEN ALWAYS AT POSEDGE NEGEDGE BEGIN_TOKEN END FORK JOIN DISABLE WAIT
-%token ASSIGN DEASSIGN FORCE RELEASE IF ELSE CASE ENDCASE DEFAULT CASEZ CASEX
+/* Verilog 2001 procedural block tokens. IF and THEN have precedence. */
+%token INITIAL_TOKEN ALWAYS AT POSEDGE NEGEDGE BEGIN_TOKEN END FORK JOIN DISABLE
+%token WAIT ASSIGN DEASSIGN FORCE RELEASE IF CASE ENDCASE DEFAULT CASEZ CASEX
 %token FOR WHILE REPEAT FOREVER
+
+/* Tokens with precedence. */
+
+/* THEN is a fictitious terminal symbol, given less precedence than the ELSE */
+/* token. That way, every 'else' is matched to the closest 'if'. */
+%nonassoc THEN
+%nonassoc ELSE
 
 %error-verbose
 %locations
@@ -955,9 +962,16 @@ variable_or_bit_select: IDENTIFIER { }
 /* NOTE: The default case is optional in 3rd, 4th and 5th type procedural */
 /* programming statements. 10th type procedural programming statements are */
 /* included in named group statements only and as such aren't declared here. */
-procedural_programming_statement: /* 1st and 2nd type procedural programming
-    statements. */
-                                  if_statement { }
+procedural_programming_statement: /* 1st type procedural programming
+    statements. Lower precedence than the rule below, so that each 'else'
+    statement group is matched to the closest 'if' statement group. */
+                                  IF OPENPARENTHESES expression CLOSEPARENTHESES
+    statement_group %prec THEN { printf("simple_if "); }
+                                  /* 2nd type procedural programming
+    statements. Higher precedence than the rule above, so that each 'else'
+    statement group is matched to the closest 'if' statement group. */                
+|                                 IF OPENPARENTHESES expression CLOSEPARENTHESES
+    statement_group ELSE statement_group %prec ELSE { printf("if_else ");}
                                   /* 3rd type procedural programming statement
     (the default case is optional). */
 |                                 CASE OPENPARENTHESES expression
@@ -990,14 +1004,6 @@ procedural_programming_statement: /* 1st and 2nd type procedural programming
 |                                 FOREVER statement_group { }
                                   /* NOTE: 10th type procedural programming
     statement is declared in named_group_procedural_statement. */
-;
-
-if_statement: simple_if_statement                      { }
-|             simple_if_statement ELSE statement_group { }
-;
-
-simple_if_statement: IF OPENPARENTHESES expression CLOSEPARENTHESES
-    statement_group { }
 ;
 
 /* case_item: statement_or_statement_group */

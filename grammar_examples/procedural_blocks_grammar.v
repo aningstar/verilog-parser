@@ -45,4 +45,30 @@ module abc (id3, id4);
     endcase
   end
   
+  /* 1st 'if' test (simple if). */
+  initial
+    begin
+      if (a)
+        word[15:8]<= word[7:0];
+    end
+  
+  /* 2nd 'if' test (if-else). */
+  initial
+    begin
+      if (a)
+        word[15:8]<= word[7:0];
+      else
+        word[7:0] <= word[15:8];
+    end
+  
+  /* 3rd 'if' test (the "dangling else" issue). */
+  initial
+    begin
+      if (a)
+        if (b)
+          word[15:8]<= word[7:0];
+        else
+          word[7:0] <= word[15:8];
+    end
+  
 endmodule
