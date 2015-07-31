@@ -231,7 +231,11 @@ task_port_type:
 |             REAL { }
 |             REALTIME { }
 ;
-
+/*                  TODO                              */
+/* procedural statement must be included to task body */
+/******************************************************/
+/* task body contains : local variable declarations   */ 
+/* and procedural_statement or statement_group        */
 task_body: 
            variable_declaration SEMICOLON { }
 |          statement_group { }
