@@ -42,7 +42,7 @@
 %token GENERATE ENDGENERATE
 /* Verilog 2001 procedural block tokens */
 %token INITIAL_TOKEN ALWAYS AT POSEDGE NEGEDGE BEGIN_TOKEN END FORK JOIN DISABLE WAIT
-%token ASSIGN DEASSIGN FORCE RELEASE IF ELSE CASE ENDCASE DEFAULT CASEZ CASEX
+%token ASSIGN DEASSIGN FORCE RELEASE IF IFNONE ELSE CASE ENDCASE DEFAULT CASEZ CASEX
 %token FOR WHILE REPEAT FOREVER
 /* Version 2001 task definitions */
 %token TASK ENDTASK AUTOMATIC
@@ -1356,10 +1356,18 @@ specify_item:
             { printf("specparam_declaration "); }
 |           simple_path_delay                  
             { printf("simple_path_delay "); }
+|           edge_sensitive_path_delay
+            { printf("edge_sensitive_path_delay "); }
+|           state_dependent_path_delay 
+            { printf("state_dependent_path_delay "); }
 |           specparam_declaration specify_item 
             { printf("specparam_declaration "); }
 |           simple_path_delay specify_item
             { printf("simple_path_delay "); }
+|           edge_sensitive_path_delay specify_item
+            { printf("edge_sensitive_path_delay "); }
+|           state_dependent_path_delay specify_item
+            { printf("state_dependent_path_delay "); }
 ;
 
 /* specparam must be declared inside specify */
@@ -1383,6 +1391,34 @@ simple_path_delay:
                   nonempty_identifier_list CLOSEPARENTHESES EQUAL path_delay 
                   SEMICOLON 
                   { }
+;
+
+/* (edge input_port path_token (output_port polarity:source)) = (delay); */
+edge_sensitive_path_delay:
+                         OPENPARENTHESES edge IDENTIFIER path_token 
+                         OPENPARENTHESES IDENTIFIER polarity COLON IDENTIFIER 
+                         CLOSEPARENTHESES CLOSEPARENTHESES EQUAL path_delay 
+                         SEMICOLON 
+                         { }
+
+;
+
+/* if (first_condition) simple_or_edge-sensitive_path_delay */
+/* if (next_condition) simple_or_edge-sensitive_path_delay */ 
+/* ifnone simple_path_delay */
+state_dependent_path_delay:
+                          IF OPENPARENTHESES condition CLOSEPARENTHESES 
+                          simple_path_delay 
+                          { }
+|                         IF OPENPARENTHESES condition CLOSEPARENTHESES 
+                          edge_sensitive_path_delay 
+                          { }
+|                         IFNONE simple_path_delay 
+                          { } 
+;
+
+condition: 
+         expression { }
 ;
 
 /* Polarity (optional) is either + or –. A – indicates the input will */

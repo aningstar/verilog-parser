@@ -55,6 +55,14 @@ specify
     (a, b, c +*> q1, q2) = 10;   // Positive Polarity
     (a, b, c -*> q1, q2) = 10;   // Negative Polarity
 
+    (posedge clk => (qb -: d)) = (2.6, 1.8);
+    (posedge clk=>(q +: d))=2;
+
+    specparam noninvrise = 1, noninvfall = 2;
+    specparam invertrise = 3, invertfall = 4;
+
+    if(a) (b=>out)=(invertrise,invertfall); // SDPD
+
 endspecify
 
 endmodule

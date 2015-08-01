@@ -67,7 +67,7 @@ inside them. */
 "highz0"              { printf("HIGHZ0\n"); }
 "highz1"              { printf("HIGHZ1\n"); }
 "if"                  { return IF; }
-"ifnone"              { printf("IFNONE\n"); }
+"ifnone"              { return IFNONE; }
 "initial"             { return INITIAL_TOKEN; }
 "instance"            { printf("INSTANCE\n"); }
 "inout"               { return INOUT; }
