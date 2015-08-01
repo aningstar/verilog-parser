@@ -13,7 +13,7 @@
 /* Verilog 2001 signed literals. */
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
 %token MODULE ENDMODULE
-%token EQUAL LESSTHAN COMMA COLON SEMICOLON HASH PERIOD
+%token EQUAL LESSTHAN GREATERTHAN COMMA COLON SEMICOLON HASH PERIOD
 %token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS
 /* Verilog 2001 port diractions. */
 %token INPUT OUTPUT INOUT
@@ -48,6 +48,8 @@
 %token TASK ENDTASK AUTOMATIC
 /* Version 2001 function definitions */
 %token FUNCTION ENDFUNCTION
+/* Version 2001 specify blocks */
+%token SPECIFY ENDSPECIFY
 
 %error-verbose
 %locations
@@ -76,6 +78,7 @@ block: /* empty */
 | block generate_block { }
 | block task_definition { }
 | block function_definition { }
+| block specify_block { }
 ;
 /*          Generate Blocks             */
 /****************************************/
@@ -411,7 +414,6 @@ port_type: REG                       { }
 
 other_type: PARAMETER  { }
 |           LOCALPARAM { }
-|           SPECPARAM  { }
 |           GENVAR     { }
 |           EVENT      { }
 ;
@@ -1332,6 +1334,125 @@ signal_with_edge: edge IDENTIFIER { }
 
 edge: POSEDGE { }
 |     NEGEDGE { }
+;
+
+/*           Specify Blocks              */
+/*****************************************/
+/* specify */
+/*   specparam_declarations */ 
+/*   simple_pin-to-pin_path_delay */
+/*   edge-sensitive_pin-to-pin_path_delay */
+/*   state-dependent_pin-to-pin_path_delay */
+/*   timing_constraint_checks */
+/* endspecify */
+/*****************************************/
+
+specify_block: 
+             SPECIFY specify_item ENDSPECIFY { printf("specify_block\n");}
+;
+
+specify_item:
+            specparam_declaration              
+            { printf("specparam_declaration "); }
+|           simple_path_delay                  
+            { printf("simple_path_delay "); }
+|           specparam_declaration specify_item 
+            { printf("specparam_declaration "); }
+|           simple_path_delay specify_item
+            { printf("simple_path_delay "); }
+;
+
+/* specparam must be declared inside specify */
+/* blocks. Cannot use defparam to override values */
+specparam_declaration: 
+                      SPECPARAM specparam_assignment_list SEMICOLON { }
+;
+
+specparam_assignment:
+                    IDENTIFIER EQUAL transition_delay_unit { }
+;
+
+specparam_assignment_list:
+                         specparam_assignment { }
+|                        specparam_assignment_list COMMA specparam_assignment { }
+;
+
+/* (input_port polarity:path_token output_port ) = (delay); */
+simple_path_delay: 
+                  OPENPARENTHESES nonempty_identifier_list polarity path_token 
+                  nonempty_identifier_list CLOSEPARENTHESES EQUAL path_delay 
+                  SEMICOLON 
+                  { }
+;
+
+/* Polarity (optional) is either + or –. A – indicates the input will */
+/* be inverted. Polarity is ignored by most simulators, but may be */
+/* used by timing analyzers. */
+polarity: 
+|       ADDITION    { }
+|       SUBTRACTION { }
+;
+
+/* Path_token is either *> for full connection or => for parallel connection. */
+/* Parallel connection indicates each input bit of a vector is connected to */
+/* its corresponding output bit (bit 0 to bit 0, bit 1 to bit 1, ...) */
+/* Full connection indicates an input bit may propagate to any output bit. */
+path_token: 
+            MULTIPLICATION GREATERTHAN { }
+|           EQUAL GREATERTHAN          { }
+;
+
+/* Separate delay sets for 1, 2, 3, 6 or 12 transitions may be specified. */
+/* Each delay set may have a single delay or a min:typ:max delay range. */
+path_delay:      /* all output transitions */
+                 transition_delay_unit
+                 { }
+|                IDENTIFIER 
+                 { }
+
+                 /* rise, fall output transitions */
+|                OPENPARENTHESES transition_delay_unit COMMA 
+                 transition_delay_unit CLOSEPARENTHESES 
+                 { }
+|                OPENPARENTHESES IDENTIFIER COMMA IDENTIFIER CLOSEPARENTHESES 
+                 { }
+
+                 /* rise, fall, turn-off output transitions */
+|                OPENPARENTHESES transition_delay_unit COMMA 
+                 transition_delay_unit COMMA transition_delay_unit 
+                 CLOSEPARENTHESES 
+                 { }
+|                OPENPARENTHESES IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER 
+                 CLOSEPARENTHESES 
+                 { }
+                 
+                 /* rise, fall, 0–>Z, Z–>1, 1–>Z, Z–>0 */
+|                OPENPARENTHESES transition_delay_unit COMMA 
+                 transition_delay_unit COMMA transition_delay_unit 
+                 COMMA transition_delay_unit COMMA transition_delay_unit COMMA 
+                 transition_delay_unit CLOSEPARENTHESES 
+                 { }
+|                OPENPARENTHESES IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER 
+                 COMMA IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER 
+                 CLOSEPARENTHESES 
+                 { }
+                    
+                 /* rise, fall, 0->Z, Z->1, 1->Z, Z->0, */
+                 /* 0->X, X->1, 1->X, X->0, X->Z, Z->X  */
+|                OPENPARENTHESES transition_delay_unit COMMA 
+                 transition_delay_unit COMMA transition_delay_unit 
+                 COMMA transition_delay_unit COMMA transition_delay_unit
+                 COMMA transition_delay_unit COMMA transition_delay_unit
+                 COMMA transition_delay_unit COMMA transition_delay_unit
+                 COMMA transition_delay_unit COMMA transition_delay_unit
+                 COMMA transition_delay_unit
+                 { }
+|                OPENPARENTHESES IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER 
+                 COMMA IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER 
+                 COMMA IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER
+                 COMMA IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER
+                 { }
+
 ;
 
 integer_or_real: NUM_INTEGER { }

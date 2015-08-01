@@ -53,7 +53,7 @@ inside them. */
 "endgenerate"         { return ENDGENERATE; }
 "endmodule"           { return ENDMODULE; }
 "endprimitive"        { printf("ENDPRIMITIVE\n"); }
-"endspecify"          { printf("ENDSPECIFY\n"); }
+"endspecify"          { return ENDSPECIFY; }
 "endtable"            { printf("ENDTABLE\n"); }
 "endtask"             { return ENDTASK; }
 "event"               { return EVENT; }
@@ -115,7 +115,7 @@ inside them. */
 "signed"              { return SIGNED; }
 "showcancelled"       { printf("SHOWCANCELLED\n"); }
 "small"               { return SMALL; }
-"specify"             { printf("SPECIFY\n"); }
+"specify"             { return SPECIFY; }
 "specparam"           { return SPECPARAM; }
 "strength"            { printf("STRENGTH\n"); }
 "strong0"             { return STRONG0; }
@@ -179,7 +179,7 @@ that comments are invisible to the parser). */
 "%"                   { return MODULUS; }
 "="                   { return EQUAL; }
 "<"                   { return LESSTHAN; }
-">"                   { printf("GREATERTHAN : %s \n",yytext); }
+">"                   { return GREATERTHAN; }
 ":"                   { return COLON; }
 "?"                   { printf("QUESTION MARK : %s \n",yytext); }
 "~"                   { printf("NEGATION : %s \n",yytext); }

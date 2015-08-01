@@ -1,0 +1,96 @@
+module abc (id3, id4);
+
+specify
+    specparam tRise_clk_q=150, tFall_clk_q=200;
+    specparam tRise_control=40, tFall_control=50;
+    (a => b) = 1.8;
+    (a -*> b) = 2:3:4;
+
+    specparam t1 = 3:4:6,
+              t2 = 2:3:4;
+    (a => y) = (t1,t2);
+
+    // Syntax: (module_path)=delay;
+    // one delay value is assigned to all transitions:
+    //      0->1, 1->0, 0->Z, Z->1, 1->Z, z->0
+    //
+    // Examples:
+    (C=>Q)=20;  // assigns a delay of 20 for all
+                // transitions from C to Q
+
+    (C=>Q)=10:14:20; // assigns min:typ:max delays to all
+                     // transitions from C to Q
+
+    // Syntax:   (module_path)=(rise_delay,fall_delay);
+    // transitions:  0->1       1->0
+    //               0->z       1->z
+    //               z->1       z->0
+    // Examples:
+    specparam tPLH=12,tPHL=25;
+    (C=>Q)=(tPLH,tPHL);
+    specparam tPLH=12:16:22,tPHL=16:22:25;
+    (C=>Q)=(tPLH,tPHL);
+
+    // Syntax: (module_path)=(rise_delay, fall_delay, z_delay);
+    //          0->1 1->0 0->z
+    //          z->1 z->0 1->z
+    // Examples:
+
+    specparam tPLH = 12, tPHL = 22, tPz = 34;
+    (C => Q) = (tPLH, tPHL, tPz);
+    specparam tPLH=12:14:30, tPHL=16:22:40, tPz=22:30:34;
+    (C => Q) = (tPLH, tPHL, tPz);
+
+    // Syntax: (module_path)=(delay,delay,delay,delay,delay,delay);
+    //          0->1 1->0 0->z z->1 1->z z->0
+    // Examples:
+
+    specparam t01=12, t10=16, t0z=13, tz1=10, t1z=14, tz0=34;
+    (C => Q) = ( t01, t10, t0z, tz1, t1z, tz0);
+    specparam t01=12:14:24, t10=16:18:20, t0z=13:16:30;
+    specparam tz1=10:12:16, t1z=14:23:36, tz0=15:19:34;
+    (C => Q) = ( t01, t10, t0z, tz1, t1z, tz0) ;
+
+    // assign the same polarity to multiple module paths in a single statement
+    (a, b, c +*> q1, q2) = 10;   // Positive Polarity
+    (a, b, c -*> q1, q2) = 10;   // Negative Polarity
+
+endspecify
+
+endmodule
+
+module adder (A, B, sum, carry);
+
+    input A, B;
+    output sum, carry ;
+
+    //TODO not works for now
+    //wire sum = A + B ; //continuous assignment
+    //wire carry = A & B ; //continuous assignment
+
+    specify
+        //module path delays
+        (A, B *> sum) = 10 ;
+        (A, B *> carry) = 5 ;
+    endspecify
+endmodule
+
+module adder (A, B, sum_sig, carry_sig);
+    input A, B;
+    output sum_sig, carry_sig ;
+
+    //TODO not works for now
+    //wire sum = A + B ; //continuous assignment
+    //wire carry = A & B ; //continuous assignment
+
+    buf g1 (sum_sig, sum) ; //zero delay buf
+    buf g2 (carry_sig, carry) ; //zero delay buf
+
+    specify
+        //module path delays
+        (A, B *> sum_sig) = 10 ;
+        (A, B *> carry_sig) = 5 ;
+    endspecify
+endmodule
+
+
