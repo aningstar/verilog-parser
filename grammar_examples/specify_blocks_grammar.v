@@ -98,7 +98,20 @@ module adder (A, B, sum_sig, carry_sig);
         //module path delays
         (A, B *> sum_sig) = 10 ;
         (A, B *> carry_sig) = 5 ;
+
     endspecify
+
+    specify
+        (clk => q) = 12;
+        (data => q) = 10;
+        (clr, pre *> q) = 4;
+        specparam
+            PATHPULSE $ = 3,
+            PATHPULSE $ = ( 3, 5),
+            PATHPULSE $ clk $ q = ( 2, 9 ),
+            PATHPULSE $ clr $ q = 1;
+    endspecify
+
 endmodule
 
 

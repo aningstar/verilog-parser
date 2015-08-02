@@ -147,6 +147,8 @@ inside them. */
 "xnor"                { return XNOR; }
 "xor"                 { return XOR; }
 
+"PATHPULSE"           { return PATHPULSE; }
+
     /* Match Verilog 2001 comments. Tokens are not returned for comments (so
 that comments are invisible to the parser). */
 <INITIAL>{
@@ -184,7 +186,7 @@ that comments are invisible to the parser). */
 "?"                   { printf("QUESTION MARK : %s \n",yytext); }
 "~"                   { printf("NEGATION : %s \n",yytext); }
 "."                   { return PERIOD; }
-"$"                   { printf("DOLLAR : %s \n",yytext); }
+"$"                   { return DOLLAR; }
 
     /* Match Verilog 2001 identifiers. */
 [a-zA-Z_][a-zA-Z0-9_$]*                            { return IDENTIFIER; }

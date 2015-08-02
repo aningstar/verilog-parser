@@ -49,8 +49,7 @@
 /* Version 2001 function definitions */
 %token FUNCTION ENDFUNCTION
 /* Version 2001 specify blocks */
-%token SPECIFY ENDSPECIFY
-
+%token SPECIFY ENDSPECIFY PATHPULSE DOLLAR
 %error-verbose
 %locations
 
@@ -1376,13 +1375,41 @@ specparam_declaration:
                       SPECPARAM specparam_assignment_list SEMICOLON { }
 ;
 
-specparam_assignment:
-                    IDENTIFIER EQUAL transition_delay_unit { }
-;
-
 specparam_assignment_list:
                          specparam_assignment { }
 |                        specparam_assignment_list COMMA specparam_assignment { }
+;
+
+specparam_assignment:
+                    IDENTIFIER EQUAL transition_delay_unit { }
+|                   pulse_control_specparam { }
+;
+
+/* A special specparam constant can be used to control whether the pulse */
+/* will propagate to the output (transport delay), not propagate to the */
+/* output (inertial delay), or result in a logic X on the output. */
+pulse_control_specparam:
+                        /* specparam PATHPULSE$ = single_limit; */
+                       PATHPULSE DOLLAR EQUAL transition_delay_unit 
+                       { printf("pulse_control_specparam "); }
+
+                        /* specparam PATHPULSE$ = (reject_limit, error_limit); */
+|                      PATHPULSE DOLLAR EQUAL OPENPARENTHESES 
+                       transition_delay_unit COMMA transition_delay_unit 
+                       CLOSEPARENTHESES
+                       { printf("pulse_control_specparam "); }
+
+                        /* specparam PATHPULSE$input$output = */
+                        /* (reject_limit, error_limit); */
+|                      PATHPULSE DOLLAR IDENTIFIER DOLLAR IDENTIFIER EQUAL 
+                       OPENPARENTHESES transition_delay_unit COMMA 
+                       transition_delay_unit CLOSEPARENTHESES 
+                       { printf("pulse_control_specparam "); }
+
+                        /* specparam PATHPULSE$input$output = single_limit; */
+|                      PATHPULSE DOLLAR IDENTIFIER DOLLAR IDENTIFIER EQUAL 
+                       transition_delay_unit 
+                       { printf("pulse_control_specparam "); }
 ;
 
 /* (input_port polarity:path_token output_port ) = (delay); */
