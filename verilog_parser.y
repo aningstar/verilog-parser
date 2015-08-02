@@ -1417,6 +1417,8 @@ state_dependent_path_delay:
                           { } 
 ;
 
+/* TODO */
+/* check for illegal expressions */
 condition: 
          expression { }
 ;
