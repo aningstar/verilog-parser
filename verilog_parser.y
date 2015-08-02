@@ -1419,38 +1419,38 @@ pulse_control_specparam:
 
 pulse_propagation:
                   /* pulsestyle_onevent list_of_path_outputs; */
-                 DOLLAR PULSESTYLE_ONEVENT SEMICOLON
+                 PULSESTYLE_ONEVENT SEMICOLON
                  { }
-|                DOLLAR PULSESTYLE_ONEVENT IDENTIFIER SEMICOLON
+|                PULSESTYLE_ONEVENT IDENTIFIER SEMICOLON
                  { }
-|                DOLLAR PULSESTYLE_ONEVENT OPENPARENTHESES identifier_list 
+|                PULSESTYLE_ONEVENT OPENPARENTHESES nonempty_identifier_list 
                  CLOSEPARENTHESES SEMICOLON
                  { }
 
                   /* pulsestyle_ondetect list_of_path_outputs; */
-|                DOLLAR PULSESTYLE_ONDETECT SEMICOLON
+|                PULSESTYLE_ONDETECT SEMICOLON
                  { }
-|                DOLLAR PULSESTYLE_ONDETECT IDENTIFIER SEMICOLON
+|                PULSESTYLE_ONDETECT IDENTIFIER SEMICOLON
                  { }
-|                DOLLAR PULSESTYLE_ONDETECT OPENPARENTHESES identifier_list 
+|                PULSESTYLE_ONDETECT OPENPARENTHESES nonempty_identifier_list 
                  CLOSEPARENTHESES SEMICOLON
                  { }
 
                   /* showcancelled list_of_path_outputs; */
-|                DOLLAR SHOWCANCELLED SEMICOLON
+|                SHOWCANCELLED SEMICOLON
                  { }
-|                DOLLAR SHOWCANCELLED IDENTIFIER SEMICOLON
+|                SHOWCANCELLED IDENTIFIER SEMICOLON
                  { }
-|                DOLLAR SHOWCANCELLED OPENPARENTHESES identifier_list 
+|                SHOWCANCELLED OPENPARENTHESES nonempty_identifier_list 
                  CLOSEPARENTHESES SEMICOLON
                  { }
 
                   /* noshowcancelled list_of_path_outputs; */
-|                DOLLAR NOSHOWCANCELLED SEMICOLON
+|                NOSHOWCANCELLED SEMICOLON
                  { }
-|                DOLLAR NOSHOWCANCELLED IDENTIFIER SEMICOLON
+|                NOSHOWCANCELLED IDENTIFIER SEMICOLON
                  { }
-|                DOLLAR NOSHOWCANCELLED OPENPARENTHESES identifier_list 
+|                NOSHOWCANCELLED OPENPARENTHESES nonempty_identifier_list 
                  CLOSEPARENTHESES SEMICOLON
                  { }
 ;

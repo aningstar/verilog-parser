@@ -114,30 +114,30 @@ module adder (A, B, sum_sig, carry_sig);
 
     specify
         (in => outbar) = (2, 3);   // on event (by default)
-        $pulsestyle_ondetect;      // affects out
+        pulsestyle_ondetect;      // affects out
         (in => out) = (5, 6);      //    on detect style
         (clk => out) = (4);        //    on detect style
-        $pulsestyle_onevent;       // affects synch and out
+        pulsestyle_onevent;       // affects synch and out
         (in => sync) = (20, 30);   //    on event style
         (in => out) = (7, 9);   //    on event style
     endspecify
     specify
-        $pulsestyle_ondetect(out); // affects out only
+        pulsestyle_ondetect(out); // affects out only
         (in=>out)=(15,25);         //    on detect style
         (clk=>q)=5;                //    on event style (by default)
     endspecify
 
     specify
         (in => outbar) = (2, 3);  // not shown by default
-        $showcancelled;  // $showcancelled affects out
+        showcancelled;  // $showcancelled affects out
         (in => out) = (5, 6);
         (clk => out) = (4);
-        $noshowcancelled;  // affects sync and out
+        noshowcancelled;  // affects sync and out
         (in => sync) = (20, 30);
         (in => out) = (7, 9);
     endspecify
     specify
-        $showcancelled(out); // affects out only
+        showcancelled(out); // affects out only
         (in=>out)=(15,25);
         (clk=>q)=5;
     endspecify
