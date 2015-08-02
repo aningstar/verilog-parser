@@ -85,7 +85,7 @@ inside them. */
 "nmos"                { return NMOS; }
 "nor"                 { return NOR; }
 "not"                 { return NOT; }
-"noshowcancelled"     { printf("NOSHOWCANCELLED\n"); } 
+"noshowcancelled"     { return NOSHOWCANCELLED; } 
 "notif0"              { return NOTIF0; }
 "notif1"              { return NOTIF1; }
 "or"                  { return OR; }
@@ -98,8 +98,8 @@ inside them. */
 "pull1"               { return PULL1; }
 "pulldown"            { return PULLDOWN; }
 "pullup"              { return PULLUP; }
-"pulsestyle_onevent"  { printf("PULSESTYLE_ONEVENT\n"); }
-"pulsestyle_ondetect" { printf("PULSESTYLE_ONDETECT\n"); }
+"pulsestyle_onevent"  { return PULSESTYLE_ONEVENT; }
+"pulsestyle_ondetect" { return PULSESTYLE_ONDETECT; }
 "rcmos"               { return RCMOS; }
 "real"                { return REAL; }
 "realtime"            { return REALTIME; }
@@ -113,7 +113,7 @@ inside them. */
 "rtranif1"            { return RTRANIF1; }
 "scalared"            { return SCALARED; }
 "signed"              { return SIGNED; }
-"showcancelled"       { printf("SHOWCANCELLED\n"); }
+"showcancelled"       { return SHOWCANCELLED; }
 "small"               { return SMALL; }
 "specify"             { return SPECIFY; }
 "specparam"           { return SPECPARAM; }

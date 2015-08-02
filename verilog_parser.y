@@ -50,6 +50,7 @@
 %token FUNCTION ENDFUNCTION
 /* Version 2001 specify blocks */
 %token SPECIFY ENDSPECIFY PATHPULSE DOLLAR
+%token PULSESTYLE_ONEVENT PULSESTYLE_ONDETECT SHOWCANCELLED NOSHOWCANCELLED
 %error-verbose
 %locations
 
@@ -1359,6 +1360,8 @@ specify_item:
             { printf("edge_sensitive_path_delay "); }
 |           state_dependent_path_delay 
             { printf("state_dependent_path_delay "); }
+|           pulse_propagation 
+            { printf("pulse_propagation "); }
 |           specparam_declaration specify_item 
             { printf("specparam_declaration "); }
 |           simple_path_delay specify_item
@@ -1367,6 +1370,8 @@ specify_item:
             { printf("edge_sensitive_path_delay "); }
 |           state_dependent_path_delay specify_item
             { printf("state_dependent_path_delay "); }
+|           pulse_propagation specify_item
+            { printf("pulse_propagation "); }
 ;
 
 /* specparam must be declared inside specify */
@@ -1410,6 +1415,44 @@ pulse_control_specparam:
 |                      PATHPULSE DOLLAR IDENTIFIER DOLLAR IDENTIFIER EQUAL 
                        transition_delay_unit 
                        { printf("pulse_control_specparam "); }
+;
+
+pulse_propagation:
+                  /* pulsestyle_onevent list_of_path_outputs; */
+                 DOLLAR PULSESTYLE_ONEVENT SEMICOLON
+                 { }
+|                DOLLAR PULSESTYLE_ONEVENT IDENTIFIER SEMICOLON
+                 { }
+|                DOLLAR PULSESTYLE_ONEVENT OPENPARENTHESES identifier_list 
+                 CLOSEPARENTHESES SEMICOLON
+                 { }
+
+                  /* pulsestyle_ondetect list_of_path_outputs; */
+|                DOLLAR PULSESTYLE_ONDETECT SEMICOLON
+                 { }
+|                DOLLAR PULSESTYLE_ONDETECT IDENTIFIER SEMICOLON
+                 { }
+|                DOLLAR PULSESTYLE_ONDETECT OPENPARENTHESES identifier_list 
+                 CLOSEPARENTHESES SEMICOLON
+                 { }
+
+                  /* showcancelled list_of_path_outputs; */
+|                DOLLAR SHOWCANCELLED SEMICOLON
+                 { }
+|                DOLLAR SHOWCANCELLED IDENTIFIER SEMICOLON
+                 { }
+|                DOLLAR SHOWCANCELLED OPENPARENTHESES identifier_list 
+                 CLOSEPARENTHESES SEMICOLON
+                 { }
+
+                  /* noshowcancelled list_of_path_outputs; */
+|                DOLLAR NOSHOWCANCELLED SEMICOLON
+                 { }
+|                DOLLAR NOSHOWCANCELLED IDENTIFIER SEMICOLON
+                 { }
+|                DOLLAR NOSHOWCANCELLED OPENPARENTHESES identifier_list 
+                 CLOSEPARENTHESES SEMICOLON
+                 { }
 ;
 
 /* (input_port polarity:path_token output_port ) = (delay); */
@@ -1472,8 +1515,11 @@ path_token:
 path_delay:      /* all output transitions */
                  transition_delay_unit
                  { }
+|                OPENPARENTHESES transition_delay_unit CLOSEPARENTHESES
+                 { }
 |                IDENTIFIER 
                  { }
+|                OPENPARENTHESES IDENTIFIER CLOSEPARENTHESES
 
                  /* rise, fall output transitions */
 |                OPENPARENTHESES transition_delay_unit COMMA 
