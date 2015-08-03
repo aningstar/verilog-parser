@@ -1670,6 +1670,9 @@ timing_checks:
               { }
 ;
 
+/*            TODO              */
+/* Need for constant expressions */
+
 /* The transition at a control signal that establishes the reference time for */
 /* tracking timing violations on the data_event. The type is module input or */
 /* inout that is scalar or vector net. */
