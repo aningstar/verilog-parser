@@ -148,7 +148,6 @@ module adder (A, B, sum_sig, carry_sig);
         $hold(posedge data2, data1, thold, rfrf);
         $recovery(posedge in1, out1, trecovery);
         $recovery(posedge in1, out1, trecovery, erergf);
-        $setuphold(posedge data2, data1, tsetup, thold);
 
     endspecify
 
