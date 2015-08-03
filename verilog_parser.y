@@ -51,6 +51,9 @@
 /* Version 2001 specify blocks */
 %token SPECIFY ENDSPECIFY PATHPULSE DOLLAR
 %token PULSESTYLE_ONEVENT PULSESTYLE_ONDETECT SHOWCANCELLED NOSHOWCANCELLED
+%token SETUP HOLD SETUPHOLD RECOVERY REMOVAL RECREM SKEW TIMESKEW
+%token FULLSKEW D_PERIOD WIDTH NOCHANGE
+
 %error-verbose
 %locations
 
@@ -1362,6 +1365,9 @@ specify_item:
             { printf("state_dependent_path_delay "); }
 |           pulse_propagation 
             { printf("pulse_propagation "); }
+|           timing_checks
+            { printf("timing_constraint_checks "); }
+
 |           specparam_declaration specify_item 
             { printf("specparam_declaration "); }
 |           simple_path_delay specify_item
@@ -1372,6 +1378,8 @@ specify_item:
             { printf("state_dependent_path_delay "); }
 |           pulse_propagation specify_item
             { printf("pulse_propagation "); }
+|           timing_checks specify_item
+            { printf("timing_constraint_checks "); }
 ;
 
 /* specparam must be declared inside specify */
@@ -1564,6 +1572,223 @@ path_delay:      /* all output transitions */
                  COMMA IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER
                  { }
 
+;
+
+/* Timing constraint checks are special tasks that model restrictions */
+/* on input changes, such as setup times and hold times. */
+timing_checks:
+               /* $setup(data_event, reference_event, limit, notifier); */
+              DOLLAR SETUP OPENPARENTHESES data_event COMMA reference_event 
+              COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON
+              { printf("$setup "); }
+               /* $setup(data_event, reference_event, limit); */
+|             DOLLAR SETUP OPENPARENTHESES data_event COMMA reference_event 
+              COMMA limit CLOSEPARENTHESES SEMICOLON
+              { printf("$setup "); }
+
+               /* $hold(reference_event, data_event, limit, notifier); */
+|             DOLLAR HOLD OPENPARENTHESES reference_event COMMA data_event 
+              COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON
+              { printf("$hold "); }
+               /* $hold(reference_event, data_event, limit); */
+|             DOLLAR HOLD OPENPARENTHESES reference_event COMMA data_event 
+              COMMA limit CLOSEPARENTHESES SEMICOLON
+              { printf("$hold "); }
+
+               /* $setuphold(reference_event, data_event, setup_limit, */
+               /* hold_limit, notifier, stamptime_condition, */
+               /* checktime_condition, delayed_ref, delayed_data); */
+|             DOLLAR SETUPHOLD OPENPARENTHESES reference_event COMMA data_event 
+              COMMA setup_limit COMMA hold_limit COMMA notifier COMMA 
+              stamptime_condition COMMA checktime_condition COMMA delayed_ref 
+              COMMA delayed_data CLOSEPARENTHESES SEMICOLON
+              { printf("$setuphold "); }
+
+               /* $recovery(reference_event, data_event, limit, notifier); */
+|             DOLLAR RECOVERY OPENPARENTHESES reference_event COMMA data_event 
+              COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON 
+              { printf("$recovery "); }
+               /* $recovery(reference_event, data_event, limit); */
+|             DOLLAR RECOVERY OPENPARENTHESES reference_event COMMA data_event 
+              COMMA limit CLOSEPARENTHESES SEMICOLON 
+              { printf("$recovery "); }
+
+               /* $removal(reference_event, data_event, limit, notifier); */
+|             DOLLAR REMOVAL OPENPARENTHESES reference_event COMMA data_event 
+              COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON
+              { }
+
+               /* $recrem(reference_event, data_event, recovery_limit, */
+               /* removal_limit, notifier, stamptime_cond, checktime_cond, */
+               /* delayed_ref, delayed_data); */
+|             DOLLAR RECREM OPENPARENTHESES reference_event COMMA data_event 
+              COMMA recovery_limit COMMA removal_limit COMMA notifier COMMA 
+              stamptime_condition COMMA checktime_condition COMMA delayed_ref 
+              COMMA delayed_data CLOSEPARENTHESES SEMICOLON
+              { }
+
+               /* $skew(reference_event, data_event, limit, notifier); */
+|             DOLLAR SKEW OPENPARENTHESES reference_event COMMA data_event 
+              COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON
+              { printf("$skew "); }
+               /* $skew(reference_event, data_event, limit); */
+|             DOLLAR SKEW OPENPARENTHESES reference_event COMMA data_event 
+              COMMA limit CLOSEPARENTHESES SEMICOLON
+              { printf("$skew "); }
+
+               /* $timeskew(reference_event, data_event, limit, notifier, */
+               /* event_based_flag, remain_active_flag); */
+|             DOLLAR TIMESKEW OPENPARENTHESES reference_event COMMA data_event 
+              COMMA limit COMMA notifier COMMA events_based_flag COMMA 
+              remain_active_flag CLOSEPARENTHESES SEMICOLON
+              { }
+
+               /* $fullskew(reference_event, data_event, data_skew_limit, */
+               /* ref_skew_limit, notifier, event_based_flag, */
+               /* remain_active_flag); */
+|             DOLLAR FULLSKEW OPENPARENTHESES reference_event COMMA data_event 
+              COMMA data_skew_limit COMMA ref_skew_limit COMMA notifier COMMA 
+              events_based_flag COMMA remain_active_flag CLOSEPARENTHESES 
+              SEMICOLON
+              { }
+
+               /* $period(reference_event, limit, notifier); */
+|             DOLLAR D_PERIOD OPENPARENTHESES reference_event COMMA limit COMMA 
+              notifier CLOSEPARENTHESES SEMICOLON
+              { }
+
+               /* $width(reference_event, limit, width_threshold, notifier); */
+|             DOLLAR WIDTH OPENPARENTHESES reference_event COMMA limit COMMA 
+              width_threshold COMMA notifier CLOSEPARENTHESES SEMICOLON 
+              { }
+
+               /* $nochange(reference_event, data_event, start_edge_offset, */
+               /* end_edge_offset, notifier); */
+|             DOLLAR NOCHANGE OPENPARENTHESES reference_event COMMA data_event 
+              COMMA start_edge_offset COMMA end_edge_offset COMMA notifier 
+              CLOSEPARENTHESES SEMICOLON
+              { }
+;
+
+/* The transition at a control signal that establishes the reference time for */
+/* tracking timing violations on the data_event. The type is module input or */
+/* inout that is scalar or vector net. */
+reference_event:
+               POSEDGE IDENTIFIER  { }
+|              IDENTIFIER { }
+;
+
+/* The signal change that initiates the timing check and is monitored for */
+/* violations. The type is module input or inout that is scalar or vector net */
+data_event:
+          POSEDGE IDENTIFIER { }
+|         IDENTIFIER { }
+;
+
+/* A time limit used to detect timing violations on the data_event. Limit */
+/* is a constant expression. The expression can be a min:typ:max delay set. */
+limit:
+     expression { }
+|    integer_or_real COLON integer_or_real COLON
+     integer_or_real { }
+;
+
+/* notifier (optional) is a 1-bit reg variable that is automatically */
+/* toggled whenever the timing check detects a violation. */
+notifier:
+        IDENTIFIER { }
+;
+
+/* stamptime_condition (optional) is condition for enabling or disabling */
+/* negative timing checks. This argument was added in Verilog-2001. */
+stamptime_condition:
+                   expression { }
+;
+
+/* checktime_condition (optional) is condition for enabling or disabling */
+/* negative timing checks. This argument was added in Verilog-2001. */
+checktime_condition:
+                   expression { }
+;
+
+/* delayed_ref (optional) is delayed signal for negative timing checks. */
+/* This argument was added in Verilog-2001. */
+delayed_ref: 
+           IDENTIFIER { }
+;
+
+/* delayed_data (optional) is delayed signal for negative timing checks. */
+/* This argument was added in Verilog-2001. */
+delayed_data:
+            IDENTIFIER { }
+;
+
+/* event_based_flag (optional) when set, causes the timing check to be event */
+/* based instead of timer based. This argument was added in Verilog-2001. */
+events_based_flag:
+                 IDENTIFIER { }
+;
+
+/* remain_active_flag (optional) wen set, causes the timing check to not */
+/* become inactive after the first violation is reported. This argument was */
+/* added in Verilog-2001. */
+remain_active_flag:
+                  IDENTIFIER { }
+;
+
+/* start_edge_offset is delay value (either positive or negative) which /* 
+/* expand or reduce the time in which no change can occur. */
+start_edge_offset:
+                 transition_delay_unit { }
+;
+
+/* end_edge_offset is delay value (either positive or negative) */ 
+/* which expand or reduce the time in which no change can occur. */
+end_edge_offset:
+               transition_delay_unit { }
+;
+
+/* The largest pulse width that is ignored by the timing check $width */
+width_threshold:
+                expression { }
+|               integer_or_real COLON integer_or_real COLON
+                integer_or_real { }
+;
+
+recovery_limit:
+              expression { }
+|             integer_or_real COLON integer_or_real COLON
+              integer_or_real { }
+;
+
+removal_limit:
+             expression { }
+|            integer_or_real COLON integer_or_real COLON
+             integer_or_real { }
+;
+
+setup_limit:
+           expression { }
+|          integer_or_real COLON integer_or_real COLON
+           integer_or_real { }
+;
+
+hold_limit:
+          expression { }
+|         integer_or_real COLON integer_or_real COLON
+          integer_or_real { }
+;
+
+data_skew_limit:
+               expression { }
+|              integer_or_real COLON integer_or_real COLON
+               integer_or_real { }
+;
+
+ref_skew_limit:
+              expression { }
+|             integer_or_real COLON integer_or_real COLON
+              integer_or_real { }
 ;
 
 integer_or_real: NUM_INTEGER { }

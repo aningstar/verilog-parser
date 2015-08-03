@@ -140,6 +140,16 @@ module adder (A, B, sum_sig, carry_sig);
         showcancelled(out); // affects out only
         (in=>out)=(15,25);
         (clk=>q)=5;
+        $setup(data1, posedge data2, 2:3:4);
+        $setup(data1, posedge data2, 2:3:4,adf);
+        $skew(posedge clk1, posedge clk2, tskew);
+        $skew(posedge clk1, posedge clk2, tskew, af);
+        $hold(posedge data2, data1, thold);
+        $hold(posedge data2, data1, thold, rfrf);
+        $recovery(posedge in1, out1, trecovery);
+        $recovery(posedge in1, out1, trecovery, erergf);
+        $setuphold(posedge data2, data1, tsetup, thold);
+
     endspecify
 
 endmodule
