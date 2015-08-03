@@ -13,12 +13,12 @@
 /* Verilog 2001 signed literals. */
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
 %token MODULE ENDMODULE
-%token EQUAL LESSTHAN COMMA COLON SEMICOLON HASH PERIOD
-%token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS
+%token EQUALS COMMA QUESTION_MARK SEMICOLON HASH PERIOD
+%token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS OPENBRACES
+%token CLOSEBRACES
 /* Verilog 2001 port diractions. */
 %token INPUT OUTPUT INOUT
 %token SIGNED
-%token ADDITION SUBTRACTION MULTIPLICATION MODULUS
 %token VECTORED SCALARED
 /* Verilog 2001 net type tokens. */
 %token WIRE WOR WAND TRI0 TRI1 TRI TRIOR TRIAND TRIREG
@@ -39,7 +39,7 @@
 /* Verilog 2001 procedural block tokens. IF and THEN have precedence. */
 %token INITIAL_TOKEN ALWAYS AT POSEDGE NEGEDGE BEGIN_TOKEN END FORK JOIN DISABLE
 %token WAIT ASSIGN DEASSIGN FORCE RELEASE IF CASE ENDCASE DEFAULT CASEZ CASEX
-%token FOR WHILE REPEAT FOREVER
+%token FOR WHILE REPEAT FOREVER TRIGGER_EVENT_OPERATOR
 
 /* Tokens with precedence. */
 
@@ -47,6 +47,52 @@
 /* token. That way, every 'else' is matched to the closest 'if'. */
 %nonassoc THEN
 %nonassoc ELSE
+
+/* EXPRESSION_USED is a fictitious terminal symbol, given less precedence than */
+/* the expression operator tokens. This ensures depth-first recursion. */
+%nonassoc EXPRESSION_USED
+/* CONDITIONAL is a fictitious terminal symbol, giving to a conditional */
+/* expression the correct precedence. */
+%right QUESTION_MARK COLON
+/* Logical 'and' and 'or' tokens. */
+%left LOGICAL_OR
+%left LOGICAL_AND
+/* Bitwise operator tokens. The suffix _OPERATOR is added to signify that */
+/* they are different from the 'and' and 'or' keywords. */
+%left OR_OPERATOR
+%left XOR_OPERATOR XNOR_OPERATOR
+%left AND_OPERATOR
+/* Case identity operator tokens. */
+%left IDENTICAL NOT_IDENTICAL
+/* Equality operator tokens. */
+%left EQUAL NOT_EQUAL
+/* Relational operator tokens. */
+%left LESSTHAN LESSTHANOREQUAL GREATERTHAN GREATERTHANOREQUAL
+/* Shift tokens. */
+%left BITWISE_LEFT_SHIFT BITWISE_RIGHT_SHIFT ARITHMETIC_LEFT_SHIFT
+    ARITHMETIC_RIGHT_SHIFT
+/* Binary arithmetic operation tokens. */
+%left PLUS MINUS
+%left ASTERISK SLASH MODULO
+%left POWER
+/* UNARY_PLUS and UNARY_MINUS are fictitious terminal symbols, giving unary */
+/* precedence to binary operators PLUS and MINUS. */
+%left UNARY_PLUS UNARY_MINUS
+/* The reduction tokens are fictitious terminal symbols, giving unary */
+/* precedence to binary bitwise operators '&', '|', '^', '~^' and '^~'. */
+%left REDUCTION_AND NAND_OPERATOR REDUCTION_OR NOR_OPERATOR REDUCTION_XOR
+    REDUCTION_XNOR
+/* Logical and bitwise not tokens. */
+%left EXCLAMATION_MARK TILDE
+/* PARENTHESISED_EXPRESSION is a fictitious terminal symbol, giving higher */
+/* precedence to expressions in parenthesis. */
+%nonassoc PARENTHESISED_EXPRESSION
+/* CONCATENATED_EXPRESSIONS is a fictitious terminal symbol, giving higher */
+/* precedence to concatenation in expressions. */
+%nonassoc CONCATENATED_EXPRESSIONS
+/* BIT_SELECT is a fictitious terminal symbol, giving higher precedence to */
+/* bit selects in expressions. */
+%left BIT_SELECT
 
 %error-verbose
 %locations
@@ -89,8 +135,8 @@ declaration_with_attributes: attributes declaration { }
 /* An attribute can appear as a prefix to module items, statements, or port */
 /* connections. An attribute can appear as a suffix to an operator or a call */
 /* to a function. */
-attributes: OPENPARENTHESES MULTIPLICATION attribute_list MULTIPLICATION
-    CLOSEPARENTHESES { printf("attributes"); }
+attributes: OPENPARENTHESES ASTERISK attribute_list ASTERISK CLOSEPARENTHESES
+    { printf("attributes"); }
 ;
 
 attribute_list: attribute                      { }
@@ -98,15 +144,13 @@ attribute_list: attribute                      { }
 ;
 
 attribute: IDENTIFIER                  { }
-|          IDENTIFIER EQUAL IDENTIFIER { }
-|          IDENTIFIER EQUAL number     { }
+|          IDENTIFIER EQUALS IDENTIFIER { }
+|          IDENTIFIER EQUALS number     { }
 ;
 
-declaration: port_declaration     { }
-|            net_declaration      
-    { printf("net_declaration"); }
-|            variable_declaration 
-    { printf("variable_declaration"); }
+declaration: port_declaration { }
+|            net_declaration { printf("net_declaration"); }
+|            variable_declaration { printf("variable_declaration"); }
 |            constant_or_event_declaration
     { printf("constant_or_event_declaration"); }
 ;
@@ -204,37 +248,37 @@ net_declaration: /* 1st type net declarations (except trireg). */
 |                TRIREG optional_vectored_or_scalared net_name_list { }
                  /* 2nd type net declarations (except trireg). */
 |                net_type_except_trireg optional_vectored_or_scalared strength
-    SIGNED range transition_delay IDENTIFIER EQUAL expression { }
+    SIGNED range transition_delay IDENTIFIER EQUALS expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
-    SIGNED range IDENTIFIER EQUAL expression { }
+    SIGNED range IDENTIFIER EQUALS expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
-    SIGNED transition_delay IDENTIFIER EQUAL expression { }
+    SIGNED transition_delay IDENTIFIER EQUALS expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
-    SIGNED IDENTIFIER EQUAL expression { }
+    SIGNED IDENTIFIER EQUALS expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
-    range transition_delay IDENTIFIER EQUAL expression { }
+    range transition_delay IDENTIFIER EQUALS expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
-    range IDENTIFIER EQUAL expression { }
+    range IDENTIFIER EQUALS expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
-    transition_delay IDENTIFIER EQUAL expression { }
+    transition_delay IDENTIFIER EQUALS expression { }
 |                net_type_except_trireg optional_vectored_or_scalared strength
-    IDENTIFIER EQUAL expression { }
+    IDENTIFIER EQUALS expression { }
                  /* 2nd type net declarations (trireg). */
 |                TRIREG optional_vectored_or_scalared strength SIGNED range
-    transition_delay IDENTIFIER EQUAL expression { }
+    transition_delay IDENTIFIER EQUALS expression { }
 |                TRIREG optional_vectored_or_scalared strength SIGNED range
-    IDENTIFIER EQUAL expression { }
+    IDENTIFIER EQUALS expression { }
 |                TRIREG optional_vectored_or_scalared strength SIGNED
-    transition_delay IDENTIFIER EQUAL expression { }
+    transition_delay IDENTIFIER EQUALS expression { }
 |                TRIREG optional_vectored_or_scalared strength SIGNED IDENTIFIER
-    EQUAL expression { }
+    EQUALS expression { }
 |                TRIREG optional_vectored_or_scalared strength range
-    transition_delay IDENTIFIER EQUAL expression { }
+    transition_delay IDENTIFIER EQUALS expression { }
 |                TRIREG optional_vectored_or_scalared strength range IDENTIFIER
-    EQUAL expression { }
+    EQUALS expression { }
 |                TRIREG optional_vectored_or_scalared strength transition_delay
-    IDENTIFIER EQUAL expression { }
-|                TRIREG optional_vectored_or_scalared strength IDENTIFIER EQUAL
+    IDENTIFIER EQUALS expression { }
+|                TRIREG optional_vectored_or_scalared strength IDENTIFIER EQUALS
     expression { }
                  /* 3rd type net declarations. */
 |                TRIREG optional_vectored_or_scalared capacitance_strength
@@ -320,14 +364,14 @@ range : OPENBRACKETS range_value COLON range_value CLOSEBRACKETS
 
 /*              TODO           */
 /*   Range value expressions   */
-range_value: NUM_INTEGER                                            { }
-|            constant_or_constant_function                          { }
-|            constant_or_constant_function ADDITION NUM_INTEGER     { }
-|            constant_or_constant_function SUBTRACTION NUM_INTEGER  { }
-|            constant_or_constant_function MODULUS NUM_INTEGER      { }
-|            NUM_INTEGER ADDITION constant_or_constant_function     { }
-|            NUM_INTEGER SUBTRACTION constant_or_constant_function  { }
-|            NUM_INTEGER MODULUS constant_or_constant_function      { }
+range_value: NUM_INTEGER                                      { }
+|            constant_or_constant_function                    { }
+|            constant_or_constant_function PLUS NUM_INTEGER   { }
+|            constant_or_constant_function MINUS NUM_INTEGER  { }
+|            constant_or_constant_function MODULO NUM_INTEGER { }
+|            NUM_INTEGER PLUS constant_or_constant_function   { }
+|            NUM_INTEGER MINUS constant_or_constant_function  { }
+|            NUM_INTEGER MODULO constant_or_constant_function { }
 ;
 
 constant_or_constant_function: IDENTIFIER             { }
@@ -414,7 +458,7 @@ variable_name_list: variable_name_or_assignment                          { }
 ;
 
 variable_name_or_assignment: IDENTIFIER                       { }
-|                            IDENTIFIER EQUAL integer_or_real { }
+|                            IDENTIFIER EQUALS integer_or_real { }
 |                            IDENTIFIER array                 { }
 ;
 
@@ -470,8 +514,8 @@ constant_assignment_list: constant_assignment                                { }
 
 /* Constants may contain integers, real numbers, time, delays, or ASCII */
 /* strings. */
-constant_assignment: IDENTIFIER EQUAL number { printf("constant "); }
-|                    IDENTIFIER EQUAL IDENTIFIER    { printf("constant "); }
+constant_assignment: IDENTIFIER EQUALS number { printf("constant "); }
+|                    IDENTIFIER EQUALS IDENTIFIER    { printf("constant "); }
 ;
 
 constant_type: INTEGER    { printf("integer "); }
@@ -480,24 +524,66 @@ constant_type: INTEGER    { printf("integer "); }
 |              REALTIME   { printf("realtime "); }
 ;
 
-assignment: IDENTIFIER EQUAL expression { printf("assignment "); }
-|           IDENTIFIER EQUAL array_select
+assignment: IDENTIFIER EQUALS expression { printf("assignment "); }
+|           IDENTIFIER EQUALS array_select
     { printf("array_select_assignment "); }
 ;
 
-expression: expression_term {printf("expression "); }
-|           expression expression_operation expression_term
-    {printf("expression "); }
-;
-
-expression_term: number     { }
-|                IDENTIFIER { }
-|                bit_select { }
-;
-
-expression_operation:  ADDITION       { }
-|                      SUBTRACTION    { }
-|                      MULTIPLICATION { }
+/*           TODO           */
+/* Single operands (function). Reduction limitations. */
+expression: number                              { }
+|           IDENTIFIER                          { }
+|           bit_select %prec BIT_SELECT         { }
+|           EXCLAMATION_MARK expression         { printf("logical_not "); }
+|           TILDE expression                    { printf("bitwise_not "); }
+|           PLUS expression %prec UNARY_PLUS    { printf("unary_plus "); }
+|           MINUS expression %prec UNARY_MINUS  { printf("unary_minus "); }
+|           expression PLUS expression          { printf("addition "); }
+|           expression MINUS expression         { printf("subtraction "); }
+|           expression ASTERISK expression      { printf("multiplication "); }
+|           expression SLASH expression         { printf("division "); }
+|           expression MODULO expression        { printf("modulus "); }
+|           expression POWER expression         { printf("exponentation "); }
+|           OPENPARENTHESES expression CLOSEPARENTHESES %prec
+    PARENTHESISED_EXPRESSION { printf("parenthesised_expression "); }
+|           expression BITWISE_LEFT_SHIFT expression
+    { printf("bitwise_left_shift "); }
+|           expression BITWISE_RIGHT_SHIFT expression
+    { printf("bitwise_right_shift "); }
+|           expression ARITHMETIC_LEFT_SHIFT expression
+    { printf("arithmetic_left_shift "); }
+|           expression ARITHMETIC_RIGHT_SHIFT expression
+    { printf("arithmetic_right_shift "); }
+|           expression LESSTHAN expression      { printf("less_than "); }
+|           expression LESSTHANOREQUAL expression
+    { printf("less_than_or_equal "); }
+|           expression GREATERTHAN expression   { printf("greater_than "); }
+|           expression GREATERTHANOREQUAL expression
+    { printf("greater_than_or_equal "); }
+|           expression EQUAL expression         { printf("equal "); }
+|           expression NOT_EQUAL expression     { printf("not_equal "); }
+|           expression IDENTICAL expression     { printf("identical "); }
+|           expression NOT_IDENTICAL expression { printf("not_intetical "); }
+|           AND_OPERATOR expression %prec REDUCTION_AND
+    { printf("reduction_and "); }
+|           NAND_OPERATOR expression            { printf("reduction_nand "); }
+|           OR_OPERATOR expression %prec REDUCTION_OR
+    { printf("reduction_or "); }
+|           NOR_OPERATOR expression             { printf("reduction_nor "); }
+|           XOR_OPERATOR expression %prec REDUCTION_XOR
+    { printf("reduction_xor "); }
+|           XNOR_OPERATOR expression %prec REDUCTION_XNOR
+    { printf("reduction_xnor "); }
+|           expression AND_OPERATOR expression  { printf("bitwise_and "); }
+|           expression XOR_OPERATOR expression  { printf("bitwise_xor "); }
+|           expression XNOR_OPERATOR expression { printf("bitwise_xnor "); }
+|           expression OR_OPERATOR expression   { printf("bitwise_or "); }
+|           expression LOGICAL_AND expression   { printf("logical_and "); }
+|           expression LOGICAL_OR expression    { printf("logical_or "); }
+|           expression QUESTION_MARK expression COLON expression
+    { printf("conditional "); }
+|           OPENBRACES concatenation_list CLOSEBRACES %prec
+    CONCATENATED_EXPRESSIONS { printf("concatenation "); }
 ;
 
 /*      Vector Bit Selects and Part Selects.     */
@@ -517,13 +603,11 @@ bit_select: /* Bit Select (1st type). */
 |           IDENTIFIER OPENBRACKETS bit_number COLON bit_number CLOSEBRACKETS
     { printf("constant_part_select "); }
             /* Variable Part Select 1 (3rd type). */
-|           IDENTIFIER OPENBRACKETS bit_number ADDITION COLON part_select_width 
-            CLOSEBRACKETS 
-    { printf("variable_part_select "); }
+|           IDENTIFIER OPENBRACKETS bit_number PLUS COLON part_select_width 
+    CLOSEBRACKETS { printf("variable_part_select "); }
             /* Variable Part Select 2 (4th type). */
-|           IDENTIFIER OPENBRACKETS bit_number SUBTRACTION COLON 
-            part_select_width CLOSEBRACKETS 
-    { printf("variable_part_select "); }
+|           IDENTIFIER OPENBRACKETS bit_number MINUS COLON part_select_width
+    CLOSEBRACKETS { printf("variable_part_select "); }
 ;
 
 index: OPENBRACKETS bit_number CLOSEBRACKETS { }
@@ -540,6 +624,20 @@ part_select_width: NUM_INTEGER                   { }
 |                  constant_or_constant_function { }
 ;
 
+concatenation_list: concatenation_item                          { }
+|                   concatenation_list COMMA concatenation_item { }
+;
+
+concatenation_item: number                                    { }
+|                   IDENTIFIER                                { }
+|                   replication                               { }
+                    /* Nested concatenations are possible. */
+|                   OPENBRACES concatenation_list CLOSEBRACES { }
+;
+
+replication: number OPENBRACES concatenation_list CLOSEBRACES { }
+;
+
 /*             Array Selects           */
 /***************************************/
 /* There are 3 types of array selects. */
@@ -552,18 +650,14 @@ part_select_width: NUM_INTEGER                   { }
 /* Verilog-2001. An array select can be an integer, a net, a variable, or an */
 /* expression. */
 array_select: /* 1st and 2nd type array selects. */
-              IDENTIFIER array_index_list 
-    { printf("array_select_integer "); }
+              IDENTIFIER array_index_list { printf("array_select_integer "); }
               /* 3rd type array selects. */
-|             IDENTIFIER array_index_list OPENBRACKETS bit_number 
-              COLON bit_number CLOSEBRACKETS 
-    { printf("array_select_3 "); }
-|             IDENTIFIER array_index_list OPENBRACKETS bit_number ADDITION COLON
-              part_select_width CLOSEBRACKETS 
-    { printf("array_select_3 "); }
-|             IDENTIFIER array_index_list OPENBRACKETS bit_number SUBTRACTION
-              COLON part_select_width CLOSEBRACKETS 
-    { printf("array_select_3 "); }
+|             IDENTIFIER array_index_list OPENBRACKETS bit_number COLON
+    bit_number CLOSEBRACKETS { printf("array_select_3 "); }
+|             IDENTIFIER array_index_list OPENBRACKETS bit_number PLUS COLON
+    part_select_width CLOSEBRACKETS { printf("array_select_3 "); }
+|             IDENTIFIER array_index_list OPENBRACKETS bit_number MINUS COLON
+    part_select_width CLOSEBRACKETS { printf("array_select_3 "); }
 ;
 
 array_index_list: index index { }
@@ -817,28 +911,28 @@ unnamed_group_procedural_statement: time_control procedural_statement { }
 |                                   procedural_statement              { }
 ;
 
-/*           Procedural Time Control.          */
-/***********************************************/
-/* There is 3 type of procedural time control. */
-/***********************************************/
+/*            Procedural Time Control.           */
+/*************************************************/
+/* There are 5 types of procedural time control. */
+/*************************************************/
 /* 1st type: #delay */
 /* 2nd type: @(edge signal or edge signal or ... ) */
 /* 3rd type: @(edge signal, edge signal, ... ) */
 /* 4th type: @(*) */
 /* 5th type: wait (expression) */
-/***********************************************/
+/*************************************************/
 /* edge is optional maybe either 'posedge' or 'negedge'. If no edge is */
 /* specified, then any logic transition is used. The use of commas was added */
 /* in Verilog-2001. signal may be a net type or variable type, and may be any */
 /* vector size. An asterisk in place of the list of signals indicates */
 /* sensitivity to any edge of all signals that are read in the statement or */
-/* statement group that follows. @* was added in Verilog-2001. */
+/* statement group that follows. @* was added in Verilog-2001. The procedural */
+/* delay may be a literal number, a variable, or an expression. */
 time_control: /* 1st type procedural time control. Each delay unit can be a
     single number or a minimum:typical:max delay range. */
-              HASH procedural_delay_type { }
-|             HASH OPENPARENTHESES procedural_delay_type CLOSEPARENTHESES { }
-|             OPENPARENTHESES procedural_delay_type COLON procedural_delay_type
-    COLON procedural_delay_type CLOSEPARENTHESES { }
+              HASH expression %prec EXPRESSION_USED { }
+|             OPENPARENTHESES expression COLON expression COLON expression
+    CLOSEPARENTHESES %prec EXPRESSION_USED { }
               /* 2nd type and 3rd type procedural time control. */
 |             AT OPENPARENTHESES procedural_time_conrol_signal_list
     CLOSEPARENTHESES { }
@@ -846,14 +940,9 @@ time_control: /* 1st type procedural time control. Each delay unit can be a
     the list and no edge is specified. */
 |             AT IDENTIFIER { }
               /* 4th type procedural time control. */
-|             AT MULTIPLICATION { }
+|             AT ASTERISK { }
               /* 5th type procedural time control. */
 |             WAIT OPENPARENTHESES expression CLOSEPARENTHESES { }
-;
-
-/* The procedural delay may be a literal number, a variable, or an */
-/* expression. */
-procedural_delay_type: expression { }
 ;
 
 /* Either a comma or the keyword 'or' may be used to specify events on any */
@@ -873,8 +962,9 @@ procedural_time_conrol_signal: edge IDENTIFIER { }
 |                              IDENTIFIER      { }
 ;
 
-procedural_statement: procedural_assignment_statement SEMICOLON { }
-|                     procedural_programming_statement          { }
+procedural_statement: procedural_assignment_statement SEMICOLON          { }
+|                     procedural_programming_statement                   { }
+|                     TRIGGER_EVENT_OPERATOR IDENTIFIER SEMICOLON        { }
 ;
 
 /*            Procedural Assignment Statements.            */
@@ -897,29 +987,29 @@ procedural_statement: procedural_assignment_statement SEMICOLON { }
 /* variable can be a bit select. */
 procedural_assignment_statement: /* 1st type procedural assignment statement
     (blocking procedural assignment). */
-                                 variable_or_bit_select EQUAL expression { }
+                                 variable_or_bit_select EQUALS expression { }
                                  /* 2nd type procedural assignment statement
     (non-blocking procedural assignment). */
-|                                variable_or_bit_select LESSTHAN EQUAL
-    expression { }
+|                                variable_or_bit_select LESSTHANOREQUAL
+    expression %prec EXPRESSION_USED { }
                                  /* 5th type procedural assignment statement
     (blocking intra-assignment delay). */
-|                                variable_or_bit_select EQUAL time_control
+|                                variable_or_bit_select EQUALS time_control
     expression { }
                                  /* 6th type procedural assignment statement
     (non-blocking intra-assignment delay). */
-|                                variable_or_bit_select LESSTHAN EQUAL
-    time_control expression { }
+|                                variable_or_bit_select LESSTHANOREQUAL
+    time_control expression %prec EXPRESSION_USED { }
                                  /* 7th type procedural assignment statement
     (procedural continuous assignment). */
-|                                ASSIGN variable_or_bit_select EQUAL
+|                                ASSIGN variable_or_bit_select EQUALS
     expression { }
                                  /* 8th type procedural assignment statement
     (de-activates a procedural continuous assignment). */
 |                                DEASSIGN variable_or_bit_select { }
                                  /* 9th type procedural assignment statement
     (forces any data type to a value, overriding all other logic). */
-|                                FORCE variable_or_bit_select EQUAL
+|                                FORCE variable_or_bit_select EQUALS
     expression { }
                                  /* 10th type procedural assignment statement
     (removes the effect of a force). */
@@ -1022,8 +1112,8 @@ case: case_item_list COLON statement_group { }
 
 /* The case expression can be a literal, a constant expression or a bit */
 /* select. */
-case_item_list: expression_term                      { }
-|               case_item_list COMMA expression_term { }
+case_item_list: expression                      { }
+|               case_item_list COMMA expression { }
 ;
 
 default_case: DEFAULT COLON statement_group { }
@@ -1042,7 +1132,7 @@ sensitivity_list: /* 1st type sensitivity lists. */
                   AT OPENPARENTHESES nonempty_identifier_list CLOSEPARENTHESES
     { }
                   /* 2nd type sensitivity lists. */
-|                 AT MULTIPLICATION { }
+|                 AT ASTERISK { }
                   /* 3rd type sensitivity lists. A specific edge should be
     specified for each signal in the list. */
 |                 AT OPENPARENTHESES signal_list_with_edge CLOSEPARENTHESES { }
@@ -1063,16 +1153,19 @@ integer_or_real: NUM_INTEGER { }
 |                REALV       { }
 ;
 
-number: NUM_INTEGER { }
-|       UNSIG_BIN   { }
-|       UNSIG_OCT   { }
-|       UNSIG_DEC   { }
-|       UNSIG_HEX   { }
-|       SIG_BIN     { }
-|       SIG_OCT     { }
-|       SIG_DEC     { }
-|       SIG_HEX     { }
-|       REALV       { }
+number: number_except_real { }
+|       REALV              { }
+;
+
+number_except_real: NUM_INTEGER { }
+|                   UNSIG_BIN   { }
+|                   UNSIG_OCT   { }
+|                   UNSIG_DEC   { }
+|                   UNSIG_HEX   { }
+|                   SIG_BIN     { }
+|                   SIG_OCT     { }
+|                   SIG_DEC     { }
+|                   SIG_HEX     { }
 ;
 
 %%

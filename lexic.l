@@ -165,26 +165,46 @@ that comments are invisible to the parser). */
 ")"                   { return CLOSEPARENTHESES; }
 "["                   { return OPENBRACKETS; }
 "]"                   { return CLOSEBRACKETS; }
-"{"                   { printf("OPENBRACES : %s \n",yytext); }
-"}"                   { printf("CLOSEBRACES : %s \n",yytext); }
+"{"                   { return OPENBRACES; }
+"}"                   { return CLOSEBRACES; }
 ","                   { return COMMA; }
 ";"                   { return SEMICOLON; }
 "#"                   { return HASH; }
-"&"                   { printf("AND : %s \n",yytext); }
-"|"                   { printf("OR : %s \n",yytext); }
-"+"                   { return ADDITION; }
-"-"                   { return SUBTRACTION; }
-"*"                   { return MULTIPLICATION; }
-"/"                   { printf("DIVISION : %s \n",yytext); }
-"%"                   { return MODULUS; }
-"="                   { return EQUAL; }
+"&"                   { return AND_OPERATOR; }
+"~""&"                { return NAND_OPERATOR; }
+"&"{2}                { return LOGICAL_AND; }
+"|"                   { return OR_OPERATOR; }
+"~""|"                { return NOR_OPERATOR; }
+"|"{2}                { return LOGICAL_OR; }
+"^"                   { return XOR_OPERATOR; }
+"~""^"                { return XNOR_OPERATOR; }
+"^""~"                { return XNOR_OPERATOR; }
+"+"                   { return PLUS; }
+"-"                   { return MINUS; }
+"*"                   { return ASTERISK; }
+"*"{2}                { return POWER; }
+"/"                   { return SLASH; }
+"%"                   { return MODULO; }
+"="                   { return EQUALS; }
+"="{2}                { return EQUAL; }
+"!""="                { return NOT_EQUAL; }
+"="{3}                { return IDENTICAL; }
+"!""="{2}             { return NOT_IDENTICAL; }
 "<"                   { return LESSTHAN; }
-">"                   { printf("GREATERTHAN : %s \n",yytext); }
+"<""="                { return LESSTHANOREQUAL; }
+">"                   { return GREATERTHAN; }
+">""="                { return GREATERTHANOREQUAL; }
 ":"                   { return COLON; }
-"?"                   { printf("QUESTION MARK : %s \n",yytext); }
-"~"                   { printf("NEGATION : %s \n",yytext); }
+"?"                   { return QUESTION_MARK; }
+"~"                   { return TILDE; }
+"!"                   { return EXCLAMATION_MARK; }
 "."                   { return PERIOD; }
 "$"                   { printf("DOLLAR : %s \n",yytext); }
+"<"{2}                { return BITWISE_LEFT_SHIFT; }
+">"{2}                { return BITWISE_RIGHT_SHIFT; }
+"<"{3}                { return ARITHMETIC_LEFT_SHIFT; }
+">"{3}                { return ARITHMETIC_RIGHT_SHIFT; }
+"-"">"                { return TRIGGER_EVENT_OPERATOR; }
 
     /* Match Verilog 2001 identifiers. */
 [a-zA-Z_][a-zA-Z0-9_$]*                            { return IDENTIFIER; }
