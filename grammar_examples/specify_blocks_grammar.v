@@ -106,10 +106,10 @@ module adder (A, B, sum_sig, carry_sig);
         (data => q) = 10;
         (clr, pre *> q) = 4;
         specparam
-            PATHPULSE $ = 3,
-            PATHPULSE $ = ( 3, 5),
-            PATHPULSE $ clk $ q = ( 2, 9 ),
-            PATHPULSE $ clr $ q = 1;
+            PATHPULSE$ = 3,
+            PATHPULSE$ = ( 3, 5),
+            PATHPULSE$clk$q = ( 2, 9 ),
+            PATHPULSE$clr$q = 1;
     endspecify
 
     specify

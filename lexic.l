@@ -147,20 +147,20 @@ inside them. */
 "xnor"                { return XNOR; }
 "xor"                 { return XOR; }
 
-"PATHPULSE"           { return PATHPULSE; }
+"PATHPULSE$"[a-zA-Z0-9_$]* { return PATHPULSE; }
 
-"setup"              { return SETUP; }
-"hold"               { return HOLD; }
-"setuphold"          { return SETUPHOLD; }
-"recovery"           { return RECOVERY; }
-"removal"            { return REMOVAL; }
-"recrem"             { return RECREM; }
-"skew"               { return SKEW; }
-"timeskew"           { return TIMESKEW; }
-"fullskew"           { return FULLSKEW; }
-"period"             { return D_PERIOD; }
-"width"              { return WIDTH; }
-"nochange"           { return NOCHANGE; }
+"$setup"              { return SETUP; }
+"$hold"               { return HOLD; }
+"$setuphold"          { return SETUPHOLD; }
+"$recovery"           { return RECOVERY; }
+"$removal"            { return REMOVAL; }
+"$recrem"             { return RECREM; }
+"$skew"               { return SKEW; }
+"$timeskew"           { return TIMESKEW; }
+"$fullskew"           { return FULLSKEW; }
+"$period"             { return D_PERIOD; }
+"$width"              { return WIDTH; }
+"$nochange"           { return NOCHANGE; }
 
     /* Match Verilog 2001 comments. Tokens are not returned for comments (so
 that comments are invisible to the parser). */

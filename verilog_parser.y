@@ -1403,26 +1403,15 @@ specparam_assignment:
 /* output (inertial delay), or result in a logic X on the output. */
 pulse_control_specparam:
                         /* specparam PATHPULSE$ = single_limit; */
-                       PATHPULSE DOLLAR EQUAL transition_delay_unit 
+                       PATHPULSE EQUAL transition_delay_unit 
                        { printf("pulse_control_specparam "); }
 
                         /* specparam PATHPULSE$ = (reject_limit, error_limit); */
-|                      PATHPULSE DOLLAR EQUAL OPENPARENTHESES 
+|                      PATHPULSE EQUAL OPENPARENTHESES 
                        transition_delay_unit COMMA transition_delay_unit 
                        CLOSEPARENTHESES
                        { printf("pulse_control_specparam "); }
 
-                        /* specparam PATHPULSE$input$output = */
-                        /* (reject_limit, error_limit); */
-|                      PATHPULSE DOLLAR IDENTIFIER DOLLAR IDENTIFIER EQUAL 
-                       OPENPARENTHESES transition_delay_unit COMMA 
-                       transition_delay_unit CLOSEPARENTHESES 
-                       { printf("pulse_control_specparam "); }
-
-                        /* specparam PATHPULSE$input$output = single_limit; */
-|                      PATHPULSE DOLLAR IDENTIFIER DOLLAR IDENTIFIER EQUAL 
-                       transition_delay_unit 
-                       { printf("pulse_control_specparam "); }
 ;
 
 pulse_propagation:
@@ -1578,67 +1567,67 @@ path_delay:      /* all output transitions */
 /* on input changes, such as setup times and hold times. */
 timing_checks:
                /* $setup(data_event, reference_event, limit, notifier); */
-              DOLLAR SETUP OPENPARENTHESES data_event COMMA reference_event 
+              SETUP OPENPARENTHESES data_event COMMA reference_event 
               COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON
               { printf("$setup "); }
                /* $setup(data_event, reference_event, limit); */
-|             DOLLAR SETUP OPENPARENTHESES data_event COMMA reference_event 
+|             SETUP OPENPARENTHESES data_event COMMA reference_event 
               COMMA limit CLOSEPARENTHESES SEMICOLON
               { printf("$setup "); }
 
                /* $hold(reference_event, data_event, limit, notifier); */
-|             DOLLAR HOLD OPENPARENTHESES reference_event COMMA data_event 
+|             HOLD OPENPARENTHESES reference_event COMMA data_event 
               COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON
               { printf("$hold "); }
                /* $hold(reference_event, data_event, limit); */
-|             DOLLAR HOLD OPENPARENTHESES reference_event COMMA data_event 
+|             HOLD OPENPARENTHESES reference_event COMMA data_event 
               COMMA limit CLOSEPARENTHESES SEMICOLON
               { printf("$hold "); }
 
                /* $setuphold(reference_event, data_event, setup_limit, */
                /* hold_limit, notifier, stamptime_condition, */
                /* checktime_condition, delayed_ref, delayed_data); */
-|             DOLLAR SETUPHOLD OPENPARENTHESES reference_event COMMA data_event 
+|             SETUPHOLD OPENPARENTHESES reference_event COMMA data_event 
               COMMA setup_limit COMMA hold_limit COMMA notifier COMMA 
               stamptime_condition COMMA checktime_condition COMMA delayed_ref 
               COMMA delayed_data CLOSEPARENTHESES SEMICOLON
               { printf("$setuphold "); }
 
                /* $recovery(reference_event, data_event, limit, notifier); */
-|             DOLLAR RECOVERY OPENPARENTHESES reference_event COMMA data_event 
+|             RECOVERY OPENPARENTHESES reference_event COMMA data_event 
               COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON 
               { printf("$recovery "); }
                /* $recovery(reference_event, data_event, limit); */
-|             DOLLAR RECOVERY OPENPARENTHESES reference_event COMMA data_event 
+|             RECOVERY OPENPARENTHESES reference_event COMMA data_event 
               COMMA limit CLOSEPARENTHESES SEMICOLON 
               { printf("$recovery "); }
 
                /* $removal(reference_event, data_event, limit, notifier); */
-|             DOLLAR REMOVAL OPENPARENTHESES reference_event COMMA data_event 
+|             REMOVAL OPENPARENTHESES reference_event COMMA data_event 
               COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON
               { }
 
                /* $recrem(reference_event, data_event, recovery_limit, */
                /* removal_limit, notifier, stamptime_cond, checktime_cond, */
                /* delayed_ref, delayed_data); */
-|             DOLLAR RECREM OPENPARENTHESES reference_event COMMA data_event 
+|             RECREM OPENPARENTHESES reference_event COMMA data_event 
               COMMA recovery_limit COMMA removal_limit COMMA notifier COMMA 
               stamptime_condition COMMA checktime_condition COMMA delayed_ref 
               COMMA delayed_data CLOSEPARENTHESES SEMICOLON
               { }
 
                /* $skew(reference_event, data_event, limit, notifier); */
-|             DOLLAR SKEW OPENPARENTHESES reference_event COMMA data_event 
+|             SKEW OPENPARENTHESES reference_event COMMA data_event 
               COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON
               { printf("$skew "); }
                /* $skew(reference_event, data_event, limit); */
-|             DOLLAR SKEW OPENPARENTHESES reference_event COMMA data_event 
+|             SKEW OPENPARENTHESES reference_event COMMA data_event 
               COMMA limit CLOSEPARENTHESES SEMICOLON
               { printf("$skew "); }
 
                /* $timeskew(reference_event, data_event, limit, notifier, */
                /* event_based_flag, remain_active_flag); */
-|             DOLLAR TIMESKEW OPENPARENTHESES reference_event COMMA data_event 
+|             TIMESKEW OPENPARENTHESES reference_event COMMA data_event 
               COMMA limit COMMA notifier COMMA events_based_flag COMMA 
               remain_active_flag CLOSEPARENTHESES SEMICOLON
               { }
@@ -1646,25 +1635,25 @@ timing_checks:
                /* $fullskew(reference_event, data_event, data_skew_limit, */
                /* ref_skew_limit, notifier, event_based_flag, */
                /* remain_active_flag); */
-|             DOLLAR FULLSKEW OPENPARENTHESES reference_event COMMA data_event 
+|             FULLSKEW OPENPARENTHESES reference_event COMMA data_event 
               COMMA data_skew_limit COMMA ref_skew_limit COMMA notifier COMMA 
               events_based_flag COMMA remain_active_flag CLOSEPARENTHESES 
               SEMICOLON
               { }
 
                /* $period(reference_event, limit, notifier); */
-|             DOLLAR D_PERIOD OPENPARENTHESES reference_event COMMA limit COMMA 
+|             D_PERIOD OPENPARENTHESES reference_event COMMA limit COMMA 
               notifier CLOSEPARENTHESES SEMICOLON
               { }
 
                /* $width(reference_event, limit, width_threshold, notifier); */
-|             DOLLAR WIDTH OPENPARENTHESES reference_event COMMA limit COMMA 
+|             WIDTH OPENPARENTHESES reference_event COMMA limit COMMA 
               width_threshold COMMA notifier CLOSEPARENTHESES SEMICOLON 
               { }
 
                /* $nochange(reference_event, data_event, start_edge_offset, */
                /* end_edge_offset, notifier); */
-|             DOLLAR NOCHANGE OPENPARENTHESES reference_event COMMA data_event 
+|             NOCHANGE OPENPARENTHESES reference_event COMMA data_event 
               COMMA start_edge_offset COMMA end_edge_offset COMMA notifier 
               CLOSEPARENTHESES SEMICOLON
               { }
@@ -1678,6 +1667,7 @@ timing_checks:
 /* inout that is scalar or vector net. */
 reference_event:
                POSEDGE IDENTIFIER  { }
+|              NEGEDGE IDENTIFIER { }
 |              IDENTIFIER { }
 ;
 
@@ -1685,6 +1675,7 @@ reference_event:
 /* violations. The type is module input or inout that is scalar or vector net */
 data_event:
           POSEDGE IDENTIFIER { }
+|         NEGEDGE IDENTIFIER { }
 |         IDENTIFIER { }
 ;
 
