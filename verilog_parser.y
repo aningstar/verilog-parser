@@ -43,12 +43,15 @@ int reduction_and_flag, reduction_or_flag;
 %token SUPPLY0 SUPPLY1 STRONG0 STRONG1 PULL0 PULL1 WEAK0 WEAK1
 /* Verilog 2001 capacitance strength tokens. */
 %token LARGE MEDIUM SMALL
+/* Verilog 2001 module instance tokens */
+%token DEFPARAM
 /* Verilog 2001 gate primitive tokens. */
 %token AND NAND OR NOR XOR XNOR BUF NOT BUFIF0 NOTIF0 BUFIF1 NOTIF1 PULLUP
 %token PULLDOWN
 /* Verilog 2001 switch primitive tokens. */
 %token PMOS NMOS RPMOS RNMOS CMOS RCMOS TRAN RTRAN TRANIF0 TRANIF1 RTRANIF0
 %token RTRANIF1
+
 /* Verilog 2001 procedural block tokens. IF and THEN have precedence. */
 %token INITIAL_TOKEN ALWAYS AT POSEDGE NEGEDGE BEGIN_TOKEN END FORK JOIN DISABLE
 %token WAIT ASSIGN DEASSIGN FORCE RELEASE IF CASE ENDCASE DEFAULT CASEZ CASEX
@@ -57,6 +60,12 @@ int reduction_and_flag, reduction_or_flag;
 /* functions should not be consfused with the "signed" "unsigned" Verilog */
 /* keywords. */
 %token SIGNED_SYSTEM_FUNCTION UNSIGNED_SYSTEM_FUNCTION
+/* Verilog 2001 generate blocks */
+%token GENERATE ENDGENERATE
+/* Version 2001 task definitions */
+%token TASK ENDTASK AUTOMATIC
+/* Version 2001 function definitions */
+%token FUNCTION ENDFUNCTION
 
 /* Tokens with precedence. */
 
@@ -134,7 +143,262 @@ nonempty_identifier_list: IDENTIFIER { }
 ;
 
 block: /* empty */
-| block statement { }
+| block statement  { }
+| block generate_block { }
+| block task_definition { }
+| block function_definition { }
+;
+/*          Generate Blocks             */
+/****************************************/
+/* Generate blocks provide control over */
+/* the creation of many types of module */
+/* items. A generate block must be      */
+/* defined within a module, and is used */
+/* to generate code within that module. */
+/*                                      */
+/* genvar genvar_name, ... ;            */
+/* generate                             */
+/*        genvar genvar_name, ... ;     */
+/*        generate_items                */
+/* endgenerate                          */
+/****************************************/
+generate_block:
+            GENERATE genvar generate_items ENDGENERATE { printf("generate\n"); }
+|           GENERATE generate_items ENDGENERATE { printf("generate\n");}
+;
+/* generate_items are: */
+/*  genvar_name = constant_expression; */
+/*  net_declaration */
+/*  variable_declaration */
+/*  module_instance */
+/*  primitive_instance */ 
+/*  continuous_assignment */
+/*  procedural_block */
+/*  task_definition */
+/*  function_definition */
+generate_items:
+              statement { }
+|             generate_items statement { }
+;
+/* genvar is an integer variable which must be a positive */
+/* value. They may only be used within a generate block. */
+/* Genvar variables only have a value during elaboration, */
+/* and do not exist during simulation. Genvar variables must */
+/* be declared within the module where the genvar is used. */
+/* They may be declared either inside or outside of a generate block. */
+genvar: 
+      GENVAR nonempty_identifier_list SEMICOLON {printf("genvar\n"); }
+;
+
+/*            Task Definitions            */
+/******************************************/
+/* There are two types of task definition */
+/******************************************/
+/* 1st type: (added in Verilog-2001) */
+/* task automatic task_name ( */
+/*   port_declaration port_name, port_name, ... ,  */
+/*   port_declaration port_name, port_name, ... ); */
+/*   local variable declarations */
+/*   procedural_statement or statement_group */
+/* endtask */
+/* 2st type: (old style) */
+/* task automatic task_name; */
+/*   port_declaration port_name, port_name, ...; */
+/*   port_declaration port_name, port_name, ...; */
+/*   local variable declarations */
+/*   procedural_statement or statement_group */
+/* endtask */
+/*******************************************/
+/* automatic is optional, port_declaration */
+/*  can be: port_direction signed range    */
+/*          port_direction reg signed range*/
+/*          port_direction port_type       */
+task_definition:
+                /* 1st type: (added in Verilog-2001) */
+               TASK AUTOMATIC IDENTIFIER OPENPARENTHESES task_port_list 
+               CLOSEPARENTHESES SEMICOLON task_body ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without body */
+|              TASK AUTOMATIC IDENTIFIER OPENPARENTHESES task_port_list 
+               CLOSEPARENTHESES SEMICOLON ENDTASK 
+               { printf("task_definition\n"); }
+
+|              TASK IDENTIFIER OPENPARENTHESES task_port_list CLOSEPARENTHESES 
+               SEMICOLON task_body ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without body */
+|              TASK IDENTIFIER OPENPARENTHESES task_port_list CLOSEPARENTHESES 
+               SEMICOLON ENDTASK 
+               { printf("task_definition\n"); }
+
+                /* 2st type: (old style) */
+|              TASK AUTOMATIC IDENTIFIER SEMICOLON task_port_body task_body 
+               ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without ports */
+|              TASK AUTOMATIC IDENTIFIER SEMICOLON task_body 
+               ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without body */
+|              TASK AUTOMATIC IDENTIFIER SEMICOLON task_port_body ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without ports and body */
+|              TASK AUTOMATIC IDENTIFIER SEMICOLON ENDTASK 
+               { printf("task_definition\n"); }
+
+|              TASK IDENTIFIER SEMICOLON task_port_body task_body ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without ports */
+|              TASK IDENTIFIER SEMICOLON task_body ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without body */
+|              TASK IDENTIFIER SEMICOLON task_port_body ENDTASK 
+               { printf("task_definition\n"); }
+
+               /* without ports and body */
+|              TASK IDENTIFIER SEMICOLON ENDTASK 
+               { printf("task_definition\n"); }
+;
+
+/* May have any number of input, output or inout ports, including none. */
+task_port_list: 
+|                   nonempty_task_port_list { }
+;
+
+nonempty_task_port_list: 
+                         task_port_declaration 
+                         {printf("task_port_declaration "); }
+|                        task_port_declaration COMMA task_port_list 
+                         { printf("task_port_declaration "); }
+;
+
+task_port_body:
+              task_port_declaration SEMICOLON
+              { printf("task_port_declaration "); }
+|             task_port_body task_port_declaration SEMICOLON 
+              { printf("task_port_declaration "); }
+;
+
+task_port_declaration: 
+                     port_direction SIGNED range IDENTIFIER { }
+|                    port_direction SIGNED IDENTIFIER { }
+|                    port_direction range IDENTIFIER { }
+|                    port_direction REG SIGNED range IDENTIFIER { }
+|                    port_direction REG SIGNED IDENTIFIER { }
+|                    port_direction REG range IDENTIFIER { }
+|                    port_direction task_port_type IDENTIFIER { }
+;
+
+task_port_type: 
+              INTEGER { }
+|             TIME { }
+|             REAL { }
+|             REALTIME { }
+;
+/*                  TODO                              */
+/* procedural statement must be included to task body */
+/******************************************************/
+/* task body contains : local variable declarations   */ 
+/* and procedural_statement or statement_group        */
+task_body: 
+           variable_declaration SEMICOLON { }
+|          statement_group { }
+|          variable_declaration SEMICOLON task_body { }
+|          statement_group task_body { }
+;
+
+/*           Function Definitions            */
+/* There are 2 types of function definitions */
+/*********************************************/
+/* 1st type: */
+/* function automatic range_or_type function_name ( */
+/*     input range_or_type port_name, port_name, ... , */
+/*     input range_or_type port_name, port_name, ... ); */
+/*     local variable declarations */
+/*     procedural_statement or statement_group */
+/* endfunction */
+/* 2st type: */
+/* function automatic [range_or_type] function_name; */
+/*     input range_or_type port_name, port_name, ... ; */
+/*     input range_or_type port_name, port_name, ... ; */
+/*     local variable declarations */
+/*     procedural_statement or statement_group */
+/* endfunction */
+/*********************************************/
+
+function_definition:
+                   /* 1st type of function definition */
+                   FUNCTION AUTOMATIC range_or_type IDENTIFIER OPENPARENTHESES 
+                   function_parameters CLOSEPARENTHESES SEMICOLON function_body 
+                   ENDFUNCTION { printf("function_definition\n"); }
+
+                   /* without body */
+|                  FUNCTION AUTOMATIC range_or_type IDENTIFIER OPENPARENTHESES 
+                   function_parameters CLOSEPARENTHESES SEMICOLON  
+                   ENDFUNCTION { printf("function_definition\n"); }
+
+|                  FUNCTION range_or_type IDENTIFIER OPENPARENTHESES 
+                   function_parameters CLOSEPARENTHESES SEMICOLON function_body 
+                   ENDFUNCTION { printf("function_definition\n"); }
+                   
+                   /* without body */
+|                  FUNCTION range_or_type IDENTIFIER OPENPARENTHESES 
+                   function_parameters CLOSEPARENTHESES SEMICOLON ENDFUNCTION 
+                   { printf("function_definition\n"); }
+
+                   /* 2st type of function definition */
+|                  FUNCTION AUTOMATIC range_or_type IDENTIFIER SEMICOLON 
+                   function_input_declarations function_body ENDFUNCTION 
+                   { printf("function_definition\n"); }
+
+                   /* without body */
+|                  FUNCTION AUTOMATIC range_or_type IDENTIFIER SEMICOLON 
+                   function_input_declarations ENDFUNCTION 
+                   { printf("function_definition\n"); }
+
+|                  FUNCTION range_or_type IDENTIFIER SEMICOLON 
+                   function_input_declarations function_body ENDFUNCTION 
+                   { printf("function_definition\n"); }
+
+                   /* without body */
+|                  FUNCTION range_or_type IDENTIFIER SEMICOLON 
+                   function_input_declarations ENDFUNCTION 
+                   { printf("function_definition\n"); }
+;
+/* Must have at least one input; may not have outputs or inouts. */
+function_parameters: 
+                   INPUT range_or_type nonempty_identifier_list { }
+|                  function_parameters INPUT range_or_type nonempty_identifier_list { }
+;
+
+function_input_declarations:
+                   INPUT range_or_type nonempty_identifier_list SEMICOLON { }
+|                  function_input_declarations INPUT range_or_type nonempty_identifier_list SEMICOLON { }
+;
+
+function_body: 
+              variable_declaration SEMICOLON{ }
+|             assignment SEMICOLON { }
+|             function_body variable_declaration SEMICOLON { }
+|             function_body assignment SEMICOLON { }
+;
+
+range_or_type: 
+|            range { }
+|            SIGNED range { }
+|            REG SIGNED range { }
+|            REG range { }
+|            INTEGER { }
+|            TIME { }
+|            REAL { }
+|            REALTIME { }
 ;
 
 statement: assignment  SEMICOLON { printf("\n"); }
@@ -143,6 +407,7 @@ statement: assignment  SEMICOLON { printf("\n"); }
 |          primitive_instance SEMICOLON { printf("primitive_instance\n"); }
 |          module_instances SEMICOLON { printf("module_instance\n"); }
 |          procedural_block { printf("procedural_block\n"); }
+|          continuous_assignment SEMICOLON { }
 ;
 
 declaration_with_attributes: attributes declaration { }
@@ -166,10 +431,14 @@ attribute: IDENTIFIER                  { }
 ;
 
 declaration: port_declaration { }
-|            net_declaration { printf("net_declaration"); }
-|            variable_declaration { printf("variable_declaration"); }
+|            net_declaration      
+    { printf("net_declaration "); }
+|            variable_declaration 
+    { printf("variable_declaration "); }
 |            constant_or_event_declaration
-    { printf("constant_or_event_declaration"); }
+    { printf("constant_or_event_declaration "); }
+|            genvar
+    { printf("genvar_declaration "); }
 ;
 
 /*             Port declarations.          */
@@ -721,6 +990,21 @@ expression: number                              {
     }
 ;
 
+/*            Continuous Assignments           */
+/***********************************************/
+/* There are 2 types of continuous assignments */
+/* 1st type : assign #(delay) net_name = expression; */
+/* 2st type : net_type (strength) [size] #(delay) net_name = expression; */
+/***********************************************/
+/* 2st type implemented on net declaration */
+/* delay , strength and size are optional */
+continuous_assignment: /* Explicit Continuous Assignment */
+                      ASSIGN transition_delay IDENTIFIER EQUAL expression 
+                      { printf("explicit_continuous_assignment\n"); }
+|                     ASSIGN IDENTIFIER EQUAL expression
+                      { printf("explicit_continuous_assignment\n"); }
+;
+
 /*      Vector Bit Selects and Part Selects.     */
 /*************************************************/
 /* There are 4 types of vector and part selects. */
@@ -821,7 +1105,7 @@ module_instances:
                 IDENTIFIER IDENTIFIER range OPENPARENTHESES connections CLOSEPARENTHESES { }
 |               IDENTIFIER IDENTIFIER OPENPARENTHESES connections CLOSEPARENTHESES { }
                 /* 3st type module instances (explicit parameter redefinition) */
-/* |               DEFPARAM IDENTIFIER PERIOD IDENTIFIER EQUAL number { } */
+|               DEFPARAM IDENTIFIER PERIOD IDENTIFIER EQUAL number { }
                 /* 4st and 5st type module instances(implicit and explicit) */
 |               IDENTIFIER HASH OPENPARENTHESES redefinition_list CLOSEPARENTHESES 
                 IDENTIFIER OPENPARENTHESES connections CLOSEPARENTHESES { }

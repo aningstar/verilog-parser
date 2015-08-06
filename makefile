@@ -1,4 +1,7 @@
 all: parser
+	./verilog_parser < grammar_examples/function_definitions_grammar.v
+	./verilog_parser < grammar_examples/task_definitions_grammar.v
+	./verilog_parser < grammar_examples/generate_blocks.v
 	./verilog_parser < grammar_examples/module_instances_grammar.v
 	./verilog_parser < grammar_examples/array_selects_grammar.v
 	./verilog_parser < grammar_examples/bit_selects_grammar.v
@@ -12,6 +15,15 @@ all: parser
 
 procedural_blocks: parser
 	./verilog_parser < grammar_examples/procedural_blocks_grammar.v
+
+function_definitions_grammar: parser
+	./verilog_parser < grammar_examples/function_definitions_grammar.v
+
+task_defintions_grammar: parser
+	./verilog_parser < grammar_examples/task_definitions_grammar.v
+
+generate_blocks: parser
+	./verilog_parser < grammar_examples/generate_blocks.v
 
 module_instances: parser
 	./verilog_parser < grammar_examples/module_instances_grammar.v
