@@ -2,6 +2,19 @@
 
 %{
 #include <stdio.h>
+#include <stdlib.h>
+
+/* Function prototypes. */
+
+void reset_reduction_flags(int *reduction_and_flag, int *reduction_or_flag);
+void turn_reduction_flag_on(int *reduction_flag);
+void check_reduction_flag(int reduction_flag);
+
+/* Global variable declarations */
+
+/* Flags used to determine if the last expression created was a reduction_and */
+/* or a reduction_or (value 1) or not (value 0). */
+int reduction_and_flag, reduction_or_flag;
 %}
 
 /* Token declarations */
@@ -40,6 +53,10 @@
 %token INITIAL_TOKEN ALWAYS AT POSEDGE NEGEDGE BEGIN_TOKEN END FORK JOIN DISABLE
 %token WAIT ASSIGN DEASSIGN FORCE RELEASE IF CASE ENDCASE DEFAULT CASEZ CASEX
 %token FOR WHILE REPEAT FOREVER TRIGGER_EVENT_OPERATOR
+/* Verilog 2001 system function tokens. The "$signed" and "$unsigned" system */
+/* functions should not be consfused with the "signed" "unsigned" Verilog */
+/* keywords. */
+%token SIGNED_SYSTEM_FUNCTION UNSIGNED_SYSTEM_FUNCTION
 
 /* Tokens with precedence. */
 
@@ -381,8 +398,6 @@ constant_or_constant_function: IDENTIFIER             { }
 /* Call to constant function. */
 constant_function_call: IDENTIFIER OPENPARENTHESES IDENTIFIER CLOSEPARENTHESES
     { }
-|                       IDENTIFIER OPENPARENTHESES number CLOSEPARENTHESES
-    { }
 ;
 
 /* Logic values can have 8 strength levels: 4 driving, 3 capacitive, and high */
@@ -531,59 +546,179 @@ assignment: IDENTIFIER EQUALS expression { printf("assignment "); }
 
 /*           TODO           */
 /* Single operands (function). Reduction limitations. */
-expression: number                              { }
-|           IDENTIFIER                          { }
-|           bit_select %prec BIT_SELECT         { }
-|           EXCLAMATION_MARK expression         { printf("logical_not "); }
-|           TILDE expression                    { printf("bitwise_not "); }
-|           PLUS expression %prec UNARY_PLUS    { printf("unary_plus "); }
-|           MINUS expression %prec UNARY_MINUS  { printf("unary_minus "); }
-|           expression PLUS expression          { printf("addition "); }
-|           expression MINUS expression         { printf("subtraction "); }
-|           expression ASTERISK expression      { printf("multiplication "); }
-|           expression SLASH expression         { printf("division "); }
-|           expression MODULO expression        { printf("modulus "); }
-|           expression POWER expression         { printf("exponentation "); }
+expression: number                              { 
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           IDENTIFIER                          {
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           bit_select %prec BIT_SELECT         {
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           EXCLAMATION_MARK expression         {
+        printf("logical_not ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           TILDE expression                    {
+        printf("bitwise_not ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           PLUS expression %prec UNARY_PLUS    {
+        printf("unary_plus ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           MINUS expression %prec UNARY_MINUS  {
+        printf("unary_minus ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression PLUS expression          {
+        printf("addition ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression MINUS expression         {
+        printf("subtraction ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression ASTERISK expression      {
+        printf("multiplication ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression SLASH expression         {
+        printf("division ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression MODULO expression        {
+        printf("modulus ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression POWER expression         {
+        printf("exponentation ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
 |           OPENPARENTHESES expression CLOSEPARENTHESES %prec
-    PARENTHESISED_EXPRESSION { printf("parenthesised_expression "); }
-|           expression BITWISE_LEFT_SHIFT expression
-    { printf("bitwise_left_shift "); }
-|           expression BITWISE_RIGHT_SHIFT expression
-    { printf("bitwise_right_shift "); }
-|           expression ARITHMETIC_LEFT_SHIFT expression
-    { printf("arithmetic_left_shift "); }
-|           expression ARITHMETIC_RIGHT_SHIFT expression
-    { printf("arithmetic_right_shift "); }
-|           expression LESSTHAN expression      { printf("less_than "); }
-|           expression LESSTHANOREQUAL expression
-    { printf("less_than_or_equal "); }
-|           expression GREATERTHAN expression   { printf("greater_than "); }
-|           expression GREATERTHANOREQUAL expression
-    { printf("greater_than_or_equal "); }
-|           expression EQUAL expression         { printf("equal "); }
-|           expression NOT_EQUAL expression     { printf("not_equal "); }
-|           expression IDENTICAL expression     { printf("identical "); }
-|           expression NOT_IDENTICAL expression { printf("not_intetical "); }
-|           AND_OPERATOR expression %prec REDUCTION_AND
-    { printf("reduction_and "); }
-|           NAND_OPERATOR expression            { printf("reduction_nand "); }
-|           OR_OPERATOR expression %prec REDUCTION_OR
-    { printf("reduction_or "); }
-|           NOR_OPERATOR expression             { printf("reduction_nor "); }
-|           XOR_OPERATOR expression %prec REDUCTION_XOR
-    { printf("reduction_xor "); }
-|           XNOR_OPERATOR expression %prec REDUCTION_XNOR
-    { printf("reduction_xnor "); }
-|           expression AND_OPERATOR expression  { printf("bitwise_and "); }
-|           expression XOR_OPERATOR expression  { printf("bitwise_xor "); }
-|           expression XNOR_OPERATOR expression { printf("bitwise_xnor "); }
-|           expression OR_OPERATOR expression   { printf("bitwise_or "); }
-|           expression LOGICAL_AND expression   { printf("logical_and "); }
-|           expression LOGICAL_OR expression    { printf("logical_or "); }
-|           expression QUESTION_MARK expression COLON expression
-    { printf("conditional "); }
+    PARENTHESISED_EXPRESSION                    {
+        printf("parenthesised_expression ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression BITWISE_LEFT_SHIFT expression {
+        printf("bitwise_left_shift ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression BITWISE_RIGHT_SHIFT expression {
+        printf("bitwise_right_shift ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression ARITHMETIC_LEFT_SHIFT expression {
+        printf("arithmetic_left_shift ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression ARITHMETIC_RIGHT_SHIFT expression {
+        printf("arithmetic_right_shift ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression LESSTHAN expression      {
+        printf("less_than ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression LESSTHANOREQUAL expression {
+        printf("less_than_or_equal ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression GREATERTHAN expression   {
+        printf("greater_than ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression GREATERTHANOREQUAL expression {
+        printf("greater_than_or_equal ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression EQUAL expression         {
+        printf("equal ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression NOT_EQUAL expression     {
+        printf("not_equal ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression IDENTICAL expression     {
+        printf("identical ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression NOT_IDENTICAL expression {
+        printf("not_intetical ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           AND_OPERATOR expression %prec REDUCTION_AND {
+        printf("reduction_and ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+        turn_reduction_flag_on(&reduction_and_flag);
+    }
+|           NAND_OPERATOR expression            {
+        printf("reduction_nand ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           OR_OPERATOR expression %prec REDUCTION_OR {
+        printf("reduction_or ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+        turn_reduction_flag_on(&reduction_or_flag);
+    }
+|           NOR_OPERATOR expression             {
+        printf("reduction_nor ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           XOR_OPERATOR expression %prec REDUCTION_XOR {
+        printf("reduction_xor ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           XNOR_OPERATOR expression %prec REDUCTION_XNOR {
+        printf("reduction_xnor ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression AND_OPERATOR expression  {
+        printf("bitwise_and ");
+        check_reduction_flag(reduction_and_flag);
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression XOR_OPERATOR expression  {
+        printf("bitwise_xor ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression XNOR_OPERATOR expression {
+        printf("bitwise_xnor ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression OR_OPERATOR expression   {
+        printf("bitwise_or ");
+        check_reduction_flag(reduction_or_flag);
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression LOGICAL_AND expression   {
+        printf("logical_and ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression LOGICAL_OR expression    {
+        printf("logical_or ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           expression QUESTION_MARK expression COLON expression {
+        printf("conditional ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
 |           OPENBRACES concatenation_list CLOSEBRACES %prec
-    CONCATENATED_EXPRESSIONS { printf("concatenation "); }
+    CONCATENATED_EXPRESSIONS {
+        printf("concatenation ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           SIGNED_SYSTEM_FUNCTION OPENPARENTHESES expression CLOSEPARENTHESES
+    {
+        printf("cast_to_signed_system_function ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           UNSIGNED_SYSTEM_FUNCTION OPENPARENTHESES expression CLOSEPARENTHESES
+    {
+        printf("cast_to_unsigned_system_function ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
 ;
 
 /*      Vector Bit Selects and Part Selects.     */
@@ -1176,4 +1311,41 @@ main (int argc, char *argv[]) {
 
 yyerror(char *error_string) {
     fprintf(stderr, "ERROR in line %d: %s\n", yylloc.first_line, error_string);
+}
+
+/* Function: void reset_reduction_flags(int *reduction_and_flag, int */
+/*     *reduction_or_flag) */
+/* Arguments: pointer to the reduction_and_flag to be reset, pointer to the */
+/*     reduction_or_flag to be reset */
+/* Returns: - */
+/* Description: Used after every expression reduction to return the flags */
+/*     signifying that the last expression was a reduction_and or a */
+/*     reduction_or to 0. */
+void reset_reduction_flags(int *reduction_and_flag, int *reduction_or_flag) {
+    *reduction_and_flag = 0;
+    *reduction_or_flag = 0;
+}
+
+/* Function: void turn_reduction_flag_on(int *reduction_flag) */
+/* Arguments: pointer to the reduction flag to change to 1 */
+/* Returns: - */
+/* Description: Changes a reduction flag to 1. Used after a reduction_and */
+/*     with the reduction_and_flag and after a reduction_or with the */
+/*     reduction_or_flag. */
+void turn_reduction_flag_on(int *reduction_flag) {
+    *reduction_flag = 1;
+}
+
+/* Function: void check_reduction_flag(int reduction_flag) */
+/* Arguments: the reduction flag to check */
+/* Returns: - */
+/* Description: Checks if a reduction_flag is 1. If it is, it prints a */
+/*     relevant error message and terminates the parser. Used to check for a */
+/*     reduction_and when making a binary_and and to check for a reduction_or */
+/*     when making a binary_or. */
+void check_reduction_flag(int reduction_flag) {
+    if (reduction_flag == 1) {
+        yyerror("\"a & &b\" and \"a | |b\" is invalid Verilog syntax");
+        exit(EXIT_FAILURE);
+    }
 }

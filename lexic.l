@@ -147,6 +147,10 @@ inside them. */
 "xnor"                { return XNOR; }
 "xor"                 { return XOR; }
 
+    /* Match Verilog 2001 system function keywords. */
+"$signed"             { return SIGNED_SYSTEM_FUNCTION; }
+"$unsigned"           { return UNSIGNED_SYSTEM_FUNCTION; }
+
     /* Match Verilog 2001 comments. Tokens are not returned for comments (so
 that comments are invisible to the parser). */
 <INITIAL>{
