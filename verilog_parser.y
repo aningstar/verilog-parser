@@ -53,6 +53,16 @@
 %token PULSESTYLE_ONEVENT PULSESTYLE_ONDETECT SHOWCANCELLED NOSHOWCANCELLED
 %token SETUP HOLD SETUPHOLD RECOVERY REMOVAL RECREM SKEW TIMESKEW
 %token FULLSKEW D_PERIOD WIDTH NOCHANGE
+%token EDGE NEGATION 
+%token THREE_AND PUNCTUATION_MARK
+/* specify blocks: scalar_constant */
+%token ONE ZERO ZERO_ONE ONE_ZERO ONE_BIN_ZERO_LOW ONE_BIN_ONE_LOW
+%token ONE_BIN_ZERO_UPPER ONE_BIN_ONE_UPPER BIN_ZERO_LOW BIN_ONE_LOW 
+%token BIN_ZERO_UPPER BIN_ONE_UPPER
+%token X_ZERO_UPPER X_ONE_UPPER X_ZERO_LOW X_ONE_LOW Z_ZERO_UPPER
+%token Z_ONE_UPPER Z_ZERO_LOW Z_ONE_LOW ZERO_X_UPPER ONE_X_UPPER 
+%token ZERO_X_LOW ONE_X_LOW ZERO_Z_UPPER ONE_Z_UPPER ZERO_Z_LOW
+%token ONE_Z_LOW
 
 %error-verbose
 %locations
@@ -584,14 +594,14 @@ range : OPENBRACKETS range_value COLON range_value CLOSEBRACKETS
 
 /*              TODO           */
 /*   Range value expressions   */
-range_value: NUM_INTEGER                                            { }
+range_value: num_integer                                            { }
 |            constant_or_constant_function                          { }
-|            constant_or_constant_function ADDITION NUM_INTEGER     { }
-|            constant_or_constant_function SUBTRACTION NUM_INTEGER  { }
-|            constant_or_constant_function MODULUS NUM_INTEGER      { }
-|            NUM_INTEGER ADDITION constant_or_constant_function     { }
-|            NUM_INTEGER SUBTRACTION constant_or_constant_function  { }
-|            NUM_INTEGER MODULUS constant_or_constant_function      { }
+|            constant_or_constant_function ADDITION num_integer     { }
+|            constant_or_constant_function SUBTRACTION num_integer  { }
+|            constant_or_constant_function MODULUS num_integer      { }
+|            num_integer ADDITION constant_or_constant_function     { }
+|            num_integer SUBTRACTION constant_or_constant_function  { }
+|            num_integer MODULUS constant_or_constant_function      { }
 ;
 
 constant_or_constant_function: IDENTIFIER             { }
@@ -809,13 +819,13 @@ index: OPENBRACKETS bit_number CLOSEBRACKETS { }
 ;
 
 /* The bit number must be a literal number or a constant. */
-bit_number: NUM_INTEGER { }
+bit_number: num_integer { }
 |           IDENTIFIER { }
 ;
 
 /* The width of the part select must be a literal number, a constant or a */
 /* call to a constant function. */
-part_select_width: NUM_INTEGER                   { }
+part_select_width: num_integer                   { }
 |                  constant_or_constant_function { }
 ;
 
@@ -1674,9 +1684,97 @@ reference_event:
 /* The signal change that initiates the timing check and is monitored for */
 /* violations. The type is module input or inout that is scalar or vector net */
 data_event:
-          POSEDGE IDENTIFIER { }
-|         NEGEDGE IDENTIFIER { }
-|         IDENTIFIER { }
+          timing_check_event_control IDENTIFIER THREE_AND timing_check_condition
+          { }
+|         timing_check_event_control IDENTIFIER 
+          { }
+|         IDENTIFIER THREE_AND timing_check_condition
+          { }
+|         IDENTIFIER
+          { }
+;
+
+timing_check_event_control:
+                          POSEDGE { }
+|                         NEGEDGE { }
+|                         edge_control_specifier { }
+;
+
+edge_control_specifier:
+                      EDGE edge_desciptor COMMA edge_desciptor { }
+|                     EDGE edge_desciptor { }
+|                     EDGE { }
+;
+
+/* Edge descriptor can be 01,10,(x|X|z|Z) (0|1),(0|1) (x|X|z|Z) */
+edge_desciptor:
+              ZERO_ONE { }
+|             ONE_ZERO { }
+|             zx_zero_one { }
+;
+/*                TODO                      */
+/* zx_zero_one must included to identifiers */
+/* z 0r x and zero or one */
+/* X0 X1 x0 x1 Z0 Z1 z0 z1 */
+/* 0X 1X 0x 1x 0Z 1Z 0z 1z */
+zx_zero_one:
+           X_ZERO_UPPER
+|          X_ONE_UPPER 
+|          X_ZERO_LOW
+|          X_ONE_LOW
+|          Z_ZERO_UPPER
+|          Z_ONE_UPPER
+|          Z_ZERO_LOW
+|          Z_ONE_LOW
+|          ZERO_X_UPPER
+|          ONE_X_UPPER 
+|          ZERO_X_LOW
+|          ONE_X_LOW
+|          ZERO_Z_UPPER
+|          ONE_Z_UPPER 
+|          ZERO_Z_LOW
+|          ONE_Z_LOW
+;
+
+timing_check_condition:
+                      scalar_timing_check_condition { }
+|                     OPENPARENTHESES scalar_timing_check_condition 
+                      CLOSEPARENTHESES { }
+;
+
+/*           TODO                */
+/* Check for negation expression */
+scalar_timing_check_condition:
+                             expression 
+                             { }
+|                            NEGATION expression 
+                             { }
+|                            expression EQUAL EQUAL 
+                             scalar_constant 
+                             { }
+|                            expression EQUAL EQUAL EQUAL 
+                             scalar_constant 
+                             { }
+|                            expression PUNCTUATION_MARK EQUAL 
+                             scalar_constant 
+                             { }
+|                            expression PUNCTUATION_MARK EQUAL EQUAL 
+                             scalar_constant 
+                             { }
+;
+
+/* scalar_constant: 1'b0 |1'b1 |1'B0 |1'B1 |'b0 | 'bl |'B0 |'B1|1 |0 */
+scalar_constant:
+               ONE_BIN_ZERO_LOW { }
+|              ONE_BIN_ONE_LOW { }
+|              ONE_BIN_ZERO_UPPER { }
+|              ONE_BIN_ONE_UPPER { }
+|              BIN_ZERO_LOW { }
+|              BIN_ONE_LOW { }
+|              BIN_ZERO_UPPER { }
+|              BIN_ONE_UPPER { }
+|              ONE { }
+|              ZERO { }
 ;
 
 /* A time limit used to detect timing violations on the data_event. Limit */
@@ -1785,20 +1883,36 @@ ref_skew_limit:
               integer_or_real { }
 ;
 
-integer_or_real: NUM_INTEGER { }
+integer_or_real: num_integer { }
 |                REALV       { }
 ;
 
-number: NUM_INTEGER { }
-|       UNSIG_BIN   { }
-|       UNSIG_OCT   { }
-|       UNSIG_DEC   { }
-|       UNSIG_HEX   { }
-|       SIG_BIN     { }
-|       SIG_OCT     { }
-|       SIG_DEC     { }
-|       SIG_HEX     { }
-|       REALV       { }
+number: num_integer        { }
+|       UNSIG_BIN          { }
+|       UNSIG_OCT          { }
+|       UNSIG_DEC          { }
+|       UNSIG_HEX          { }
+|       SIG_BIN            { }
+|       SIG_OCT            { }
+|       SIG_DEC            { }
+|       SIG_HEX            { }
+|       REALV              { }
+|       ONE_BIN_ZERO_LOW   { }
+|       ONE_BIN_ONE_LOW    { }
+|       ONE_BIN_ZERO_UPPER { }
+|       ONE_BIN_ONE_UPPER  { }
+|       BIN_ZERO_LOW       { }
+|       BIN_ONE_LOW        { }
+|       BIN_ZERO_UPPER     { }
+|       BIN_ONE_UPPER      { }
+;
+
+num_integer:
+           NUM_INTEGER { }
+|          ONE { }
+|          ZERO { }
+|          ZERO_ONE { }
+|          ONE_ZERO { }
 ;
 
 %%

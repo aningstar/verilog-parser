@@ -44,7 +44,7 @@ inside them. */
 "defparam"            { return DEFPARAM; }
 "design"              { printf("DESIGN\n"); }
 "disable"             { return DISABLE; }
-"edge"                { printf("EDGE\n"); }
+"edge"                { return EDGE; }
 "else"                { return ELSE; }
 "end"                 { return END; }
 "endcase"             { return ENDCASE; }
@@ -197,9 +197,42 @@ that comments are invisible to the parser). */
 ">"                   { return GREATERTHAN; }
 ":"                   { return COLON; }
 "?"                   { printf("QUESTION MARK : %s \n",yytext); }
-"~"                   { printf("NEGATION : %s \n",yytext); }
+"~"                   { return NEGATION; }
 "."                   { return PERIOD; }
 "$"                   { return DOLLAR; }
+"!"                   { return PUNCTUATION_MARK; }
+"&&&"                 { return THREE_AND; }
+
+
+"1"           { return ONE; }
+"0"           { return ZERO; }
+"01"          { return ZERO_ONE; }
+"10"          { return ONE_ZERO; }
+"1'b0"        { return ONE_BIN_ZERO_LOW; }
+"1'b1"        { return ONE_BIN_ONE_LOW; }
+"1'B0"        { return ONE_BIN_ZERO_UPPER; }
+"1'B1"        { return ONE_BIN_ONE_UPPER; }
+"'b0"         { return BIN_ZERO_LOW; }
+"'b1"         { return BIN_ONE_LOW; }
+"'B0"         { return BIN_ZERO_UPPER; }
+"'B1"         { return BIN_ONE_UPPER; }
+
+"X0"          { return X_ZERO_UPPER; } 
+"X1"          { return X_ONE_UPPER; }
+"x0"          { return X_ZERO_LOW; }
+"x1"          { return X_ONE_LOW; }
+"Z0"          { return Z_ZERO_UPPER; }
+"Z1"          { return Z_ONE_UPPER; }
+"z0"          { return Z_ZERO_LOW; }
+"z1"          { return Z_ONE_LOW; }
+"0X"          { return ZERO_X_UPPER; }
+"1X"          { return ONE_X_UPPER; }
+"0x"          { return ZERO_X_LOW; }
+"1x"          { return ONE_X_LOW; }
+"0Z"          { return ZERO_Z_UPPER; }
+"1Z"          { return ONE_Z_UPPER; }
+"0z"          { return ZERO_Z_LOW; }
+"1z"          { return ONE_Z_LOW; }
 
     /* Match Verilog 2001 identifiers. */
 [a-zA-Z_][a-zA-Z0-9_$]*                            { return IDENTIFIER; }
