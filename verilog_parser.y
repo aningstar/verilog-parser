@@ -1796,13 +1796,20 @@ notifier:
 /* stamptime_condition (optional) is condition for enabling or disabling */
 /* negative timing checks. This argument was added in Verilog-2001. */
 stamptime_condition:
-                   expression { }
+                   mintypemax_expression { }
 ;
 
 /* checktime_condition (optional) is condition for enabling or disabling */
 /* negative timing checks. This argument was added in Verilog-2001. */
 checktime_condition:
-                   expression { }
+                   mintypemax_expression { }
+;
+
+/*                TODO                  */
+/* This maybe is included to expression */
+mintypemax_expression:
+                     expression { }
+|                    expression COLON expression COLON expression { }
 ;
 
 /* delayed_ref (optional) is delayed signal for negative timing checks. */
