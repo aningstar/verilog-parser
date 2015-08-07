@@ -1578,87 +1578,87 @@ path_delay:      /* all output transitions */
 timing_checks:
                /* $setup(data_event, reference_event, limit, notifier); */
               SETUP OPENPARENTHESES data_event COMMA reference_event 
-              COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON
+              COMMA timing_check_limit COMMA notifier CLOSEPARENTHESES SEMICOLON
               { printf("$setup "); }
                /* $setup(data_event, reference_event, limit); */
 |             SETUP OPENPARENTHESES data_event COMMA reference_event 
-              COMMA limit CLOSEPARENTHESES SEMICOLON
+              COMMA timing_check_limit CLOSEPARENTHESES SEMICOLON
               { printf("$setup "); }
 
                /* $hold(reference_event, data_event, limit, notifier); */
 |             HOLD OPENPARENTHESES reference_event COMMA data_event 
-              COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON
+              COMMA timing_check_limit COMMA notifier CLOSEPARENTHESES SEMICOLON
               { printf("$hold "); }
                /* $hold(reference_event, data_event, limit); */
 |             HOLD OPENPARENTHESES reference_event COMMA data_event 
-              COMMA limit CLOSEPARENTHESES SEMICOLON
+              COMMA timing_check_limit CLOSEPARENTHESES SEMICOLON
               { printf("$hold "); }
 
                /* $setuphold(reference_event, data_event, setup_limit, */
                /* hold_limit, notifier, stamptime_condition, */
                /* checktime_condition, delayed_ref, delayed_data); */
 |             SETUPHOLD OPENPARENTHESES reference_event COMMA data_event 
-              COMMA setup_limit COMMA hold_limit COMMA notifier COMMA 
-              stamptime_condition COMMA checktime_condition COMMA delayed_ref 
-              COMMA delayed_data CLOSEPARENTHESES SEMICOLON
+              COMMA timing_check_limit COMMA timing_check_limit COMMA notifier 
+              COMMA stamptime_condition COMMA checktime_condition COMMA 
+              delayed_ref COMMA delayed_data CLOSEPARENTHESES SEMICOLON
               { printf("$setuphold "); }
 
                /* $recovery(reference_event, data_event, limit, notifier); */
 |             RECOVERY OPENPARENTHESES reference_event COMMA data_event 
-              COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON 
+              COMMA timing_check_limit COMMA notifier CLOSEPARENTHESES SEMICOLON
               { printf("$recovery "); }
                /* $recovery(reference_event, data_event, limit); */
 |             RECOVERY OPENPARENTHESES reference_event COMMA data_event 
-              COMMA limit CLOSEPARENTHESES SEMICOLON 
+              COMMA timing_check_limit CLOSEPARENTHESES SEMICOLON 
               { printf("$recovery "); }
 
                /* $removal(reference_event, data_event, limit, notifier); */
 |             REMOVAL OPENPARENTHESES reference_event COMMA data_event 
-              COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON
+              COMMA timing_check_limit COMMA notifier CLOSEPARENTHESES SEMICOLON
               { }
 
                /* $recrem(reference_event, data_event, recovery_limit, */
                /* removal_limit, notifier, stamptime_cond, checktime_cond, */
                /* delayed_ref, delayed_data); */
 |             RECREM OPENPARENTHESES reference_event COMMA data_event 
-              COMMA recovery_limit COMMA removal_limit COMMA notifier COMMA 
-              stamptime_condition COMMA checktime_condition COMMA delayed_ref 
-              COMMA delayed_data CLOSEPARENTHESES SEMICOLON
+              COMMA timing_check_limit COMMA timing_check_limit COMMA notifier 
+              COMMA stamptime_condition COMMA checktime_condition COMMA 
+              delayed_ref COMMA delayed_data CLOSEPARENTHESES SEMICOLON
               { }
 
                /* $skew(reference_event, data_event, limit, notifier); */
 |             SKEW OPENPARENTHESES reference_event COMMA data_event 
-              COMMA limit COMMA notifier CLOSEPARENTHESES SEMICOLON
+              COMMA timing_check_limit COMMA notifier CLOSEPARENTHESES SEMICOLON
               { printf("$skew "); }
                /* $skew(reference_event, data_event, limit); */
 |             SKEW OPENPARENTHESES reference_event COMMA data_event 
-              COMMA limit CLOSEPARENTHESES SEMICOLON
+              COMMA timing_check_limit CLOSEPARENTHESES SEMICOLON
               { printf("$skew "); }
 
                /* $timeskew(reference_event, data_event, limit, notifier, */
                /* event_based_flag, remain_active_flag); */
 |             TIMESKEW OPENPARENTHESES reference_event COMMA data_event 
-              COMMA limit COMMA notifier COMMA events_based_flag COMMA 
-              remain_active_flag CLOSEPARENTHESES SEMICOLON
+              COMMA timing_check_limit COMMA notifier COMMA events_based_flag 
+              COMMA remain_active_flag CLOSEPARENTHESES SEMICOLON
               { }
 
                /* $fullskew(reference_event, data_event, data_skew_limit, */
                /* ref_skew_limit, notifier, event_based_flag, */
                /* remain_active_flag); */
 |             FULLSKEW OPENPARENTHESES reference_event COMMA data_event 
-              COMMA data_skew_limit COMMA ref_skew_limit COMMA notifier COMMA 
-              events_based_flag COMMA remain_active_flag CLOSEPARENTHESES 
+              COMMA timing_check_limit COMMA timing_check_limit COMMA notifier 
+              COMMA events_based_flag COMMA remain_active_flag CLOSEPARENTHESES 
               SEMICOLON
               { }
 
                /* $period(reference_event, limit, notifier); */
-|             D_PERIOD OPENPARENTHESES reference_event COMMA limit COMMA 
-              notifier CLOSEPARENTHESES SEMICOLON
+|             D_PERIOD OPENPARENTHESES reference_event COMMA timing_check_limit 
+              COMMA notifier CLOSEPARENTHESES SEMICOLON
               { }
 
                /* $width(reference_event, limit, width_threshold, notifier); */
-|             WIDTH OPENPARENTHESES reference_event COMMA limit COMMA 
-              width_threshold COMMA notifier CLOSEPARENTHESES SEMICOLON 
+|             WIDTH OPENPARENTHESES reference_event COMMA timing_check_limit 
+              COMMA width_threshold COMMA notifier CLOSEPARENTHESES SEMICOLON 
               { }
 
                /* $nochange(reference_event, data_event, start_edge_offset, */
@@ -1781,10 +1781,10 @@ scalar_constant:
 
 /* A time limit used to detect timing violations on the data_event. Limit */
 /* is a constant expression. The expression can be a min:typ:max delay set. */
-limit:
-     expression { }
-|    integer_or_real COLON integer_or_real COLON
-     integer_or_real { }
+timing_check_limit:
+                  expression { }
+|                 integer_or_real COLON integer_or_real COLON
+                  integer_or_real { }
 ;
 
 /* notifier (optional) is a 1-bit reg variable that is automatically */
@@ -1847,42 +1847,6 @@ width_threshold:
                 expression { }
 |               integer_or_real COLON integer_or_real COLON
                 integer_or_real { }
-;
-
-recovery_limit:
-              expression { }
-|             integer_or_real COLON integer_or_real COLON
-              integer_or_real { }
-;
-
-removal_limit:
-             expression { }
-|            integer_or_real COLON integer_or_real COLON
-             integer_or_real { }
-;
-
-setup_limit:
-           expression { }
-|          integer_or_real COLON integer_or_real COLON
-           integer_or_real { }
-;
-
-hold_limit:
-          expression { }
-|         integer_or_real COLON integer_or_real COLON
-          integer_or_real { }
-;
-
-data_skew_limit:
-               expression { }
-|              integer_or_real COLON integer_or_real COLON
-               integer_or_real { }
-;
-
-ref_skew_limit:
-              expression { }
-|             integer_or_real COLON integer_or_real COLON
-              integer_or_real { }
 ;
 
 integer_or_real: num_integer { }
