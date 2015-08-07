@@ -1676,9 +1676,14 @@ timing_checks:
 /* tracking timing violations on the data_event. The type is module input or */
 /* inout that is scalar or vector net. */
 reference_event:
-               POSEDGE IDENTIFIER  { }
-|              NEGEDGE IDENTIFIER { }
-|              IDENTIFIER { }
+          timing_check_event_control IDENTIFIER THREE_AND timing_check_condition
+          { }
+|         timing_check_event_control IDENTIFIER 
+          { }
+|         IDENTIFIER THREE_AND timing_check_condition
+          { }
+|         IDENTIFIER
+          { }
 ;
 
 /* The signal change that initiates the timing check and is monitored for */
