@@ -154,12 +154,12 @@ module adder (A, B, sum_sig, carry_sig);
         $setup(posedge data2,edge 01,X0 data1 &&& (a + b == 1'b0),  2:3:4);
         $setup(posedge data2,edge 01,X0 data1 &&& (a + b != 1'b0),  2:3:4);
         $setup(posedge data1, posedge data2, 2:3:4,adf);
-        //$skew(posedge clk1, posedge clk2, tskew);
-        //$skew(posedge clk1, posedge clk2, tskew, af);
-        //$hold(posedge data2, data1, thold);
-        //$hold(posedge data2, data1, thold, rfrf);
-        //$recovery(posedge in1, out1, trecovery);
-        //$recovery(posedge in1, out1, trecovery, erergf);
+        $skew(posedge clk1, posedge clk2, tskew);
+        $skew(posedge clk1, posedge clk2, tskew, af);
+        $hold(posedge data2, data1, thold);
+        $hold(posedge data2, data1, thold, rfrf);
+        $recovery(posedge in1, out1, trecovery);
+        $recovery(posedge in1, out1, trecovery, erergf);
 
     endspecify
 
