@@ -27,7 +27,7 @@ int reduction_and_flag, reduction_or_flag;
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
 %token MODULE ENDMODULE
 %token EQUALS COMMA QUESTION_MARK SEMICOLON HASH PERIOD
-%token OPENPARENTHESES CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS OPENBRACES
+%token CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS OPENBRACES
 %token CLOSEBRACES
 /* Verilog 2001 port diractions. */
 %token INPUT OUTPUT INOUT
@@ -104,6 +104,12 @@ int reduction_and_flag, reduction_or_flag;
 /* PARENTHESISED_EXPRESSION is a fictitious terminal symbol, giving higher */
 /* precedence to expressions in parenthesis. */
 %nonassoc PARENTHESISED_EXPRESSION
+/* IDENTIFIER_ONLY is a fictitious terminal symbol, giving lower precedence */
+/* to identifiers than identifiers followed by an OPENPARENTHESES */
+/* (functions). */
+%nonassoc IDENTIFIER_ONLY
+/* OPENPARENTHESES gives higher precedence to functions than IDENTIFIER_ONLY. */
+%right OPENPARENTHESES
 /* CONCATENATED_EXPRESSIONS is a fictitious terminal symbol, giving higher */
 /* precedence to concatenation in expressions. */
 %nonassoc CONCATENATED_EXPRESSIONS
@@ -380,7 +386,17 @@ range : OPENBRACKETS range_value COLON range_value CLOSEBRACKETS
 ;
 
 /*              TODO           */
-/*   Range value expressions   */
+/*    Constant expressions.    */
+/*
+constant_expression: constant_primary
+|                    unary_operator constant_primary
+|                    constant_expression binary_operator constant_expression
+|                    constant_expression ? constant_expression : 
+    constant_expression
+;
+*/
+
+
 range_value: NUM_INTEGER                                      { }
 |            constant_or_constant_function                    { }
 |            constant_or_constant_function PLUS NUM_INTEGER   { }
@@ -410,201 +426,14 @@ constant_function_argument: IDENTIFIER { }
 |                           number     { }
 ;
 
-non_constant_function_call: non_constant_function_call_with_argument_list
+function_call: function_call_with_argument_list
     CLOSEPARENTHESES { }
 ;
 
-non_constant_function_call_with_argument_list: IDENTIFIER OPENPARENTHESES
-    non_constant_function_argument { }
-| non_constant_function_call_with_argument_list COMMA
-    non_constant_function_argument { }
-  /* A constant function with a non-constant argument is actually a
-    non-constant function. */
-| constant_function_call_with_argument_list COMMA
-    non_constant_function_argument { }
-  /* A non-constant function with a constant argument is still a non-constant
-    function. */
-| non_constant_function_call_with_argument_list COMMA
-    constant_function_argument { }
-;
-
-/* All expressions except those in constant_function_argument. */
-non_constant_function_argument: bit_select %prec BIT_SELECT         {
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               constant_function_call              {
-        printf("constant_function ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               non_constant_function_call          {
-        printf("non_ constant_function ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               EXCLAMATION_MARK expression         {
-        printf("logical_not ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               TILDE expression                    {
-        printf("bitwise_not ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               PLUS expression %prec UNARY_PLUS    {
-        printf("unary_plus ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               MINUS expression %prec UNARY_MINUS  {
-        printf("unary_minus ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression PLUS expression          {
-        printf("addition ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression MINUS expression         {
-        printf("subtraction ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression ASTERISK expression      {
-        printf("multiplication ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression SLASH expression         {
-        printf("division ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression MODULO expression        {
-        printf("modulus ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression POWER expression         {
-        printf("exponentation ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               OPENPARENTHESES expression CLOSEPARENTHESES
-    %prec PARENTHESISED_EXPRESSION                                  {
-        printf("parenthesised_expression ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression BITWISE_LEFT_SHIFT expression {
-        printf("bitwise_left_shift ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression BITWISE_RIGHT_SHIFT expression {
-        printf("bitwise_right_shift ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression ARITHMETIC_LEFT_SHIFT expression {
-        printf("arithmetic_left_shift ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression ARITHMETIC_RIGHT_SHIFT expression {
-        printf("arithmetic_right_shift ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression LESSTHAN expression      {
-        printf("less_than ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression LESSTHANOREQUAL expression {
-        printf("less_than_or_equal ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression GREATERTHAN expression   {
-        printf("greater_than ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression GREATERTHANOREQUAL expression {
-        printf("greater_than_or_equal ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression EQUAL expression         {
-        printf("equal ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression NOT_EQUAL expression     {
-        printf("not_equal ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression IDENTICAL expression     {
-        printf("identical ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression NOT_IDENTICAL expression {
-        printf("not_intetical ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               AND_OPERATOR expression %prec REDUCTION_AND {
-        printf("reduction_and ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-        turn_reduction_flag_on(&reduction_and_flag);
-    }
-|                               NAND_OPERATOR expression            {
-        printf("reduction_nand ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               OR_OPERATOR expression %prec REDUCTION_OR {
-        printf("reduction_or ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-        turn_reduction_flag_on(&reduction_or_flag);
-    }
-|                               NOR_OPERATOR expression             {
-        printf("reduction_nor ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               XOR_OPERATOR expression %prec REDUCTION_XOR {
-        printf("reduction_xor ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               XNOR_OPERATOR expression %prec REDUCTION_XNOR {
-        printf("reduction_xnor ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression AND_OPERATOR expression  {
-        printf("bitwise_and ");
-        check_reduction_flag(reduction_and_flag);
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression XOR_OPERATOR expression  {
-        printf("bitwise_xor ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression XNOR_OPERATOR expression {
-        printf("bitwise_xnor ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression OR_OPERATOR expression   {
-        printf("bitwise_or ");
-        check_reduction_flag(reduction_or_flag);
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression LOGICAL_AND expression   {
-        printf("logical_and ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression LOGICAL_OR expression    {
-        printf("logical_or ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               expression QUESTION_MARK expression COLON
-    expression                                                      {
-        printf("conditional ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               OPENBRACES concatenation_list CLOSEBRACES %prec
-    CONCATENATED_EXPRESSIONS {
-        printf("concatenation ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               SIGNED_SYSTEM_FUNCTION OPENPARENTHESES
-    expression CLOSEPARENTHESES                                     {
-        printf("cast_to_signed_system_function ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                               UNSIGNED_SYSTEM_FUNCTION OPENPARENTHESES
-    expression CLOSEPARENTHESES                                     {
-        printf("cast_to_unsigned_system_function ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
+function_call_with_argument_list: IDENTIFIER OPENPARENTHESES
+    expression { }
+| function_call_with_argument_list COMMA
+    expression { }
 ;
 
 /* Logic values can have 8 strength levels: 4 driving, 3 capacitive, and high */
@@ -751,23 +580,17 @@ assignment: IDENTIFIER EQUALS expression { printf("assignment "); }
     { printf("array_select_assignment "); }
 ;
 
-/*           TODO           */
-/* Single operands (function). Reduction limitations. */
 expression: number                              { 
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|           IDENTIFIER                          {
+|           IDENTIFIER %prec IDENTIFIER_ONLY                        {
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
 |           bit_select %prec BIT_SELECT         {
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|           constant_function_call              {
-        printf("constant_function ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|           non_constant_function_call          {
-        printf("non_ constant_function ");
+|           function_call          {
+        printf("function ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
 |           EXCLAMATION_MARK expression         {
