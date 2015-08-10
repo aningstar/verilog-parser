@@ -381,29 +381,214 @@ array: range       { printf("array "); }
 /* range is optional and is from [ msb : lsb ] */
 /* The msb and lsb must be a literal number, a constant, an expression, */
 /* or a call to a constant function. */
-range : OPENBRACKETS range_value COLON range_value CLOSEBRACKETS
+range : OPENBRACKETS constant_expression COLON constant_expression CLOSEBRACKETS
     { printf("range "); }
 ;
 
-range_value: NUM_INTEGER                                      { }
-|            constant_or_constant_function                    { }
-|            constant_or_constant_function PLUS NUM_INTEGER   { }
-|            constant_or_constant_function MINUS NUM_INTEGER  { }
-|            constant_or_constant_function MODULO NUM_INTEGER { }
-|            NUM_INTEGER PLUS constant_or_constant_function   { }
-|            NUM_INTEGER MINUS constant_or_constant_function  { }
-|            NUM_INTEGER MODULO constant_or_constant_function { }
+constant_expression: constant_primary                                      { }
+|                    EXCLAMATION_MARK constant_primary                     {
+        printf("logical_not ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    TILDE constant_primary                                {
+        printf("bitwise_not ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    PLUS constant_primary %prec UNARY_PLUS                {
+        printf("unary_plus ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    MINUS constant_primary %prec UNARY_MINUS              {
+        printf("unary_minus ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression PLUS constant_expression          {
+        printf("addition ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression MINUS constant_expression         {
+        printf("subtraction ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression ASTERISK constant_expression      {
+        printf("multiplication ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression SLASH constant_expression         {
+        printf("division ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression MODULO constant_expression        {
+        printf("modulus ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression POWER constant_expression         {
+        printf("exponentation ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    OPENPARENTHESES constant_expression CLOSEPARENTHESES %prec
+    PARENTHESISED_EXPRESSION {
+        printf("parenthesised_expression ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression BITWISE_LEFT_SHIFT constant_expression
+    {
+        printf("bitwise_left_shift ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression BITWISE_RIGHT_SHIFT constant_expression
+    {
+        printf("bitwise_right_shift ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression ARITHMETIC_LEFT_SHIFT
+    constant_expression {
+        printf("arithmetic_left_shift ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression ARITHMETIC_RIGHT_SHIFT
+    constant_expression {
+        printf("arithmetic_right_shift ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression LESSTHAN constant_expression      {
+        printf("less_than ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression LESSTHANOREQUAL constant_expression {
+        printf("less_than_or_equal ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression GREATERTHAN constant_expression   {
+        printf("greater_than ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression GREATERTHANOREQUAL constant_expression
+    {
+        printf("greater_than_or_equal ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression EQUAL constant_expression         {
+        printf("equal ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression NOT_EQUAL constant_expression     {
+        printf("not_equal ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression IDENTICAL constant_expression     {
+        printf("identical ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression NOT_IDENTICAL constant_expression {
+        printf("not_intetical ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    AND_OPERATOR constant_primary %prec REDUCTION_AND     {
+        printf("reduction_and ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+        turn_reduction_flag_on(&reduction_and_flag);
+    }
+|                    NAND_OPERATOR constant_primary                        {
+        printf("reduction_nand ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    OR_OPERATOR constant_primary %prec REDUCTION_OR       {
+        printf("reduction_or ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+        turn_reduction_flag_on(&reduction_or_flag);
+    }
+|                    NOR_OPERATOR constant_primary                         {
+        printf("reduction_nor ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    XOR_OPERATOR constant_primary %prec REDUCTION_XOR     {
+        printf("reduction_xor ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    XNOR_OPERATOR constant_primary %prec REDUCTION_XNOR   {
+        printf("reduction_xnor ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression AND_OPERATOR constant_expression  {
+        printf("bitwise_and ");
+        check_reduction_flag(reduction_and_flag);
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                   constant_expression XOR_OPERATOR constant_expression   {
+        printf("bitwise_xor ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression XNOR_OPERATOR constant_expression {
+        printf("bitwise_xnor ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression OR_OPERATOR constant_expression   {
+        printf("bitwise_or ");
+        check_reduction_flag(reduction_or_flag);
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression LOGICAL_AND constant_expression   {
+        printf("logical_and ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression LOGICAL_OR constant_expression    {
+        printf("logical_or ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    constant_expression QUESTION_MARK constant_expression COLON
+constant_expression {
+        printf("conditional ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    SIGNED_SYSTEM_FUNCTION OPENPARENTHESES constant_primary
+    CLOSEPARENTHESES {
+        printf("cast_to_signed_system_function ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                    UNSIGNED_SYSTEM_FUNCTION OPENPARENTHESES constant_primary
+    CLOSEPARENTHESES {
+        printf("cast_to_unsigned_system_function ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
 ;
 
-constant_or_constant_function: IDENTIFIER             { }
-|                              constant_function_call { }
+constant_primary: number { 
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                 IDENTIFIER %prec IDENTIFIER_ONLY                        {
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                 constant_function_call {
+        printf("constant_function ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|           OPENBRACES constant_concatenation_list CLOSEBRACES %prec
+    CONCATENATED_EXPRESSIONS {
+        printf("constant_concatenation ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+;
+
+constant_concatenation_list: constant_concatenation_item { }
+|                   constant_concatenation_list COMMA
+    constant_concatenation_item { }
+;
+
+constant_concatenation_item: /* Nested concatenations are possible with constant
+    expressions. */
+                             constant_expression  { }
+|                            constant_replication { }
+;
+
+constant_replication: number OPENBRACES constant_concatenation_list CLOSEBRACES
+    { }
 ;
 
 constant_function_call: constant_function_call_with_argument_list
     CLOSEPARENTHESES { }
 ;
 
-/* Call to constant function. */
 constant_function_call_with_argument_list: IDENTIFIER OPENPARENTHESES
     constant_function_argument { }
 | constant_function_call_with_argument_list COMMA constant_function_argument
@@ -782,7 +967,8 @@ bit_number: NUM_INTEGER { }
 /* The width of the part select must be a literal number, a constant or a */
 /* call to a constant function. */
 part_select_width: NUM_INTEGER                   { }
-|                  constant_or_constant_function { }
+|                  IDENTIFIER                    { }
+|                  constant_function_call        { }
 ;
 
 concatenation_list: concatenation_item                          { }
