@@ -753,32 +753,20 @@ assignment: IDENTIFIER EQUALS expression { printf("assignment "); }
     { printf("array_select_assignment "); }
 ;
 
-expression: number                              { 
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|           IDENTIFIER %prec IDENTIFIER_ONLY                        {
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|           bit_select %prec BIT_SELECT         {
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|           function_call          {
-        printf("function ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|           EXCLAMATION_MARK expression         {
+expression: primary                             { }
+|           EXCLAMATION_MARK primary            {
         printf("logical_not ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|           TILDE expression                    {
+|           TILDE primary                       {
         printf("bitwise_not ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|           PLUS expression %prec UNARY_PLUS    {
+|           PLUS primary %prec UNARY_PLUS       {
         printf("unary_plus ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|           MINUS expression %prec UNARY_MINUS  {
+|           MINUS primary %prec UNARY_MINUS     {
         printf("unary_minus ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -859,29 +847,29 @@ expression: number                              {
         printf("not_intetical ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|           AND_OPERATOR expression %prec REDUCTION_AND {
+|           AND_OPERATOR primary %prec REDUCTION_AND {
         printf("reduction_and ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
         turn_reduction_flag_on(&reduction_and_flag);
     }
-|           NAND_OPERATOR expression            {
+|           NAND_OPERATOR primary               {
         printf("reduction_nand ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|           OR_OPERATOR expression %prec REDUCTION_OR {
+|           OR_OPERATOR primary %prec REDUCTION_OR {
         printf("reduction_or ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
         turn_reduction_flag_on(&reduction_or_flag);
     }
-|           NOR_OPERATOR expression             {
+|           NOR_OPERATOR primary                {
         printf("reduction_nor ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|           XOR_OPERATOR expression %prec REDUCTION_XOR {
+|           XOR_OPERATOR primary %prec REDUCTION_XOR {
         printf("reduction_xor ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|           XNOR_OPERATOR expression %prec REDUCTION_XNOR {
+|           XNOR_OPERATOR primary %prec REDUCTION_XNOR {
         printf("reduction_xnor ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -915,11 +903,6 @@ expression: number                              {
         printf("conditional ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|           OPENBRACES concatenation_list CLOSEBRACES %prec
-    CONCATENATED_EXPRESSIONS {
-        printf("concatenation ");
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
 |           SIGNED_SYSTEM_FUNCTION OPENPARENTHESES expression CLOSEPARENTHESES
     {
         printf("cast_to_signed_system_function ");
@@ -928,6 +911,26 @@ expression: number                              {
 |           UNSIGNED_SYSTEM_FUNCTION OPENPARENTHESES expression CLOSEPARENTHESES
     {
         printf("cast_to_unsigned_system_function ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+;
+
+primary: number { 
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|        IDENTIFIER %prec IDENTIFIER_ONLY                        {
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|        bit_select %prec BIT_SELECT {
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|        function_call {
+        printf("function ");
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|        OPENBRACES concatenation_list CLOSEBRACES %prec
+    CONCATENATED_EXPRESSIONS {
+        printf("concatenation ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
 ;
