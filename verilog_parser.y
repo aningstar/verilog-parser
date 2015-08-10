@@ -385,18 +385,6 @@ range : OPENBRACKETS range_value COLON range_value CLOSEBRACKETS
     { printf("range "); }
 ;
 
-/*              TODO           */
-/*    Constant expressions.    */
-/*
-constant_expression: constant_primary
-|                    unary_operator constant_primary
-|                    constant_expression binary_operator constant_expression
-|                    constant_expression ? constant_expression : 
-    constant_expression
-;
-*/
-
-
 range_value: NUM_INTEGER                                      { }
 |            constant_or_constant_function                    { }
 |            constant_or_constant_function PLUS NUM_INTEGER   { }
@@ -801,11 +789,9 @@ concatenation_list: concatenation_item                          { }
 |                   concatenation_list COMMA concatenation_item { }
 ;
 
-concatenation_item: number                                    { }
-|                   IDENTIFIER                                { }
+concatenation_item: /* Nested concatenations are possible with expressions. */
+                    expression                                { }
 |                   replication                               { }
-                    /* Nested concatenations are possible. */
-|                   OPENBRACES concatenation_list CLOSEBRACES { }
 ;
 
 replication: number OPENBRACES concatenation_list CLOSEBRACES { }
