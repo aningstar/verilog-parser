@@ -12,6 +12,10 @@ all: parser
 	./verilog_parser < grammar_examples/grammar_example.v
 	./verilog_parser < grammar_examples/primitive_instances_grammar.v
 	./verilog_parser < grammar_examples/procedural_blocks_grammar.v
+	./verilog_parser < grammar_examples/specify_blocks_grammar.v
+
+specify_blocks: parser
+	./verilog_parser < grammar_examples/specify_blocks_grammar.v
 
 procedural_blocks: parser
 	./verilog_parser < grammar_examples/procedural_blocks_grammar.v
