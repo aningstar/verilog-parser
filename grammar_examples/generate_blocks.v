@@ -13,6 +13,21 @@ module multiplier (a, b, product);
         inout [0:15] data_bus;
         wire a, b, c;
         tri1 [7:0] data_bus;
+        task read_mem (input [15:0] address,
+            output [31:0] data );
+            reg a;
+            reg vectored a,b,c;
+            reg [7:0] Q [0:3][0:15];
+            reg signed [7:0] d1, d2;
+        endtask
+        function real multiply;
+            input a, b;
+            real v,c;
+            real a;
+        endfunction
+        function real multiply;
+            input a, b;
+        endfunction
     endgenerate
 
 endmodule

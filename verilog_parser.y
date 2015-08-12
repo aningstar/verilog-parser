@@ -189,6 +189,7 @@ generate_block:
             GENERATE genvar generate_items ENDGENERATE { printf("generate\n"); }
 |           GENERATE generate_items ENDGENERATE { printf("generate\n");}
 ;
+
 /* generate_items are: */
 /*  genvar_name = constant_expression; */
 /*  net_declaration */
@@ -201,8 +202,13 @@ generate_block:
 /*  function_definition */
 generate_items:
               statement { }
+|             function_definition { }
+|             task_definition { }
+|             generate_items function_definition { }
+|             generate_items task_definition { }
 |             generate_items statement { }
 ;
+
 /* genvar is an integer variable which must be a positive */
 /* value. They may only be used within a generate block. */
 /* Genvar variables only have a value during elaboration, */
