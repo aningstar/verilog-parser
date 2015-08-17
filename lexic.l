@@ -193,7 +193,7 @@ that comments are invisible to the parser). */
 "="{2}                { return EQUAL; }
 "!""="                { return NOT_EQUAL; }
 "="{3}                { return IDENTICAL; }
-"!""="{2}             { return NOT_IDENTICAL; }
+"!""=""="             { return NOT_IDENTICAL; }
 "<"                   { return LESSTHAN; }
 "<""="                { return LESSTHANOREQUAL; }
 ">"                   { return GREATERTHAN; }
