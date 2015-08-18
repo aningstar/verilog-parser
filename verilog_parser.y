@@ -149,11 +149,91 @@ description: /* empty */
 | description module { }
 ;
 
-/*    TODO     */
-/* macromodule */
-module: MODULE IDENTIFIER OPENPARENTHESES identifier_list CLOSEPARENTHESES
-        SEMICOLON block ENDMODULE { printf("Module.\n"); }
+/*            Module Definition            */
+/*******************************************/
+/* There are 2 types of module definiyions */
+/*******************************************/
+/* 1st: (added in Verilog-2001) */
+/* module module_name */
+/*      #(parameter_declaration, parameter_declaration,... ) */
+/*      (port_declaration port_name, port_name,..., */
+/*      port_declaration port_name, port_name,...); */
+/*      module items */
+/* endmodule */
+/* 2st: Old Style Port List */
+/* module module_name (port_name, port_name, ... ); */
+/*      port_declaration port_name, port_name,...; */
+/*      port_declaration port_name, port_name,...; */ 
+/*      module items 
+/* endmodule
+/********************************************/
+/* The keyword macromodule is a synonym for */
+/* module. */
+
+module: 
+      MODULE IDENTIFIER module_parameter OPENPARENTHESES
+      module_port_list CLOSEPARENTHESES
+      SEMICOLON block ENDMODULE 
+      { printf("Module.\n"); }
+
+|     MODULE IDENTIFIER OPENPARENTHESES
+      module_port_list CLOSEPARENTHESES
+      SEMICOLON block ENDMODULE 
+      { printf("Module.\n"); }
+
+|     MODULE IDENTIFIER OPENPARENTHESES identifier_list 
+      CLOSEPARENTHESES SEMICOLON module_port_body
+      block ENDMODULE
+      { printf("Module.\n"); }
 ;
+
+module_parameter:
+                HASH OPENPARENTHESES module_parameter_declaration_list 
+                CLOSEPARENTHESES { }
+;
+
+module_parameter_declaration_list:
+            PARAMETER IDENTIFIER EQUAL number { }
+|           PARAMETER IDENTIFIER EQUAL number 
+            COMMA module_parameter_declaration_list { }
+;
+
+/* May have any number of input, output or inout ports, including none. */
+module_port_list: 
+|                   nonempty_module_port_list { }
+;
+
+nonempty_module_port_list: 
+                         module_port_declaration 
+                         {printf("module_port_declaration "); }
+|                        module_port_declaration COMMA module_port_list 
+                         { printf("module_port_declaration "); }
+;
+
+module_port_body:
+              module_port_declaration SEMICOLON
+              { printf("module_port_declaration "); }
+|             module_port_body module_port_declaration SEMICOLON 
+              { printf("module_port_declaration "); }
+;
+
+module_port_declaration: 
+                     port_direction SIGNED range IDENTIFIER { }
+|                    port_direction SIGNED IDENTIFIER { }
+|                    port_direction range IDENTIFIER { }
+|                    port_direction REG SIGNED range IDENTIFIER { }
+|                    port_direction REG SIGNED IDENTIFIER { }
+|                    port_direction REG range IDENTIFIER { }
+|                    port_direction module_port_type IDENTIFIER { }
+;
+
+module_port_type: 
+              INTEGER { }
+|             TIME { }
+|             REAL { }
+|             REALTIME { }
+;
+
 
 identifier_list: /* empty */
 | nonempty_identifier_list { }
