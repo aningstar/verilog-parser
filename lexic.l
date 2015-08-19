@@ -77,7 +77,7 @@ inside them. */
 "large"               { return LARGE; }
 "liblist"             { printf("LIBLIST\n"); }
 "localparam"          { return LOCALPARAM; }
-"macromodule"         { printf("MACROMODULE\n"); }
+"macromodule"         { return MACROMODULE; }
 "medium"              { return MEDIUM;}
 "module"              { return MODULE; }
 "nand"                { return NAND; }
@@ -222,7 +222,6 @@ that comments are invisible to the parser). */
 "<"{3}                { return ARITHMETIC_LEFT_SHIFT; }
 ">"{3}                { return ARITHMETIC_RIGHT_SHIFT; }
 "-"">"                { return TRIGGER_EVENT_OPERATOR; }
-"$"                   { return DOLLAR; }
 "&"{3}                { return THREE_AND; }
 
 

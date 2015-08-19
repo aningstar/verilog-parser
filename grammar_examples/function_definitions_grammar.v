@@ -1,4 +1,6 @@
 module abc (id3, id4);
+    input id3;
+    output id4;
     function automatic [63:0] factorial (input reg [31:0] n,t,r,input [31:0] w,c);
     endfunction
 

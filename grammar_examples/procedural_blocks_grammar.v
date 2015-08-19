@@ -1,4 +1,6 @@
 module abc (id3, id4);
+  input id3;
+  output id4;
   initial // A 50 ns clock oscillator that starts after 1000 time units
     begin
       clk = 0;

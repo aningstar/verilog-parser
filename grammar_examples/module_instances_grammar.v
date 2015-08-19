@@ -1,5 +1,8 @@
 module abc (id3, id4);
 
+input id3;
+output id4;
+
 dff u1 (signal1 , , signal2, ,);
 tribuf8bit i[7:0] (out, in, enable);
 dff u1[6:0] (q[0], , d[0], clk);

@@ -25,8 +25,8 @@ int reduction_and_flag, reduction_or_flag;
 %token UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
 /* Verilog 2001 signed literals. */
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
-%token MODULE ENDMODULE
-%token EQUALS_SIGN COMMA QUESTION_MARK SEMICOLON HASH PERIOD
+%token MODULE ENDMODULE MACROMODULE
+%token EQUALS_SIGN QUESTION_MARK SEMICOLON HASH PERIOD
 %token CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS OPENBRACES
 %token CLOSEBRACES
 /* Verilog 2001 port diractions. */
@@ -66,7 +66,7 @@ int reduction_and_flag, reduction_or_flag;
 /* Version 2001 function definitions */
 %token FUNCTION ENDFUNCTION
 /* Version 2001 specify blocks */
-%token SPECIFY ENDSPECIFY PATHPULSE DOLLAR
+%token SPECIFY ENDSPECIFY PATHPULSE 
 %token PULSESTYLE_ONEVENT PULSESTYLE_ONDETECT SHOWCANCELLED NOSHOWCANCELLED
 %token SETUP HOLD SETUPHOLD RECOVERY REMOVAL RECREM SKEW TIMESKEW
 %token FULLSKEW D_PERIOD WIDTH NOCHANGE
@@ -82,6 +82,12 @@ int reduction_and_flag, reduction_or_flag;
 %token ONE_Z_LOW
 
 /* Tokens with precedence. */
+
+/* PORT_DECLARATION_PRECEDENCE is a fictitious terminal symbol, given less */
+/* precedence than the PORT_IDENTIFIER_LIST_PRECEDENCE token. That way, each */
+/* port direction keyword matches as many ports as possible */
+%left PORT_DECLARATION_PRECEDENCE
+%left COMMA
 
 /* THEN is a fictitious terminal symbol, given less precedence than the ELSE */
 /* token. That way, every 'else' is matched to the closest 'if'. */
@@ -171,20 +177,25 @@ description: /* empty */
 /* module. */
 
 module: 
-      MODULE IDENTIFIER module_parameter OPENPARENTHESES
+      module_keyword IDENTIFIER module_parameter OPENPARENTHESES
       module_port_list CLOSEPARENTHESES
-      SEMICOLON block ENDMODULE 
+      SEMICOLON module_items ENDMODULE 
       { printf("Module.\n"); }
 
-|     MODULE IDENTIFIER OPENPARENTHESES
+|     module_keyword IDENTIFIER OPENPARENTHESES
       module_port_list CLOSEPARENTHESES
-      SEMICOLON block ENDMODULE 
+      SEMICOLON module_items ENDMODULE 
       { printf("Module.\n"); }
 
-|     MODULE IDENTIFIER OPENPARENTHESES identifier_list 
+|     module_keyword IDENTIFIER OPENPARENTHESES nonempty_identifier_list 
       CLOSEPARENTHESES SEMICOLON module_port_body
-      block ENDMODULE
+      module_items ENDMODULE
       { printf("Module.\n"); }
+;
+
+module_keyword:
+              MODULE { }
+|             MACROMODULE { }
 ;
 
 module_parameter:
@@ -193,8 +204,8 @@ module_parameter:
 ;
 
 module_parameter_declaration_list:
-            PARAMETER IDENTIFIER EQUAL number { }
-|           PARAMETER IDENTIFIER EQUAL number 
+            PARAMETER IDENTIFIER EQUALS_SIGN number { }
+|           PARAMETER IDENTIFIER EQUALS_SIGN number 
             COMMA module_parameter_declaration_list { }
 ;
 
@@ -205,33 +216,27 @@ module_port_list:
 
 nonempty_module_port_list: 
                          module_port_declaration 
-                         {printf("module_port_declaration "); }
-|                        module_port_declaration COMMA module_port_list 
+                         { printf("module_port_declaration "); }
+|                        nonempty_module_port_list COMMA IDENTIFIER
+                         { printf("module_port_declaration "); }
+|                        nonempty_module_port_list COMMA module_port_declaration
                          { printf("module_port_declaration "); }
 ;
 
 module_port_body:
-              module_port_declaration SEMICOLON
+              port_declaration SEMICOLON
               { printf("module_port_declaration "); }
-|             module_port_body module_port_declaration SEMICOLON 
+|             module_port_body port_declaration SEMICOLON 
               { printf("module_port_declaration "); }
 ;
 
-module_port_declaration: 
-                     port_direction SIGNED range IDENTIFIER { }
-|                    port_direction SIGNED IDENTIFIER { }
-|                    port_direction range IDENTIFIER { }
-|                    port_direction REG SIGNED range IDENTIFIER { }
-|                    port_direction REG SIGNED IDENTIFIER { }
-|                    port_direction REG range IDENTIFIER { }
-|                    port_direction module_port_type IDENTIFIER { }
-;
-
-module_port_type: 
-              INTEGER { }
-|             TIME { }
-|             REAL { }
-|             REALTIME { }
+module_items: /* empty */
+| module_items statement  { }
+| module_items generate_block { }
+| module_items task_definition { }
+| module_items function_definition { }
+| module_items specify_block { }
+| module_items procedural_programming_statement { }
 ;
 
 
@@ -244,13 +249,6 @@ nonempty_identifier_list: IDENTIFIER { }
     { printf("nonempty_identifier_list "); }
 ;
 
-block: /* empty */
-| block statement  { }
-| block generate_block { }
-| block task_definition { }
-| block function_definition { }
-| block specify_block { }
-;
 /*          Generate Blocks             */
 /****************************************/
 /* Generate blocks provide control over */
@@ -296,7 +294,7 @@ generate_items:
 /* be declared within the module where the genvar is used. */
 /* They may be declared either inside or outside of a generate block. */
 genvar: 
-      GENVAR nonempty_identifier_list SEMICOLON {printf("genvar\n"); }
+      GENVAR nonempty_identifier_list SEMICOLON { printf("genvar\n"); }
 ;
 
 /*            Task Definitions            */
@@ -539,8 +537,8 @@ attribute: IDENTIFIER                  { }
 |          IDENTIFIER EQUALS_SIGN number     { }
 ;
 
-declaration: port_declaration { }
-|            net_declaration      
+declaration: 
+             net_declaration      
     { printf("net_declaration "); }
 |            variable_declaration 
     { printf("variable_declaration "); }
@@ -562,15 +560,45 @@ declaration: port_declaration { }
 /*******************************************/
 /* 2nd type declarations are a subset of 1st type declarations. 'data_type', */
 /* 'signed' and 'range' are all optional. */
-port_declaration: port_direction port_type SIGNED range nonempty_identifier_list
-    { }
-|                 port_direction port_type SIGNED nonempty_identifier_list { }
-|                 port_direction port_type range nonempty_identifier_list { }
-|                 port_direction port_type nonempty_identifier_list { }
-|                 port_direction SIGNED range nonempty_identifier_list { }
-|                 port_direction SIGNED nonempty_identifier_list { }
-|                 port_direction range nonempty_identifier_list { }
-|                 port_direction nonempty_identifier_list { }
+port_declaration: port_direction port_type SIGNED range port_identifier_list 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction port_type SIGNED port_identifier_list 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction port_type range port_identifier_list 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction port_type port_identifier_list 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction SIGNED range port_identifier_list 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction SIGNED port_identifier_list 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction range port_identifier_list 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction port_identifier_list 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+;
+
+module_port_declaration: port_direction port_type SIGNED range IDENTIFIER 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction port_type SIGNED IDENTIFIER 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction port_type range IDENTIFIER 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction port_type IDENTIFIER 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction SIGNED range IDENTIFIER 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction SIGNED IDENTIFIER 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction range IDENTIFIER 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+|                 port_direction IDENTIFIER 
+                  %prec PORT_DECLARATION_PRECEDENCE { }
+;
+
+port_identifier_list:
+                    IDENTIFIER { }
+|                   port_identifier_list COMMA IDENTIFIER { }
 ;
 
 /* Port direction can be 'input', 'output' or 'inout'. */
@@ -1793,7 +1821,7 @@ procedural_programming_statement: /* 1st type procedural programming
     statement_group %prec THEN { printf("simple_if "); }
                                   /* 2nd type procedural programming
     statements. Higher precedence than the rule above, so that each 'else'
-    statement group is matched to the closest 'if' statement group. */                
+    statement group is matched to the closest 'if' statement group. */         
 |                                 IF OPENPARENTHESES expression CLOSEPARENTHESES
     statement_group ELSE statement_group %prec ELSE { printf("if_else ");}
                                   /* 3rd type procedural programming statement

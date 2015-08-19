@@ -1,4 +1,6 @@
 module abc (id3, id4);
+    input id3;
+    output id4;
     task read_mem (input [15:0] address,
         output [31:0] data );
         reg a;
