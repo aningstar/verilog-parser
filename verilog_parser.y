@@ -390,10 +390,218 @@ function_input_declarations:
 ;
 
 function_body: 
-              variable_declaration SEMICOLON{ }
+              variable_declaration SEMICOLON { }
 |             assignment SEMICOLON { }
 |             function_body variable_declaration SEMICOLON { }
 |             function_body assignment SEMICOLON { }
+;
+
+function_statement_or_null: function_statement { }
+|                           SEMICOLON          { }
+;
+
+/* function_statement ::=
+/*   { attribute_instance } function_blocking_assignment ; */
+/* | { attribute_instance } function_case_statement */
+/* | { attribute_instance } function_conditional_statement */
+/* | { attribute_instance } function_loop_statement */
+/*          TODO                 */
+/* | { attribute_instance } function_seq_block */
+/* | { attribute_instance } disable_statement */
+/* | { attribute_instance } system_task_enable */
+function_statement: variable_or_bit_select EQUALS expression SEMICOLON { }
+|                   function_case_statement                            { }
+|                   function_conditional_statement                     { }
+|                   function_loop_statement                            { }
+;
+
+function_case_statement: CASE OPENPARENTHESES expression CLOSEPARENTHESES
+    nonempty_function_case_item_list ENDCASE { }
+|                        CASEZ OPENPARENTHESES expression CLOSEPARENTHESES
+    nonempty_function_case_item_list ENDCASE { }
+|                        CASEX OPENPARENTHESES expression CLOSEPARENTHESES
+    nonempty_function_case_item_list ENDCASE { }
+;
+
+nonempty_function_case_item_list: function_case_item { }
+|                                 nonempty_function_case_item_list
+    function_case_item { }
+;
+
+function_case_item: nonempty_expression_list SEMICOLON
+    function_statement_or_null { }
+|                   DEFAULT SEMICOLON function_statement_or_null { }
+|                   DEFAULT function_statement_or_null { }
+;
+
+nonempty_expression_list: expression                          { }
+|                         nonempty_expression_list expression { }
+;
+
+function_conditional_statement: IF OPENPARENTHESES expression CLOSEPARENTHESES
+    function_statement_or_null { }
+|                               IF OPENPARENTHESES expression CLOSEPARENTHESES
+    function_statement_or_null ELSE function_statement_or_null { }
+|                               function_if_else_if_statement { }
+;
+
+function_if_else_if_statement: IF OPENPARENTHESES expression CLOSEPARENTHESES
+    function_statement_or_null function_else_if_list { }
+|                              IF OPENPARENTHESES expression CLOSEPARENTHESES
+    function_statement_or_null function_else_if_list ELSE
+    function_statement_or_null { }
+;
+
+function_else_if_list: /* empty */
+|                      function_else_if_list ELSE IF OPENPARENTHESES expression
+    CLOSEPARENTHESES function_statement_or_null { }
+;
+
+function_loop_statement: FOREVER function_statement { }
+|                        REPEAT OPENPARENTHESES expression CLOSEPARENTHESES
+    function_statement { }
+|                        WHILE OPENPARENTHESES expression CLOSEPARENTHESES
+    function_statement { }
+|                        FOR OPENPARENTHESES variable_assignment SEMICOLON
+    expression SEMICOLON variable_assignment CLOSEPARENTHESES
+    function_statement { }
+;
+
+variable_assignment: variable_lvalue EQUALS expression
+;
+
+variable_lvalue: IDENTIFIER                                             { }
+|                IDENTIFIER nonempty_expression_in_brackets_list        { }
+|                IDENTIFIER nonempty_expression_in_brackets_list
+    OPENBRACKETS range_expression CLOSEBRACKETS { }
+|                IDENTIFIER OPENBRACKETS range_expression CLOSEBRACKETS { }
+|                variable_concatenation                                 { }
+;
+
+nonempty_expression_in_brackets_list: /* empty */
+|                                     nonempty_expression_in_brackets_list
+    OPENBRACKETS expression CLOSEBRACKETS { }
+;
+
+variable_concatenation: OPENBRACES nonempty_variable_concatenation_value_list
+    CLOSEBRACES { }
+;
+
+nonempty_variable_concatenation_value_list: variable_lvalue        { }
+| nonempty_variable_concatenation_value_list COMMA variable_lvalue { }
+;
+
+range_expression: expression                                    { }
+|                 constant_expression COLON constant_expression { }
+|                 expression PLUS COLON constant_expression     { }
+|                 expression MINUS COLON constant_expression    { }
+;
+
+function_seq_block: BEGIN_TOKEN COLON IDENTIFIER block_item_declaration_list
+    function_statement_list END { }
+|                   BEGIN_TOKEN function_statement_list END { }
+;
+
+block_item_declaration_list: /* empty */
+|                            block_item_declaration_list block_item_declaration
+    { }
+;
+
+block_item_declaration: block_reg_declaration       { }
+|                       event_declaration           { }
+|                       integer_declaration         { }
+|                       local_parameter_declaration { }/*
+|                       parameter_declaration       { }
+|                       real_declaration            { }
+|                       realtime_declaration        { }
+|                       time_declaration            { }*/
+;
+
+block_reg_declaration: REG SIGNED range list_of_block_variable_identifiers
+    SEMICOLON { }
+|                      REG SIGNED list_of_block_variable_identifiers SEMICOLON
+    { }
+|                      REG range list_of_block_variable_identifiers SEMICOLON
+    { }
+|                      REG list_of_block_variable_identifiers SEMICOLON { }
+;
+
+list_of_block_variable_identifiers: block_variable_type { }
+|                                   list_of_block_variable_identifiers COMMA
+    block_variable_type { }
+;
+
+block_variable_type: IDENTIFIER { }
+|                    IDENTIFIER nonempty_dimension_list { }
+;
+
+nonempty_dimension_list: dimension                         { }
+|                        nonempty_dimension_list dimension { }
+;
+
+dimension: OPENBRACKETS constant_expression COLON constant_expression
+    CLOSEBRACKETS { }
+;
+
+event_declaration: EVENT nonempty_list_of_event_identifiers SEMICOLON
+;
+
+nonempty_list_of_event_identifiers: IDENTIFIER nonempty_dimension_list { }
+|                                   IDENTIFIER                         { }
+|                                   nonempty_list_of_event_identifiers COMMA
+    IDENTIFIER nonempty_dimension_list { }
+|                                   nonempty_list_of_event_identifiers COMMA
+    IDENTIFIER { }
+;
+
+integer_declaration: INTEGER nonempty_list_of_variable_identifiers SEMICOLON
+;
+
+nonempty_list_of_variable_identifiers: variable_type { }
+|                                      nonempty_list_of_variable_identifiers
+    COMMA variable_type { }
+;
+
+variable_type: IDENTIFIER                            { }
+|              IDENTIFIER EQUALS constant_expression { }
+|              IDENTIFIER nonempty_dimension_list    { }
+;
+
+local_parameter_declaration: LOCALPARAM SIGNED range
+    nonempty_list_of_param_assignments SEMICOLON { }
+|                            LOCALPARAM SIGNED
+    nonempty_list_of_param_assignments SEMICOLON { }
+|                            LOCALPARAM range nonempty_list_of_param_assignments
+    SEMICOLON { }
+|                            LOCALPARAM nonempty_list_of_param_assignments
+    SEMICOLON { }
+|                            LOCALPARAM INTEGER
+    nonempty_list_of_param_assignments SEMICOLON { }
+|                            LOCALPARAM REAL nonempty_list_of_param_assignments
+    SEMICOLON { }
+|                            LOCALPARAM REALTIME
+    nonempty_list_of_param_assignments SEMICOLON { }
+|                            LOCALPARAM TIME nonempty_list_of_param_assignments
+    SEMICOLON { }
+;
+
+nonempty_list_of_param_assignments: param_assignment { }
+|                                   nonempty_list_of_param_assignments COMMA
+    param_assignment { }
+;
+
+param_assignment: IDENTIFIER EQUALS constant_expression { }
+;
+
+/*
+|                       parameter_declaration       { }
+|                       real_declaration            { }
+|                       realtime_declaration        { }
+|                       time_declaration            { }
+*/
+
+function_statement_list: /* empty */
+|                        function_statement_list function_statement { }
 ;
 
 range_or_type: 
