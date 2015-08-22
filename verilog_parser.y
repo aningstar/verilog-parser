@@ -144,7 +144,7 @@ identifier_list: /* empty */
 ;
 
 nonempty_identifier_list: IDENTIFIER { }
-|                         IDENTIFIER COMMA identifier_list
+|                         nonempty_identifier_list COMMA IDENTIFIER
     { printf("nonempty_identifier_list "); }
 ;
 
@@ -152,7 +152,7 @@ block: /* empty */
 | block statement  { }
 | block generate_block { }
 | block task_definition { }
-| block function_definition { }
+| block function_declaration { }
 ;
 /*          Generate Blocks             */
 /****************************************/
@@ -320,9 +320,9 @@ task_body:
 |          statement_group task_body { }
 ;
 
-/*           Function Definitions            */
-/* There are 2 types of function definitions */
-/*********************************************/
+/*             Function Declaration            */
+/* There are 2 types of function declarations. */
+/***********************************************/
 /* 1st type: */
 /* function automatic range_or_type function_name ( */
 /*     input range_or_type port_name, port_name, ... , */
@@ -337,63 +337,77 @@ task_body:
 /*     local variable declarations */
 /*     procedural_statement or statement_group */
 /* endfunction */
-/*********************************************/
-
-function_definition:
-                   /* 1st type of function definition */
-                   FUNCTION AUTOMATIC range_or_type IDENTIFIER OPENPARENTHESES 
-                   function_parameters CLOSEPARENTHESES SEMICOLON function_body 
-                   ENDFUNCTION { printf("function_definition\n"); }
-
-                   /* without body */
-|                  FUNCTION AUTOMATIC range_or_type IDENTIFIER OPENPARENTHESES 
-                   function_parameters CLOSEPARENTHESES SEMICOLON  
-                   ENDFUNCTION { printf("function_definition\n"); }
-
-|                  FUNCTION range_or_type IDENTIFIER OPENPARENTHESES 
-                   function_parameters CLOSEPARENTHESES SEMICOLON function_body 
-                   ENDFUNCTION { printf("function_definition\n"); }
-                   
-                   /* without body */
-|                  FUNCTION range_or_type IDENTIFIER OPENPARENTHESES 
-                   function_parameters CLOSEPARENTHESES SEMICOLON ENDFUNCTION 
-                   { printf("function_definition\n"); }
-
-                   /* 2st type of function definition */
-|                  FUNCTION AUTOMATIC range_or_type IDENTIFIER SEMICOLON 
-                   function_input_declarations function_body ENDFUNCTION 
-                   { printf("function_definition\n"); }
-
-                   /* without body */
-|                  FUNCTION AUTOMATIC range_or_type IDENTIFIER SEMICOLON 
-                   function_input_declarations ENDFUNCTION 
-                   { printf("function_definition\n"); }
-
-|                  FUNCTION range_or_type IDENTIFIER SEMICOLON 
-                   function_input_declarations function_body ENDFUNCTION 
-                   { printf("function_definition\n"); }
-
-                   /* without body */
-|                  FUNCTION range_or_type IDENTIFIER SEMICOLON 
-                   function_input_declarations ENDFUNCTION 
-                   { printf("function_definition\n"); }
-;
-/* Must have at least one input; may not have outputs or inouts. */
-function_parameters: 
-                   INPUT range_or_type nonempty_identifier_list { }
-|                  function_parameters INPUT range_or_type nonempty_identifier_list { }
+/***********************************************/
+/* 'automatic', 'signed' and 'range_or_type' are all optional. */
+function_declaration: /* 1st type function declarations. */
+                      FUNCTION AUTOMATIC SIGNED range_or_type IDENTIFIER
+    OPENPARENTHESES function_port_list CLOSEPARENTHESES SEMICOLON
+    block_item_declaration_list function_statement ENDFUNCTION { }
+|                     FUNCTION AUTOMATIC SIGNED IDENTIFIER OPENPARENTHESES
+    function_port_list CLOSEPARENTHESES SEMICOLON block_item_declaration_list
+    function_statement ENDFUNCTION { }
+|                     FUNCTION AUTOMATIC range_or_type IDENTIFIER
+    OPENPARENTHESES function_port_list CLOSEPARENTHESES SEMICOLON
+    block_item_declaration_list function_statement ENDFUNCTION { }
+|                     FUNCTION AUTOMATIC IDENTIFIER OPENPARENTHESES
+    function_port_list CLOSEPARENTHESES SEMICOLON block_item_declaration_list
+    function_statement ENDFUNCTION { }
+|                     FUNCTION SIGNED range_or_type IDENTIFIER OPENPARENTHESES
+    function_port_list CLOSEPARENTHESES SEMICOLON block_item_declaration_list
+    function_statement ENDFUNCTION { }
+|                     FUNCTION SIGNED IDENTIFIER OPENPARENTHESES
+    function_port_list CLOSEPARENTHESES SEMICOLON block_item_declaration_list
+    function_statement ENDFUNCTION { }
+|                     FUNCTION range_or_type IDENTIFIER OPENPARENTHESES
+    function_port_list CLOSEPARENTHESES SEMICOLON block_item_declaration_list
+    function_statement ENDFUNCTION { }
+|                     FUNCTION IDENTIFIER OPENPARENTHESES function_port_list
+    CLOSEPARENTHESES SEMICOLON block_item_declaration_list function_statement
+    ENDFUNCTION { }
+                      /* 2nd type function declarations. */
+|                     FUNCTION AUTOMATIC SIGNED range_or_type IDENTIFIER SEMICOLON nonempty_function_item_declaration_list function_statement ENDFUNCTION { }
+|                     FUNCTION AUTOMATIC SIGNED IDENTIFIER SEMICOLON nonempty_function_item_declaration_list function_statement ENDFUNCTION { }
+|                     FUNCTION AUTOMATIC range_or_type IDENTIFIER SEMICOLON nonempty_function_item_declaration_list function_statement ENDFUNCTION { }
+|                     FUNCTION AUTOMATIC IDENTIFIER SEMICOLON nonempty_function_item_declaration_list function_statement ENDFUNCTION { }
+|                     FUNCTION SIGNED range_or_type IDENTIFIER SEMICOLON nonempty_function_item_declaration_list function_statement ENDFUNCTION { }
+|                     FUNCTION SIGNED IDENTIFIER SEMICOLON nonempty_function_item_declaration_list function_statement ENDFUNCTION { }
+|                     FUNCTION range_or_type IDENTIFIER SEMICOLON nonempty_function_item_declaration_list function_statement ENDFUNCTION { }
+|                     FUNCTION IDENTIFIER SEMICOLON nonempty_function_item_declaration_list function_statement ENDFUNCTION { }
 ;
 
-function_input_declarations:
-                   INPUT range_or_type nonempty_identifier_list SEMICOLON { }
-|                  function_input_declarations INPUT range_or_type nonempty_identifier_list SEMICOLON { }
+nonempty_function_item_declaration_list: function_item_declaration { }
+|                                        nonempty_function_item_declaration_list
+    function_item_declaration { }
 ;
 
-function_body: 
-              variable_declaration SEMICOLON { }
-|             assignment SEMICOLON { }
-|             function_body variable_declaration SEMICOLON { }
-|             function_body assignment SEMICOLON { }
+function_item_declaration: block_item_declaration         { }
+|                          tf_input_declaration SEMICOLON { }
+;
+
+function_port_list: nonempty_tf_input_declaration_list { }
+;
+
+nonempty_tf_input_declaration_list: tf_input_declaration { }
+|                                   nonempty_tf_input_declaration_list COMMA
+    tf_input_declaration { }
+;
+
+tf_input_declaration: INPUT REG SIGNED range nonempty_identifier_list { }
+|                     INPUT REG SIGNED nonempty_identifier_list       { }
+|                     INPUT REG range nonempty_identifier_list        { }
+|                     INPUT REG nonempty_identifier_list              { }
+|                     INPUT SIGNED range nonempty_identifier_list     { }
+|                     INPUT SIGNED nonempty_identifier_list           { }
+|                     INPUT range nonempty_identifier_list            { }
+|                     INPUT nonempty_identifier_list                  { }
+|                     INPUT task_port_type nonempty_identifier_list   { }
+|                     INPUT nonempty_identifier_list                  { }
+;
+
+task_port_type: TIME     { }
+|               REAL     { }
+|               REALTIME { }
+|               INTEGER  { }
 ;
 
 function_statement_or_null: function_statement { }
@@ -647,15 +661,11 @@ system_task_enable: SYSTEM_IDENTIFIER nonempty_expression_list { }
 |                   SYSTEM_IDENTIFIER                          { }
 ;
 
-range_or_type: 
-|            range { }
-|            SIGNED range { }
-|            REG SIGNED range { }
-|            REG range { }
-|            INTEGER { }
-|            TIME { }
-|            REAL { }
-|            REALTIME { }
+range_or_type: range { }
+|              INTEGER { }
+|              TIME { }
+|              REAL { }
+|              REALTIME { }
 ;
 
 statement: assignment  SEMICOLON { printf("\n"); }
