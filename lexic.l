@@ -213,6 +213,7 @@ that comments are invisible to the parser). */
     /* Match Verilog 2001 identifiers. */
 [a-zA-Z_][a-zA-Z0-9_$]*                            { return IDENTIFIER; }
 [\\][^\n\t ]+                                      { return IDENTIFIER; }
+"$"[a-zA-Z0-9_$]*                                  { return SYSTEM_IDENTIFIER; }
  
     /* Match Verilog 2001 real numbers. */
 [0-9]+[.][0-9][0-9_]*                              { return REALV; }

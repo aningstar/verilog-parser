@@ -19,7 +19,7 @@ int reduction_and_flag, reduction_or_flag;
 
 /* Token declarations */
 
-%token IDENTIFIER
+%token IDENTIFIER SYSTEM_IDENTIFIER
 %token NUM_INTEGER REALV
 /* Verilog 2001 unsigned literals. */
 %token UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
@@ -405,14 +405,20 @@ function_statement_or_null: function_statement { }
 /* | { attribute_instance } function_case_statement */
 /* | { attribute_instance } function_conditional_statement */
 /* | { attribute_instance } function_loop_statement */
-/*          TODO                 */
 /* | { attribute_instance } function_seq_block */
 /* | { attribute_instance } disable_statement */
 /* | { attribute_instance } system_task_enable */
-function_statement: variable_or_bit_select EQUALS expression SEMICOLON { }
-|                   function_case_statement                            { }
-|                   function_conditional_statement                     { }
-|                   function_loop_statement                            { }
+function_statement: function_blocking_assignment   { }
+|                   function_case_statement        { }
+|                   function_conditional_statement { }
+|                   function_loop_statement        { }
+|                   function_seq_block             { }
+|                   disable_statement              { }
+|                   system_task_enable             { }
+;
+
+function_blocking_assignment: variable_or_bit_select EQUALS expression SEMICOLON
+    { }
 ;
 
 function_case_statement: CASE OPENPARENTHESES expression CLOSEPARENTHESES
@@ -510,11 +516,11 @@ block_item_declaration_list: /* empty */
 block_item_declaration: block_reg_declaration       { }
 |                       event_declaration           { }
 |                       integer_declaration         { }
-|                       local_parameter_declaration { }/*
+|                       local_parameter_declaration { }
 |                       parameter_declaration       { }
 |                       real_declaration            { }
 |                       realtime_declaration        { }
-|                       time_declaration            { }*/
+|                       time_declaration            { }
 ;
 
 block_reg_declaration: REG SIGNED range list_of_block_variable_identifiers
@@ -593,15 +599,52 @@ nonempty_list_of_param_assignments: param_assignment { }
 param_assignment: IDENTIFIER EQUALS constant_expression { }
 ;
 
-/*
-|                       parameter_declaration       { }
-|                       real_declaration            { }
-|                       realtime_declaration        { }
-|                       time_declaration            { }
-*/
+parameter_declaration: PARAMETER SIGNED range nonempty_list_of_param_assignments
+    SEMICOLON { }
+|                            PARAMETER SIGNED nonempty_list_of_param_assignments
+    SEMICOLON { }
+|                            PARAMETER range nonempty_list_of_param_assignments
+    SEMICOLON { }
+|                            PARAMETER nonempty_list_of_param_assignments
+    SEMICOLON { }
+|                            PARAMETER INTEGER
+    nonempty_list_of_param_assignments SEMICOLON { }
+|                            PARAMETER REAL nonempty_list_of_param_assignments
+    SEMICOLON { }
+|                            PARAMETER REALTIME
+    nonempty_list_of_param_assignments SEMICOLON { }
+|                            PARAMETER TIME nonempty_list_of_param_assignments
+    SEMICOLON { }
+;
+
+real_declaration: REAL nonempty_list_of_real_identifiers SEMICOLON
+;
+
+nonempty_list_of_real_identifiers: real_type { }
+|                                  nonempty_list_of_real_identifiers real_type
+    { }
+;
+
+real_type: IDENTIFIER                            { }
+|          IDENTIFIER EQUALS constant_expression { }
+|          IDENTIFIER nonempty_dimension_list    { }
+;
+
+realtime_declaration: REALTIME nonempty_list_of_real_identifiers SEMICOLON
+;
+
+time_declaration: TIME nonempty_list_of_variable_identifiers SEMICOLON
+;
 
 function_statement_list: /* empty */
 |                        function_statement_list function_statement { }
+;
+
+disable_statement: DISABLE IDENTIFIER SEMICOLON
+;
+
+system_task_enable: SYSTEM_IDENTIFIER nonempty_expression_list { }
+|                   SYSTEM_IDENTIFIER                          { }
 ;
 
 range_or_type: 
