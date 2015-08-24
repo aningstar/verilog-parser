@@ -1572,6 +1572,8 @@ port_name_connection:
                     CLOSEPARENTHESES       { }
 |                   PERIOD IDENTIFIER OPENPARENTHESES IDENTIFIER index  
                     CLOSEPARENTHESES { }
+|                   PERIOD IDENTIFIER OPENPARENTHESES OPENBRACES 
+                    nonempty_identifier_list CLOSEBRACES CLOSEPARENTHESES { }
 ;
 
 /*             Primitive Instances           */

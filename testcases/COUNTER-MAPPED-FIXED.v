@@ -26,11 +26,11 @@ module counter ( clk, reset, count );
   nor2i_2 U7 ( .a(count[3]), .b(n29), .x(n40) );
   inv_4 U8 ( .a(n33), .x(\add_13/carry[5]) );
   inv_6 U9 ( .a(n35), .x(\add_13/carry[3]) );
-  nand4i_2 U10 ( .a(n31), .b(\add_13/carry[4]), .c(count[5]), .d(count[4]), 
+  nand4i_2 U10 ( .a(n31), .b(\add_13/carry[4]), .c(count[5]), .d(count[4]),
         .x(n32) );
   buf_3 U11 ( .a(n42), .x(count[2]) );
   nand3_2 U12 ( .a(n42), .b(n43), .c(n44), .x(n35) );
-  nand4i_1 U13 ( .a(n22), .b(\add_13/carry[3]), .c(count[4]), .d(count[3]), 
+  nand4i_1 U13 ( .a(n22), .b(\add_13/carry[3]), .c(count[4]), .d(count[3]),
         .x(n24) );
   exnor2_2 U14 ( .a(count[6]), .b(n24), .x(N7) );
   exor2_2 U15 ( .a(n32), .b(n27), .x(N8) );
