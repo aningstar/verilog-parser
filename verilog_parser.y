@@ -264,8 +264,15 @@ nonempty_identifier_list: IDENTIFIER { }
 /* endgenerate                          */
 /****************************************/
 generate_block:
-            GENERATE genvar generate_items ENDGENERATE { printf("generate\n"); }
-|           GENERATE generate_items ENDGENERATE { printf("generate\n");}
+            GENERATE genvar nonempty_generate_item_list ENDGENERATE 
+            { printf("generate\n"); }
+|           GENERATE nonempty_generate_item_list ENDGENERATE 
+            { printf("generate\n");}
+;
+
+nonempty_generate_item_list:
+                           generate_item { }
+|                          nonempty_generate_item_list generate_item { }
 ;
 
 /* generate_items are: */
@@ -278,13 +285,96 @@ generate_block:
 /*  procedural_block */
 /*  task_definition */
 /*  function_definition */
-generate_items:
+/*  generate_programming_statements */
+generate_item:
               statement { }
 |             function_definition { }
 |             task_definition { }
-|             generate_items function_definition { }
-|             generate_items task_definition { }
-|             generate_items statement { }
+|             generate_programming_statement { }
+;
+
+/*             Generate Programming Statements.           */
+/**********************************************************/
+/* There are 4 types of generate programming statements.  */
+/**********************************************************/
+/* 1st type:  if (constant_expression) generate_item or   */
+/*            generate_item_group                         */
+/* 2st type:  if (constant_expression)                    */
+/*                generate_item or generate_item_group    */
+/*            else                                        */
+/*                generate_item or generate_item_group    */
+/* 3st type:  case (constant_expression)
+/*                genvar_value : generate_item or generate_item_group */
+/*                genvar_value : generate_item or generate_item_group */
+/*                ... */
+/*                default: generate_item or generate_item_group */
+/*            endcase */
+/* 4st type:  for (genvar_name = constant_expression; constant_expression; */
+/*            genvar_name = constant_expression) */
+/*                generate_item or generate_item_group */
+/**********************************************************/
+generate_programming_statement:
+                                 /* 1st type generate programming
+    statements. Lower precedence than the rule below, so that each 'else'
+    statement group is matched to the closest 'if' statement group. */
+                                  IF OPENPARENTHESES expression CLOSEPARENTHESES
+    generate_statement_item %prec THEN { printf("simple_if "); }
+                                  /* 2rd type generate programming
+    statements. Higher precedence than the rule above, so that each 'else'
+    statement group is matched to the closest 'if' statement group. */         
+|                                 IF OPENPARENTHESES expression CLOSEPARENTHESES
+    generate_statement_item ELSE generate_statement_item %prec ELSE 
+    { printf("if_else ");}
+                                  /* 3rd type generate programming statement
+    (the default case is optional). */
+|                                 CASE OPENPARENTHESES expression
+    CLOSEPARENTHESES generate_case_list_with_optional_default_case ENDCASE { }
+                                  /* 6th type generate programming statement.A 
+    generate for loop permits one or more generate items to be instantiated
+    multiple times. The index loop variable must be a genvar. */
+|                                 FOR OPENPARENTHESES
+    assignment SEMICOLON expression SEMICOLON
+    assignment CLOSEPARENTHESES generate_statement_item { }
+;
+
+/* case_item: generate_item or generate_item_group */
+/* case_item, case_item: generate_item or generate_item_group */
+/* default: generate_item or generate_item_group */
+generate_case_list_with_optional_default_case: 
+                                             generate_case_list              { }
+|                                            generate_case_list 
+                                             generate_default_case { }
+;
+
+generate_case_list: generate_case           { }
+|                   generate_case_list generate_case { }
+;
+
+generate_case: 
+              generate_case_item_list COLON generate_statement_item { }
+;
+
+/* The generate_case expression can be a literal, a constant expression or a */
+/* bit select. */
+generate_case_item_list: 
+                         expression                               { }
+|                        generate_case_item_list COMMA expression { }
+;
+
+generate_default_case: 
+                     DEFAULT COLON generate_statement_item { }
+;
+
+generate_statement_item:
+                        generate_item { }
+|                       generate_item_group { }
+;
+
+generate_item_group:
+                   BEGIN_TOKEN COLON IDENTIFIER nonempty_generate_item_list END 
+                   { }
+|                  BEGIN_TOKEN nonempty_generate_item_list END 
+                   { }
 ;
 
 /* genvar is an integer variable which must be a positive */
@@ -1895,6 +1985,7 @@ sensitivity_list: /* 1st type sensitivity lists. */
     { }
                   /* 2nd type sensitivity lists. */
 |                 AT ASTERISK { }
+|                 AT OPENPARENTHESES ASTERISK CLOSEPARENTHESES { }
                   /* 3rd type sensitivity lists. A specific edge should be
     specified for each signal in the list. */
 |                 AT OPENPARENTHESES signal_list_with_edge CLOSEPARENTHESES { }
