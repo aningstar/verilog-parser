@@ -1568,7 +1568,9 @@ signal:                                   { printf("no_signal "); }
 /* Port name connections list both the port name */ 
 /* and signal connected to it, in any order. */
 port_name_connection:                      
-                    PERIOD IDENTIFIER OPENPARENTHESES IDENTIFIER
+                    /* No signal to port (.port_name()) */
+                    PERIOD IDENTIFIER OPENPARENTHESES CLOSEPARENTHESES { }
+|                   PERIOD IDENTIFIER OPENPARENTHESES IDENTIFIER
                     CLOSEPARENTHESES       { }
 |                   PERIOD IDENTIFIER OPENPARENTHESES IDENTIFIER index  
                     CLOSEPARENTHESES { }
