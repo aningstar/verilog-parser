@@ -1553,15 +1553,13 @@ redefinition_value:
                   number { }
 |                 PERIOD IDENTIFIER OPENPARENTHESES number CLOSEPARENTHESES { }
 ;
-/* Signal can be an identifier, a port name */
-/* connection or nothing */
+
 connections: 
              signal                          { }
 |            connections COMMA signal        { }
 ;
-signal:                                   { printf("no_signal "); }
-|           IDENTIFIER                    { printf("identifier "); }
-|           IDENTIFIER index              { printf("identifier(index) ");}
+signal:                                   
+            signal_values                 { printf("simple_signal "); }
 |           port_name_connection          { printf("port_name_connection ");}
 ;
 
@@ -1569,13 +1567,28 @@ signal:                                   { printf("no_signal "); }
 /* and signal connected to it, in any order. */
 port_name_connection:                      
                     /* No signal to port (.port_name()) */
-                    PERIOD IDENTIFIER OPENPARENTHESES CLOSEPARENTHESES { }
-|                   PERIOD IDENTIFIER OPENPARENTHESES IDENTIFIER
-                    CLOSEPARENTHESES       { }
-|                   PERIOD IDENTIFIER OPENPARENTHESES IDENTIFIER index  
+                    PERIOD IDENTIFIER OPENPARENTHESES signal_values 
                     CLOSEPARENTHESES { }
-|                   PERIOD IDENTIFIER OPENPARENTHESES OPENBRACES 
-                    nonempty_identifier_list CLOSEBRACES CLOSEPARENTHESES { }
+;
+
+/*             TODO */
+/* Maybe it is illegal all the numbers */
+/* Signal can be an identifier, a port name */
+/* connection or nothing */
+signal_values:
+|             scalar_constant      { }         
+|             IDENTIFIER           { }         
+|             IDENTIFIER index     { }         
+|             vector_signal        { }         
+;
+
+signal_values_list:
+                  signal_values { }
+|                 signal_values_list COMMA signal_values { }
+;
+
+vector_signal: 
+              OPENBRACES signal_values_list CLOSEBRACES { }
 ;
 
 /*             Primitive Instances           */
