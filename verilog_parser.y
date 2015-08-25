@@ -1255,6 +1255,11 @@ continuous_assignment: /* Explicit Continuous Assignment */
                       { printf("explicit_continuous_assignment\n"); }
 |                     ASSIGN IDENTIFIER EQUALS_SIGN expression
                       { printf("explicit_continuous_assignment\n"); }
+|                     ASSIGN array_select EQUALS_SIGN expression
+                      { printf("explicit_continuous_assignment\n"); }
+                      /* TODO bit select is needed? */
+|                     ASSIGN bit_select EQUALS_SIGN expression
+                      { printf("explicit_continuous_assignment\n"); }
 ;
 
 expression: primary                             { }
@@ -1572,13 +1577,14 @@ port_name_connection:
 ;
 
 /*             TODO */
-/* Maybe it is illegal all the numbers */
+/* What values are illegal ? */
 /* Signal can be an identifier, a port name */
 /* connection or nothing */
 signal_values:
 |             scalar_constant      { }         
 |             IDENTIFIER           { }         
-|             IDENTIFIER index     { }         
+|             bit_select           { }
+|             array_select         { }
 |             vector_signal        { }         
 ;
 
