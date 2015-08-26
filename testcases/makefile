@@ -8,8 +8,8 @@ all:
 	../verilog_parser < ALU-counter-MAPPED-SAMEINSTANCENAME.v
 	../verilog_parser < ALU-counter-MAPPED-reordered.v
 	../verilog_parser < ALU-counter-MAPPED.v
-	#../verilog_parser < COUNTER-MAPPED-FIXED.v
-	#../verilog_parser < COUNTER-MAPPED-spacesemi.v
+	../verilog_parser < COUNTER-MAPPED-FIXED.v
+	../verilog_parser < COUNTER-MAPPED-spacesemi.v
 	../verilog_parser < DLX_syn-notimescale-noportcomments.v
 	../verilog_parser < DLX_syn-notimescale.v
 	../verilog_parser < DLX_syn.v
@@ -22,8 +22,8 @@ all:
 	../verilog_parser < counter-MAPPED13-instanceport-token-splitting3.v
 	../verilog_parser < counter-MAPPED14-instanceport-token-splitting4.v
 	../verilog_parser < counter-MAPPED15-instanceport-token-splitting5.v
-	#../verilog_parser < counter-MAPPED16-backslashed-ports-wires-instances-wire-name-errors.v
-	#../verilog_parser < counter-MAPPED17-backslashed-ports-wires-instances.v
+	../verilog_parser < counter-MAPPED16-backslashed-ports-wires-instances-wire-name-errors.v
+	../verilog_parser < counter-MAPPED17-backslashed-ports-wires-instances.v
 	../verilog_parser < counter-MAPPED18-1-0-constants.v
 	../verilog_parser < counter-MAPPED19-wrapper-module.v
 	../verilog_parser < counter-MAPPED2.v
@@ -38,6 +38,6 @@ all:
 	../verilog_parser < counter-MAPPED9-incorrectlibrarypin.v
 	../verilog_parser < endmodule-bug.v
 	../verilog_parser < mycounter.v
-	#../verilog_parser < mycounter2.v
-	#../verilog_parser < mycounter3.v
-	#../verilog_parser < mycounter4.v
+	../verilog_parser < mycounter2.v
+	../verilog_parser < mycounter3.v
+	../verilog_parser < mycounter4.v

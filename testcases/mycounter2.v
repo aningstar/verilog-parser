@@ -4,7 +4,7 @@ module counter ( clk, reset, count); // good comment 1
   input clk, reset; // good comment 2
   wire   n42, n43, n44, N1, N2, N3, N4, N5, N6, N7, N8, n18, n22, n24, n27,
          n29, n31, n32, n33, n35, n36, n38, n40;
-  wire   [7:2] \add_13/carry;
+  wire   [7:2] \add_13/carry ;
 
 // mymux4 mux ( .mux_sel(mux_sel), .out(out), .in({ net4, net8, net16, net32}) );
 
@@ -16,13 +16,13 @@ module counter ( clk, reset, count); // good comment 1
 
 // mux4_1 U4 ( .x(out), .d0(in[0]), .d1(in[2]), .d2(in[1]), .d3(in[3]), .sl0(mux_sel[0]), .sl1(mux_sel[1]) ); //
 
-   inv_2 U4 ( .a(reset), 
+   inv_2 U4 ( .a(reset),
 	     .x(n18) );
-  
-   adhalf_2 \add_13/U1_1_3  ( .a(count[3]), .b(\add_13/carry[3]), .co(
-        \add_13/carry[4]), .s(N4) );
-  
-   dffpr_6 \count_reg[6]  ( N7, clk, n18, 
+
+   adhalf_2 \add_13/U1_1_3  ( .a(count[3]), .b(\add_13/carry[3] ), .co(
+        \add_13/carry[4] ), .s(N4) );
+
+   dffpr_6 \count_reg[6]  ( N7, clk, n18,
 			    count, n31
 			    );
 
@@ -43,6 +43,6 @@ oi kathisterhseis na eine logarithmikis klimakas
 	and2_1 and30 ( .x(net30), .a(n3), .b(net29) );
 	and2_1 and31 ( .x(net31), .a(n3), .b(net30) );
 	and2_1 and32 ( .x(net32), .a(n3), .b(net31) ); */
-   
+
 endmodule
 
