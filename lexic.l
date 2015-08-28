@@ -256,7 +256,10 @@ that comments are invisible to the parser). */
 "1z"          { return ONE_Z_LOW; }
 
     /* Match Verilog 2001 identifiers. */
-[a-zA-Z_][a-zA-Z0-9_$]*                            { return IDENTIFIER; }
+[a-zA-Z_][a-zA-Z0-9_$]*                            { yylval.name = strdup(yytext);
+                                                     return IDENTIFIER; 
+                                                   }
+
 [\\][^\n\t ]+                                      { return IDENTIFIER; }
  
     /* Match Verilog 2001 real numbers. */

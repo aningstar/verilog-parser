@@ -3,9 +3,11 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* Function prototypes. */
 
+void add_module(char name[]);
 void reset_reduction_flags(int *reduction_and_flag, int *reduction_or_flag);
 void turn_reduction_flag_on(int *reduction_flag);
 void check_reduction_flag(int reduction_flag);
@@ -90,11 +92,21 @@ struct plmodule
 /* Flags used to determine if the last expression created was a reduction_and */
 /* or a reduction_or (value 1) or not (value 0). */
 int reduction_and_flag, reduction_or_flag;
+
+// Pointer to the modules hash table
+Plmodule **modules;
+
+int number_of_modules = 0;
+
 %}
+
+%union {
+    char* name;   
+}
 
 /* Token declarations */
 
-%token IDENTIFIER
+%token <name> IDENTIFIER
 %token NUM_INTEGER REALV
 /* Verilog 2001 unsigned literals. */
 %token UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
@@ -255,17 +267,24 @@ module:
       module_keyword IDENTIFIER module_parameter OPENPARENTHESES
       module_port_list CLOSEPARENTHESES
       SEMICOLON module_items ENDMODULE 
-      { printf("Module.\n"); }
-
+      { 
+        add_module($2); // create a plmodule node in modules hash table
+                        // and store module name to plmodule struct
+      }
 |     module_keyword IDENTIFIER OPENPARENTHESES
       module_port_list CLOSEPARENTHESES
       SEMICOLON module_items ENDMODULE 
-      { printf("Module.\n"); }
-
+      { 
+        add_module($2); // create a plmodule node in modules hash table
+                        // and store module name to plmodule struct
+      }
 |     module_keyword IDENTIFIER OPENPARENTHESES nonempty_identifier_list 
       CLOSEPARENTHESES SEMICOLON module_port_body
       module_items ENDMODULE
-      { printf("Module.\n"); }
+      { 
+        add_module($2); // create a plmodule node in modules hash table
+                        // and store module name to plmodule struct
+      }
 ;
 
 module_keyword:
@@ -2749,12 +2768,50 @@ num_integer:
 %%
 
 main (int argc, char *argv[]) {
+    // initials modules hash table to null
+    modules = NULL;
     yyparse();
+    
+    // printf the modules names from the modules hash tables
+    printf("Modules: %d \n",number_of_modules);
+    int i;
+    for (i = 0; i < number_of_modules; i++) {
+        printf("%s\n",modules[i]->hashes);
+    }
+
     return 0;
 }
 
 yyerror(char *error_string) {
     fprintf(stderr, "ERROR in line %d: %s\n", yylloc.first_line, error_string);
+}
+
+/* Function: void add_module(char name[]) */
+/* Arguments: string with the name of module  */
+/* Returns: - */
+/* Description: Allocates space for a Plmodule struct in the */
+/*     modules hash table, and saves the name of the module to */
+/*     the hashes member of the Plmodule struct */
+void add_module(char name[]) {
+    // checks if modules hash table is empty
+    if (modules == NULL) {
+        // allocates space for one Plmodule struct
+        modules = (Plmodule**) malloc(sizeof(Plmodule*));
+        modules[0] = (Plmodule*) malloc(sizeof(Plmodule));
+        // increases the number_of_modules counter
+        number_of_modules = 1;
+    // reallocates space at the modules hash table for another Plmodule struct
+    }else {
+        modules = (Plmodule**) 
+                  realloc(modules, (number_of_modules + 1)*sizeof(Plmodule)); 
+        modules[number_of_modules] = (Plmodule*) malloc(sizeof(Plmodule));
+        // increases the number_of_modules counter
+        number_of_modules = number_of_modules + 1;
+    }
+
+    // copies the name of the module at the hashes member
+    // of the Plmodule struct
+    strcpy(modules[number_of_modules - 1]->hashes, name);
 }
 
 /* Function: void reset_reduction_flags(int *reduction_and_flag, int */
