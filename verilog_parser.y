@@ -14,6 +14,10 @@ void check_reduction_flag(int reduction_flag);
 
 /* Global variable declarations */
 
+// colors for output
+#define KGRN  "\x1B[32m"
+#define RESET "\033[0m"
+
 typedef enum {N, S, E, W, FN, FS, FE, FW} orientation;
 typedef unsigned char  string; // shorthand for unsigned char  //
 typedef unsigned long hash; // hash type //
@@ -2770,14 +2774,18 @@ num_integer:
 main (int argc, char *argv[]) {
     // initials modules hash table to null
     modules = NULL;
+    printf(KGRN "Bison output\n");
+    printf("############\n" RESET);
     yyparse();
     
-    // printf the modules names from the modules hash tables
-    printf("Modules: %d \n",number_of_modules);
+    // print the modules names from the modules hash tables
+    printf(KGRN "Modules\n");
+    printf("#######\n" RESET);
     int i;
     for (i = 0; i < number_of_modules; i++) {
         printf("%s\n",modules[i]->hashes);
     }
+    printf("\n");
 
     return 0;
 }
