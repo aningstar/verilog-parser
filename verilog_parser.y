@@ -26,7 +26,7 @@ int reduction_and_flag, reduction_or_flag;
 /* Verilog 2001 signed literals. */
 %token SIG_BIN SIG_OCT SIG_DEC SIG_HEX
 %token MODULE ENDMODULE
-%token EQUALS COMMA QUESTION_MARK SEMICOLON HASH PERIOD
+%token EQUALS QUESTION_MARK SEMICOLON HASH PERIOD
 %token CLOSEPARENTHESES OPENBRACKETS CLOSEBRACKETS OPENBRACES
 %token CLOSEBRACES
 /* Verilog 2001 port diractions. */
@@ -73,6 +73,17 @@ int reduction_and_flag, reduction_or_flag;
 /* token. That way, every 'else' is matched to the closest 'if'. */
 %nonassoc THEN
 %nonassoc ELSE
+
+/* IDENTIFIER_LIST_USED_PRECEDENCE is a fictitious terminal symbol, given */
+/* less precedence than the COMMA token. That way, as many identifiers as */
+/* possible are included in the list. */
+%nonassoc IDENTIFIER_LIST_USED_PRECEDENCE
+%nonassoc COMMA
+
+/* SYSTEM_TASK_ENABLE_WITHOUT_EXPRESSIONS_PRECEDENCE is a fictitious terminal */
+/* symbol, given less precedence than the OPENPARENTHESES token. That way, */
+/* system task enables include expressions if possible. */
+%nonassoc SYSTEM_TASK_ENABLE_WITHOUT_EXPRESSIONS_PRECEDENCE
 
 /* EXPRESSION_USED is a fictitious terminal symbol, given less precedence than */
 /* the expression operator tokens. This ensures depth-first recursion. */
@@ -392,22 +403,24 @@ nonempty_tf_input_declaration_list: tf_input_declaration { }
     tf_input_declaration { }
 ;
 
-tf_input_declaration: INPUT REG SIGNED range nonempty_identifier_list { }
-|                     INPUT REG SIGNED nonempty_identifier_list       { }
-|                     INPUT REG range nonempty_identifier_list        { }
-|                     INPUT REG nonempty_identifier_list              { }
-|                     INPUT SIGNED range nonempty_identifier_list     { }
-|                     INPUT SIGNED nonempty_identifier_list           { }
-|                     INPUT range nonempty_identifier_list            { }
-|                     INPUT nonempty_identifier_list                  { }
-|                     INPUT task_port_type nonempty_identifier_list   { }
-|                     INPUT nonempty_identifier_list                  { }
-;
-
-task_port_type: TIME     { }
-|               REAL     { }
-|               REALTIME { }
-|               INTEGER  { }
+tf_input_declaration: INPUT REG SIGNED range nonempty_identifier_list %prec
+    IDENTIFIER_LIST_USED_PRECEDENCE { }
+|                     INPUT REG SIGNED nonempty_identifier_list %prec
+    IDENTIFIER_LIST_USED_PRECEDENCE { }
+|                     INPUT REG range nonempty_identifier_list %prec
+    IDENTIFIER_LIST_USED_PRECEDENCE { }
+|                     INPUT REG nonempty_identifier_list %prec
+    IDENTIFIER_LIST_USED_PRECEDENCE { }
+|                     INPUT SIGNED range nonempty_identifier_list %prec
+    IDENTIFIER_LIST_USED_PRECEDENCE { }
+|                     INPUT SIGNED nonempty_identifier_list %prec
+    IDENTIFIER_LIST_USED_PRECEDENCE { }
+|                     INPUT range nonempty_identifier_list %prec
+    IDENTIFIER_LIST_USED_PRECEDENCE { }
+|                     INPUT nonempty_identifier_list %prec
+    IDENTIFIER_LIST_USED_PRECEDENCE { }
+|                     INPUT task_port_type nonempty_identifier_list %prec
+    IDENTIFIER_LIST_USED_PRECEDENCE { }
 ;
 
 function_statement_or_null: function_statement { }
@@ -450,31 +463,18 @@ nonempty_function_case_item_list: function_case_item { }
 
 function_case_item: nonempty_expression_list SEMICOLON
     function_statement_or_null { }
-|                   DEFAULT SEMICOLON function_statement_or_null { }
+|                   DEFAULT COLON function_statement_or_null { }
 |                   DEFAULT function_statement_or_null { }
 ;
 
-nonempty_expression_list: expression                          { }
+nonempty_expression_list: expression %prec EXPRESSION_USED    { }
 |                         nonempty_expression_list expression { }
 ;
 
 function_conditional_statement: IF OPENPARENTHESES expression CLOSEPARENTHESES
-    function_statement_or_null { }
+    function_statement_or_null %prec THEN { }
 |                               IF OPENPARENTHESES expression CLOSEPARENTHESES
     function_statement_or_null ELSE function_statement_or_null { }
-|                               function_if_else_if_statement { }
-;
-
-function_if_else_if_statement: IF OPENPARENTHESES expression CLOSEPARENTHESES
-    function_statement_or_null function_else_if_list { }
-|                              IF OPENPARENTHESES expression CLOSEPARENTHESES
-    function_statement_or_null function_else_if_list ELSE
-    function_statement_or_null { }
-;
-
-function_else_if_list: /* empty */
-|                      function_else_if_list ELSE IF OPENPARENTHESES expression
-    CLOSEPARENTHESES function_statement_or_null { }
 ;
 
 function_loop_statement: FOREVER function_statement { }
@@ -490,17 +490,33 @@ function_loop_statement: FOREVER function_statement { }
 variable_assignment: variable_lvalue EQUALS expression
 ;
 
+/*
+variable_1value ::=
+hierarchical_variable_identifier
+| hierarchical_variable_identifier [ expression ] { [ expression ] }
+| hierarchical_variable_identifier [ expression ] { [ expression ] } [
+range_expression ]
+| hierarchical_variable_identifier [ range_expression ]
+| variable_concatenation
+*/
+
 variable_lvalue: IDENTIFIER                                             { }
 |                IDENTIFIER nonempty_expression_in_brackets_list        { }
-|                IDENTIFIER nonempty_expression_in_brackets_list
-    OPENBRACKETS range_expression CLOSEBRACKETS { }
-|                IDENTIFIER OPENBRACKETS range_expression CLOSEBRACKETS { }
 |                variable_concatenation                                 { }
 ;
 
-nonempty_expression_in_brackets_list: /* empty */
-|                                     nonempty_expression_in_brackets_list
-    OPENBRACKETS expression CLOSEBRACKETS { }
+nonempty_expression_in_brackets_list: OPENBRACKETS range_expression
+    CLOSEBRACKETS { }
+|                                     OPENBRACKETS expression CLOSEBRACKETS { }
+|                                     OPENBRACKETS expression CLOSEBRACKETS
+    nonempty_expression_in_brackets_list { }
+;
+
+/* 'range_expression' can also be an 'expression' but this is already covered */
+/* in 'variable_lvalue'. */
+range_expression: constant_expression COLON constant_expression { }
+|                 expression PLUS COLON constant_expression     { }
+|                 expression MINUS COLON constant_expression    { }
 ;
 
 variable_concatenation: OPENBRACES nonempty_variable_concatenation_value_list
@@ -509,12 +525,6 @@ variable_concatenation: OPENBRACES nonempty_variable_concatenation_value_list
 
 nonempty_variable_concatenation_value_list: variable_lvalue        { }
 | nonempty_variable_concatenation_value_list COMMA variable_lvalue { }
-;
-
-range_expression: expression                                    { }
-|                 constant_expression COLON constant_expression { }
-|                 expression PLUS COLON constant_expression     { }
-|                 expression MINUS COLON constant_expression    { }
 ;
 
 function_seq_block: BEGIN_TOKEN COLON IDENTIFIER block_item_declaration_list
@@ -657,8 +667,15 @@ function_statement_list: /* empty */
 disable_statement: DISABLE IDENTIFIER SEMICOLON
 ;
 
-system_task_enable: SYSTEM_IDENTIFIER nonempty_expression_list { }
-|                   SYSTEM_IDENTIFIER                          { }
+system_task_enable: SYSTEM_IDENTIFIER OPENPARENTHESES
+    nonempty_expression_list_with_commas CLOSEPARENTHESES { }
+|                   SYSTEM_IDENTIFIER %prec
+    SYSTEM_TASK_ENABLE_WITHOUT_EXPRESSIONS_PRECEDENCE { }
+;
+
+nonempty_expression_list_with_commas: expression { }
+|                                     nonempty_expression_list_with_commas COMMA
+    expression { }
 ;
 
 range_or_type: range { }
@@ -1083,12 +1100,7 @@ constant_expression {
     }
 ;
 
-constant_primary: number { 
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|                 IDENTIFIER %prec IDENTIFIER_ONLY                        {
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
+constant_primary: constant_function_argument { }
 |                 constant_function_call {
         printf("constant_function ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
@@ -1115,28 +1127,29 @@ constant_replication: number OPENBRACES constant_concatenation_list CLOSEBRACES
     { }
 ;
 
-constant_function_call: constant_function_call_with_argument_list
-    CLOSEPARENTHESES { }
+constant_function_call: IDENTIFIER OPENPARENTHESES
+    constant_function_call_argument_list CLOSEPARENTHESES { }
 ;
 
-constant_function_call_with_argument_list: IDENTIFIER OPENPARENTHESES
+constant_function_call_argument_list: constant_function_argument { }
+|                                     constant_function_call_argument_list COMMA
     constant_function_argument { }
-| constant_function_call_with_argument_list COMMA constant_function_argument
-    { }
 ;
 
-constant_function_argument: IDENTIFIER { }
-|                           number     { }
+constant_function_argument: number { 
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
+|                           IDENTIFIER %prec IDENTIFIER_ONLY {
+        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
+    }
 ;
 
-function_call: function_call_with_argument_list
+function_call: IDENTIFIER OPENPARENTHESES function_call_argument_list
     CLOSEPARENTHESES { }
 ;
 
-function_call_with_argument_list: IDENTIFIER OPENPARENTHESES
-    expression { }
-| function_call_with_argument_list COMMA
-    expression { }
+function_call_argument_list: expression                                   { }
+|                            function_call_argument_list COMMA expression { }
 ;
 
 /* Logic values can have 8 strength levels: 4 driving, 3 capacitive, and high */
@@ -1460,12 +1473,7 @@ expression: primary                             { }
     }
 ;
 
-primary: number { 
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
-|        IDENTIFIER %prec IDENTIFIER_ONLY                        {
-        reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
-    }
+primary: constant_function_argument { }
 |        bit_select %prec BIT_SELECT {
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
