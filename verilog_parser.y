@@ -468,7 +468,8 @@ function_case_item: nonempty_expression_list SEMICOLON
 ;
 
 nonempty_expression_list: expression %prec EXPRESSION_USED    { }
-|                         nonempty_expression_list expression { }
+|                         nonempty_expression_list expression %prec
+    EXPRESSION_USED { }
 ;
 
 function_conditional_statement: IF OPENPARENTHESES expression CLOSEPARENTHESES
@@ -1105,7 +1106,7 @@ constant_primary: constant_function_argument { }
         printf("constant_function ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|           OPENBRACES constant_concatenation_list CLOSEBRACES %prec
+|                 OPENBRACES constant_concatenation_list CLOSEBRACES %prec
     CONCATENATED_EXPRESSIONS {
         printf("constant_concatenation ");
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
