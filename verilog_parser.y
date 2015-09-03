@@ -6,17 +6,23 @@
 #include <string.h>
 
 // HASHDEPTH number of hash collisions //
-#define HASHDEPTH 18
+// TODO
+//#define HASHDEPTH 18
+#define HASHDEPTH 50
 // colors for output
 #define KGRN  "\x1B[32m"
 #define KBLU  "\x1B[34m"
+#define KRED  "\x1B[31m"
 #define RESET "\033[0m"
 
-#define SYNTAX_DEBUG 1
+#define SYNTAX_DEBUG 0
 
 /* Function prototypes. */
 
 void add_module(char name[]);
+void add_module_instance(char name[]);
+void print_modules(void);
+void print_instances(void);
 void reset_reduction_flags(int *reduction_and_flag, int *reduction_or_flag);
 void turn_reduction_flag_on(int *reduction_flag);
 void check_reduction_flag(int reduction_flag);
@@ -64,13 +70,16 @@ struct gatepinhash
     int *gatepinconsdepth[HASHDEPTH]; // connection hashes depths //
     double *gatepinconsdelay[HASHDEPTH]; // delay per connection //
     double *gatepinpathdelay[HASHDEPTH]; // delay per path //
-    unsigned long gatepinconsnum[HASHDEPTH]; // number of total connection hashes - for fast insertion //
+    unsigned long gatepinconsnum[HASHDEPTH]; // number of total connection //
+                                             // hashes - for fast insertion //
     // special net data //
     hash specialnet[HASHDEPTH]; // special net hash reference - zero if none //
     int specialnetdepth[HASHDEPTH]; // special net hash depth //
-    // NOTE: NET is used in NET mode - gatepin data and special net in non NET mode //
+    // NOTE: NET is used in NET mode - gatepin data and special net in non NET 
+    // mode //
     //
-    // net, i.e. hierarchical wire, data; stores gatepin connections to other gatepins //
+    // net, i.e. hierarchical wire, data; stores gatepin connections to other 
+    // gatepins //
     hash net[HASHDEPTH]; // net hash reference - zero if none //
     int netdepth[HASHDEPTH]; // net hash depth //
 };
@@ -81,10 +90,13 @@ struct plmodule
 {
     string hashes[HASHDEPTH]; // hash strings - module name //
     int hashpresent[HASHDEPTH]; // hash present //
-    string globalhierarchyname[HASHDEPTH]; // global hierarchical name for this module //
+    string globalhierarchyname[HASHDEPTH]; // global hierarchical name for this
+                                           // module //
     // all gatepins and components are prefixed by the global hierarchy name //
     // module cell groups //
-    //Plcellgroup *cellgroups[HASHDEPTH]; // array of cell groups contained in this module - NULL terminated on groupname //
+    //Plcellgroup *cellgroups[HASHDEPTH]; // array of cell groups contained in 
+                                          // this module - NULL terminated on 
+                                          // groupname //
     // module coordinates //
     double x[HASHDEPTH], y[HASHDEPTH];
     double w[HASHDEPTH], h[HASHDEPTH]; // BB of floorplan rectangle //
@@ -99,14 +111,18 @@ struct plmodule
     // module ports pin data - correspond to relative module port //
     double *moduleportspinx[HASHDEPTH]; // pin x value //
     double *moduleportspiny[HASHDEPTH]; // pin y value //
-    int *moduleportsside[HASHDEPTH]; // port side: WESTSIDE, SOUTHSIDE, EASTSIDE, NORTHSIDE //
+    int *moduleportsside[HASHDEPTH]; // port side: WESTSIDE, SOUTHSIDE, 
+                                     // EASTSIDE, NORTHSIDE //
 };
 
 // Pointer to the modules hash table
-Plmodule **modules;
+Plmodule **modules = NULL;;
+// Pointer to the instaces hash table
+char **instances = NULL;
 // the number of stored modules to the modules hash table
 int number_of_modules = 0;
-
+// the number of stored instance to the instances hash table
+int number_of_instances = 0;
 %}
 
 %union {
@@ -154,9 +170,9 @@ int number_of_modules = 0;
 /* Verilog 2001 generate blocks */
 %token GENERATE ENDGENERATE
 /* Verilog 2001 procedural block tokens */
-%token INITIAL_TOKEN ALWAYS AT POSEDGE NEGEDGE BEGIN_TOKEN END FORK JOIN DISABLE WAIT
-%token ASSIGN DEASSIGN FORCE RELEASE IF IFNONE ELSE CASE ENDCASE DEFAULT CASEZ CASEX
-%token FOR WHILE REPEAT FOREVER TRIGGER_EVENT_OPERATOR
+%token INITIAL_TOKEN ALWAYS AT POSEDGE NEGEDGE BEGIN_TOKEN END FORK JOIN DISABLE
+%token ASSIGN DEASSIGN FORCE RELEASE IF IFNONE ELSE CASE ENDCASE DEFAULT CASEZ 
+%token FOR WHILE REPEAT FOREVER TRIGGER_EVENT_OPERATOR WAIT CASEX
 /* Version 2001 task definitions */
 %token TASK ENDTASK AUTOMATIC
 /* Version 2001 function definitions */
@@ -190,7 +206,7 @@ int number_of_modules = 0;
 %nonassoc THEN
 %nonassoc ELSE
 
-/* EXPRESSION_USED is a fictitious terminal symbol, given less precedence than */
+/* EXPRESSION_USED is a fictitious terminal symbol,given less precedence than */
 /* the expression operator tokens. This ensures depth-first recursion. */
 %nonassoc EXPRESSION_USED
 /* CONDITIONAL is a fictitious terminal symbol, giving to a conditional */
@@ -2489,12 +2505,14 @@ module_instances:
         #if SYNTAX_DEBUG == 1
             printf("module_instance ");
         #endif
+        add_module_instance($2);
     }
 |   IDENTIFIER IDENTIFIER OPENPARENTHESES connections CLOSEPARENTHESES 
     { 
         #if SYNTAX_DEBUG == 1
             printf("module_instance ");
         #endif
+        add_module_instance($2);
     }
     /* 3st type module instances (explicit parameter redefinition) */
 |   DEFPARAM IDENTIFIER PERIOD IDENTIFIER EQUALS_SIGN number 
@@ -2502,6 +2520,7 @@ module_instances:
         #if SYNTAX_DEBUG == 1
             printf("module_instance ");
         #endif
+        add_module_instance($4);
     }
     /* 4st and 5st type module instances(implicit and explicit) */
 |   IDENTIFIER HASH OPENPARENTHESES redefinition_list CLOSEPARENTHESES 
@@ -2510,6 +2529,7 @@ module_instances:
         #if SYNTAX_DEBUG == 1
             printf("module_instance ");
         #endif
+        add_module_instance($6);
     }
 ;
 /* Parameter values are redefined in the same order in which */
@@ -3784,33 +3804,25 @@ num_integer:
 main (int argc, char *argv[]) {
 
     int i;
-
-    // open given file
-    yyin = fopen(argv[1], "r");
-    // initials modules hash table to null
-    modules = NULL;
+    
+    yyin = fopen(argv[1], "r"); // open given file
 
     // DEBUG
     #if SYNTAX_DEBUG == 1
         printf(KGRN "SYNTAX DEBUG\n*\n"RESET);
     #endif
 
-    // parse file
-    yyparse();
+    yyparse(); // parse file
 
     // DEBUG
     #if SYNTAX_DEBUG == 1
         printf(KGRN "*\n"RESET);
     #endif
     
-    //print the modules names from the modules hash tables
-    printf(KBLU "MODULES\n" RESET);
-    for (i = 0; i < number_of_modules; i++) {
-        printf("<%s>\n", modules[i]->hashes);
-    }
+    print_modules();
+    print_instances();
 
-    // close file
-    close(yyin);
+    close(yyin); // close file
 
     return 0;
 }
@@ -3831,20 +3843,89 @@ void add_module(char name[]) {
         // allocates space for one Plmodule struct
         modules = (Plmodule**) malloc(sizeof(Plmodule*));
         modules[0] = (Plmodule*) malloc(sizeof(Plmodule));
-        // increases the number_of_modules counter
+        // increases the number of stored modules
         number_of_modules = 1;
     // reallocates space at the modules hash table for another Plmodule struct
     }else {
         modules = (Plmodule**) 
                   realloc(modules, (number_of_modules + 1)*sizeof(Plmodule)); 
         modules[number_of_modules] = (Plmodule*) malloc(sizeof(Plmodule));
-        // increases the number_of_modules counter
+        // increases the number of stored modules
         number_of_modules = number_of_modules + 1;
     }
 
     // copies the name of the module at the hashes member
     // of the Plmodule struct
     strcpy(modules[number_of_modules - 1]->hashes, name);
+}
+
+/* Function: void add_module_instance(char name[]) */
+/* Arguments: string with the name of instance  */
+/* Returns: - */
+/* Description: Allocates space for a string in the */
+/*     instances table and increases the number_of_instances counter */
+void add_module_instance(char name[]) {
+    // checks if instances hash table is empty
+    if (instances == NULL) {
+        // allocates space for one string
+        instances = (char**) malloc(sizeof(char*));
+        instances[0] = (char*) malloc(HASHDEPTH*sizeof(char));
+        number_of_instances = 1;
+    // reallocates space at the instances hash table for another string
+    }else {
+        instances = (char**) 
+                  realloc(instances, (number_of_instances + 1)*sizeof(char*)); 
+        instances[number_of_instances] = (char*) malloc(HASHDEPTH*sizeof(char));
+        // increases the number of strored instances
+        number_of_instances = number_of_instances + 1;
+    }
+
+    // copies the name of the instance at the hash table
+    strcpy(instances[number_of_instances - 1], name);
+}
+
+void print_modules(void) {
+    int i;
+    //print the modules names from the modules hash tables
+    printf(KBLU "MODULES\n" RESET);
+    for (i = 0; i < number_of_modules; i++) {
+        printf("<%s>\n", modules[i]->hashes);
+    }
+}
+
+void print_instances(void) {
+    int i;
+    printf(KBLU "INSTANCES\n" RESET);
+    for (i = 0; i < number_of_instances; i++) {
+        printf("<%s>\n", instances[i]);
+    }
+}
+
+/* Function: void check_for_module(char name[]) */
+/* Arguments: string with the name of instance module  */
+/* Returns: - */
+/* Description: Checks the instance module if exists to */
+/*      the modules hash table. If does not exists the */
+/*      main thread terminated with error message */
+void check_for_module(char name[]) {
+    int i = 0;
+    int return_value = 1;
+    if (modules != NULL) {
+        // checks all stored modules
+        for (i = 0; i < number_of_modules; i++) {
+            // compares the current module with the instance module
+            return_value = strcmp(modules[number_of_modules]->hashes,name);
+            // if module exists breaks the loop
+            if (return_value == 0) {
+                break;
+            }
+        }
+    }
+    // if module does not exists, terminates the main thread with error message
+    if (return_value == 1) {
+        printf(KRED "ERROR: Module instance does not exists\n" RESET);
+        exit(0);
+    }
 }
 
 /* Function: void reset_reduction_flags(int *reduction_and_flag, int */
