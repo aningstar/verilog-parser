@@ -16,3 +16,4 @@ module abc (id3, id4);
     //tri [0:15] #2.8 buf_out = a + b;
 
 endmodule
+
