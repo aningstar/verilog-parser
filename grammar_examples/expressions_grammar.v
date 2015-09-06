@@ -1,5 +1,5 @@
 module abc (id3, id4);
-  
+  input id1, id2;
   a = {b, c[0]};
   
   /* Operator precedence tests. The last operation should be completed first */

@@ -1,13 +1,13 @@
 /* areferwf */
 module ALU (out, zero, inA, inB, op);
 
-  parameter N = 32;
   output reg [N-1:0] out;
   output reg zero;
   input wire [N-1:0] inA;
   input wire [N-1:0] inB;
   input wire [3:0] op;
   input wire [1:0] \!@#$%^&*(){}[]":"| ;
+  parameter N = 32;
 
   always@(inA,inB,op) begin
    case(op)

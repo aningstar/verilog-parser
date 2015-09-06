@@ -44,7 +44,7 @@ inside them. */
 "defparam"            { return DEFPARAM; }
 "design"              { printf("DESIGN\n"); }
 "disable"             { return DISABLE; }
-"edge"                { printf("EDGE\n"); }
+"edge"                { return EDGE; }
 "else"                { return ELSE; }
 "end"                 { return END; }
 "endcase"             { return ENDCASE; }
@@ -53,7 +53,7 @@ inside them. */
 "endgenerate"         { return ENDGENERATE; }
 "endmodule"           { return ENDMODULE; }
 "endprimitive"        { printf("ENDPRIMITIVE\n"); }
-"endspecify"          { printf("ENDSPECIFY\n"); }
+"endspecify"          { return ENDSPECIFY; }
 "endtable"            { printf("ENDTABLE\n"); }
 "endtask"             { return ENDTASK; }
 "event"               { return EVENT; }
@@ -67,7 +67,7 @@ inside them. */
 "highz0"              { printf("HIGHZ0\n"); }
 "highz1"              { printf("HIGHZ1\n"); }
 "if"                  { return IF; }
-"ifnone"              { printf("IFNONE\n"); }
+"ifnone"              { return IFNONE; }
 "initial"             { return INITIAL_TOKEN; }
 "instance"            { printf("INSTANCE\n"); }
 "inout"               { return INOUT; }
@@ -77,7 +77,7 @@ inside them. */
 "large"               { return LARGE; }
 "liblist"             { printf("LIBLIST\n"); }
 "localparam"          { return LOCALPARAM; }
-"macromodule"         { printf("MACROMODULE\n"); }
+"macromodule"         { return MACROMODULE; }
 "medium"              { return MEDIUM;}
 "module"              { return MODULE; }
 "nand"                { return NAND; }
@@ -85,7 +85,7 @@ inside them. */
 "nmos"                { return NMOS; }
 "nor"                 { return NOR; }
 "not"                 { return NOT; }
-"noshowcancelled"     { printf("NOSHOWCANCELLED\n"); } 
+"noshowcancelled"     { return NOSHOWCANCELLED; } 
 "notif0"              { return NOTIF0; }
 "notif1"              { return NOTIF1; }
 "or"                  { return OR; }
@@ -98,8 +98,8 @@ inside them. */
 "pull1"               { return PULL1; }
 "pulldown"            { return PULLDOWN; }
 "pullup"              { return PULLUP; }
-"pulsestyle_onevent"  { printf("PULSESTYLE_ONEVENT\n"); }
-"pulsestyle_ondetect" { printf("PULSESTYLE_ONDETECT\n"); }
+"pulsestyle_onevent"  { return PULSESTYLE_ONEVENT; }
+"pulsestyle_ondetect" { return PULSESTYLE_ONDETECT; }
 "rcmos"               { return RCMOS; }
 "real"                { return REAL; }
 "realtime"            { return REALTIME; }
@@ -113,9 +113,9 @@ inside them. */
 "rtranif1"            { return RTRANIF1; }
 "scalared"            { return SCALARED; }
 "signed"              { return SIGNED; }
-"showcancelled"       { printf("SHOWCANCELLED\n"); }
+"showcancelled"       { return SHOWCANCELLED; }
 "small"               { return SMALL; }
-"specify"             { printf("SPECIFY\n"); }
+"specify"             { return SPECIFY; }
 "specparam"           { return SPECPARAM; }
 "strength"            { printf("STRENGTH\n"); }
 "strong0"             { return STRONG0; }
@@ -147,9 +147,23 @@ inside them. */
 "xnor"                { return XNOR; }
 "xor"                 { return XOR; }
 
+"PATHPULSE$"[a-zA-Z0-9_$]* { return PATHPULSE; }
     /* Match Verilog 2001 system function keywords. */
 "$signed"             { return SIGNED_SYSTEM_FUNCTION; }
 "$unsigned"           { return UNSIGNED_SYSTEM_FUNCTION; }
+
+"$setup"              { return SETUP; }
+"$hold"               { return HOLD; }
+"$setuphold"          { return SETUPHOLD; }
+"$recovery"           { return RECOVERY; }
+"$removal"            { return REMOVAL; }
+"$recrem"             { return RECREM; }
+"$skew"               { return SKEW; }
+"$timeskew"           { return TIMESKEW; }
+"$fullskew"           { return FULLSKEW; }
+"$period"             { return D_PERIOD; }
+"$width"              { return WIDTH; }
+"$nochange"           { return NOCHANGE; }
 
     /* Match Verilog 2001 comments. Tokens are not returned for comments (so
 that comments are invisible to the parser). */
@@ -189,7 +203,7 @@ that comments are invisible to the parser). */
 "*"{2}                { return POWER; }
 "/"                   { return SLASH; }
 "%"                   { return MODULO; }
-"="                   { return EQUALS; }
+"="                   { return EQUALS_SIGN; }
 "="{2}                { return EQUAL; }
 "!""="                { return NOT_EQUAL; }
 "="{3}                { return IDENTICAL; }
@@ -203,12 +217,43 @@ that comments are invisible to the parser). */
 "~"                   { return TILDE; }
 "!"                   { return EXCLAMATION_MARK; }
 "."                   { return PERIOD; }
-"$"                   { printf("DOLLAR : %s \n",yytext); }
 "<"{2}                { return BITWISE_LEFT_SHIFT; }
 ">"{2}                { return BITWISE_RIGHT_SHIFT; }
 "<"{3}                { return ARITHMETIC_LEFT_SHIFT; }
 ">"{3}                { return ARITHMETIC_RIGHT_SHIFT; }
 "-"">"                { return TRIGGER_EVENT_OPERATOR; }
+"&"{3}                { return THREE_AND; }
+
+
+"1"           { return ONE; }
+"0"           { return ZERO; }
+"01"          { return ZERO_ONE; }
+"10"          { return ONE_ZERO; }
+"1'b0"        { return ONE_BIN_ZERO_LOW; }
+"1'b1"        { return ONE_BIN_ONE_LOW; }
+"1'B0"        { return ONE_BIN_ZERO_UPPER; }
+"1'B1"        { return ONE_BIN_ONE_UPPER; }
+"'b0"         { return BIN_ZERO_LOW; }
+"'b1"         { return BIN_ONE_LOW; }
+"'B0"         { return BIN_ZERO_UPPER; }
+"'B1"         { return BIN_ONE_UPPER; }
+
+"X0"          { return X_ZERO_UPPER; } 
+"X1"          { return X_ONE_UPPER; }
+"x0"          { return X_ZERO_LOW; }
+"x1"          { return X_ONE_LOW; }
+"Z0"          { return Z_ZERO_UPPER; }
+"Z1"          { return Z_ONE_UPPER; }
+"z0"          { return Z_ZERO_LOW; }
+"z1"          { return Z_ONE_LOW; }
+"0X"          { return ZERO_X_UPPER; }
+"1X"          { return ONE_X_UPPER; }
+"0x"          { return ZERO_X_LOW; }
+"1x"          { return ONE_X_LOW; }
+"0Z"          { return ZERO_Z_UPPER; }
+"1Z"          { return ONE_Z_UPPER; }
+"0z"          { return ZERO_Z_LOW; }
+"1z"          { return ONE_Z_LOW; }
 
     /* Match Verilog 2001 identifiers. */
 [a-zA-Z_][a-zA-Z0-9_$]*                            { return IDENTIFIER; }

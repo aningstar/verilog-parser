@@ -1,11 +1,11 @@
-`timescale 1ns/10ps
+//`timescale 1ns/10ps
 
 module pulse_delay (in, out);
 
 input in;
 output out;
 
-wire n1, n2, n3, n4, n5, n6, n7, n8, n9, n10; 
+wire n1, n2, n3, n4, n5, n6, n7, n8, n9, n10;
 
    inv_1 invi1 ( .x(n1), .a(in) );
    inv_1 invi2 ( .x(n2), .a(n1) );
@@ -19,7 +19,7 @@ wire n1, n2, n3, n4, n5, n6, n7, n8, n9, n10;
    inv_1 invi10 ( .x(n10), .a(n9) );
    inv_1 invi11 ( .x(out), .a(n10) );
 
-endmodule   
+endmodule
 
 module C_gate2 (  in1, in2, out );
 
@@ -39,7 +39,7 @@ input [1:0] mux_sel;
 output  out;
 
 	mux4_1 U4 ( .x(out), .d0(in[0]), .d1(in[1]), .d2(in[2]), .d3(in[3]), .sl0(mux_sel[0]), .sl1(mux_sel[1]) );
-   
+
 // mux4_1 U4 ( .x(out), .d0(in[0]), .d1(in[2]), .d2(in[1]), .d3(in[3]), .sl0(mux_sel[0]), .sl1(mux_sel[1]) ); //
 
 endmodule
@@ -96,7 +96,7 @@ oi kathisterhseis na eine logarithmikis klimakas
 	and2_1 and30 ( .x(net30), .a(n3), .b(net29) );
 	and2_1 and31 ( .x(net31), .a(n3), .b(net30) );
 	and2_1 and32 ( .x(net32), .a(n3), .b(net31) );*/
-	
+
 
 // mymux4 mux ( .mux_sel(mux_sel), .out(out), .in({ net4, net8, net16, net32}) );
 
@@ -138,11 +138,11 @@ output  ai, ro, l;
 wire aoi1, lint, nl, nri, nro;
 
 wire nri_del, naoi1_del, aoi1_del;
-   
+
 //        pulse_delay pulsedel ( ri, nri_del );
 //        inv_1 temp ( .x(ri_del), .a(nri_del) );
 //        pulse_delay pulsedel2 ( ri_del, nri_del_del );
-   
+
 	assign ai = nl;
 
 	// delay of feedback (left input) must match pulse delay (right input) of LHS AND //
@@ -229,7 +229,7 @@ wire n1, n2, n3, net1, net10, net11, net12, net13, net14, net15, net16,
 	and2_1 and29 ( .x(net29), .a(n3), .b(net28) );
 	and2_1 and30 ( .x(net30), .a(n3), .b(net29) );
 	and2_1 and31 ( .x(net31), .a(n3), .b(net30) );*/
-	
+
 
 //	mymux4 mux ( .mux_sel(mux_sel), .out(out), .in({ net4, net8, net16, net31}) );
 
@@ -296,7 +296,7 @@ wire n1, n2, n3, net1, net10, net11, net12, net13, net14, net15, net16,
 	and2_1 and16 ( .x(net16), .a(n3), .b(net15) );
 	and2_1 and17 ( .x(net17), .a(n3), .b(net16) );
 	and2_1 and18 ( .x(net18), .a(n3), .b(net17) );
-	and2_1 and19 ( .x(net19), .a(n3), .b(net18) );	
+	and2_1 and19 ( .x(net19), .a(n3), .b(net18) );
 	and2_1 and20 ( .x(net20), .a(n3), .b(net19) );
 	/*and2_1 and21 ( .x(net21), .a(n3), .b(net20) );
 	and2_1 and22 ( .x(net22), .a(n3), .b(net21) );
@@ -306,7 +306,7 @@ wire n1, n2, n3, net1, net10, net11, net12, net13, net14, net15, net16,
 	and2_1 and26 ( .x(net26), .a(n3), .b(net25) );
 	and2_1 and27 ( .x(net27), .a(n3), .b(net26) );
 	and2_1 and28 ( .x(net28), .a(n3), .b(net27) );*/
-	
+
 
 //	mymux4 mux ( .mux_sel(mux_sel), .out(out), .in({ net3, net7, net14, net28}) );
 
@@ -27866,11 +27866,11 @@ input  reset, INT, FREEZE, test_si, test_se, sync_sel, global_g1, global_g2,
 input [1:0] Ctrl__EXinst___Regs_1__delay_mux_sel, Ctrl__IDinst___Regs_1__delay_mux_sel,
 	Ctrl__IFinst___Regs_1__delay_mux_sel, Ctrl__MEMinst___Regs_1__delay_mux_sel;
 input [31:0] DM_read_data, IR;
-output  DM_write, DM_read, byte0, word, CLI, PIPEEMPTY, Ctrl__IDinst___Regs_1__ai, 
-	Ctrl__EXinst___Regs_1__ai, Ctrl__IDinst___Regs_1__ro, Ctrl__MEMinst___Regs_1__ro, 
-        Ctrl__IFinst___Regs_1__ai, Ctrl__MEMinst___Regs_1__ai, Ctrl__EXinst___Regs_1__ro, 
-        Ctrl__IFinst___Regs_1__ro, Ctrl__EXinst___Regs_1__en1, Ctrl__EXinst___Regs_1__en2, 
-	Ctrl__IDinst___Regs_1__en1, Ctrl__IDinst___Regs_1__en2, Ctrl__IFinst___Regs_1__en1, 
+output  DM_write, DM_read, byte0, word, CLI, PIPEEMPTY, Ctrl__IDinst___Regs_1__ai,
+	Ctrl__EXinst___Regs_1__ai, Ctrl__IDinst___Regs_1__ro, Ctrl__MEMinst___Regs_1__ro,
+        Ctrl__IFinst___Regs_1__ai, Ctrl__MEMinst___Regs_1__ai, Ctrl__EXinst___Regs_1__ro,
+        Ctrl__IFinst___Regs_1__ro, Ctrl__EXinst___Regs_1__en1, Ctrl__EXinst___Regs_1__en2,
+	Ctrl__IDinst___Regs_1__en1, Ctrl__IDinst___Regs_1__en2, Ctrl__IFinst___Regs_1__en1,
 	Ctrl__IFinst___Regs_1__en2, Ctrl__MEMinst___Regs_1__en1, Ctrl__MEMinst___Regs_1__en2;
 output [31:0] DM_write_data, DM_addr, NPC;
 

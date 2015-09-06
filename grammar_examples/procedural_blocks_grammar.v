@@ -1,21 +1,23 @@
 module abc (id3, id4);
+  input id3;
+  output id4;
   initial // A 50 ns clock oscillator that starts after 1000 time units
     begin
       clk = 0;
-      #1000 forever #25 clk = ~clk;
+      #1000 forever #25 clk = clk;
     end
-  
+
   // In this example, the sensitivity list infers sequential logic
   always @(posedge clk)
     begin // non-blocking assignments prevent race conditions in byte swap
       word[15:8]<= word[7:0];
       word[7:0] <= word[15:8];
     end
-  
+
   // In this example, the sensitivity list infers combinational logic
   always @(a, b, ci)
     sum = a + b + ci;
-  
+
   // In this example, the sensitivity list infers combinational logic,
   // (the @* token infers sensitivity to any signal read in the statement or
   // statement group which follows it, which are sel, a and b)
@@ -24,7 +26,7 @@ module abc (id3, id4);
       if (a) y = a + b; // if (sel==0)
       else   y = a * b;
     end
-  
+
   // This example using illustrates several programming statements
   always @(posedge clk) begin
     casez (opcode) //casez makes Z a don't care
@@ -44,14 +46,14 @@ module abc (id3, id4);
       default: accum = accum + 1; //$display(“illegal opcode in module %m”);
     endcase
   end
-  
+
   /* 1st 'if' test (simple if). */
   initial
     begin
       if (a)
         word[15:8]<= word[7:0];
     end
-  
+
   /* 2nd 'if' test (if-else). */
   initial
     begin
@@ -60,7 +62,7 @@ module abc (id3, id4);
       else
         word[7:0] <= word[15:8];
     end
-  
+
   /* 3rd 'if' test (the "dangling else" issue). */
   initial
     begin
@@ -70,5 +72,5 @@ module abc (id3, id4);
         else
           word[7:0] <= word[15:8];
     end
-  
+
 endmodule

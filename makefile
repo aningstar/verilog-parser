@@ -1,62 +1,10 @@
-all: parser
-	./verilog_parser < grammar_examples/function_definitions_grammar.v
-	./verilog_parser < grammar_examples/task_definitions_grammar.v
-	./verilog_parser < grammar_examples/generate_blocks.v
-	./verilog_parser < grammar_examples/module_instances_grammar.v
-	./verilog_parser < grammar_examples/array_selects_grammar.v
-	./verilog_parser < grammar_examples/bit_selects_grammar.v
-	./verilog_parser < grammar_examples/constant_declarations_grammar.v
-	./verilog_parser < grammar_examples/variable_declarations_grammar.v
-	./verilog_parser < grammar_examples/net_declarations_grammar.v
-	./verilog_parser < grammar_examples/port_declarations_grammar.v
-	./verilog_parser < grammar_examples/grammar_example.v
-	./verilog_parser < grammar_examples/primitive_instances_grammar.v
-	./verilog_parser < grammar_examples/expressions_grammar.v
+all: testcases grammar_examples
 
-expressions: parser
-	./verilog_parser < grammar_examples/expressions_grammar.v
+testcases: parser
+	cd testcases && $(MAKE)
 
-procedural_blocks: parser
-	./verilog_parser < grammar_examples/procedural_blocks_grammar.v
-
-function_definitions_grammar: parser
-	./verilog_parser < grammar_examples/function_definitions_grammar.v
-
-task_defintions_grammar: parser
-	./verilog_parser < grammar_examples/task_definitions_grammar.v
-
-generate_blocks: parser
-	./verilog_parser < grammar_examples/generate_blocks.v
-
-module_instances: parser
-	./verilog_parser < grammar_examples/module_instances_grammar.v
-
-primitive_instances: parser
-	./verilog_parser < grammar_examples/primitive_instances_grammar.v
-
-array_selects: parser
-	./verilog_parser < grammar_examples/array_selects_grammar.v
-
-bit_selects: parser
-	./verilog_parser < grammar_examples/bit_selects_grammar.v
-
-constant_declarations: parser
-	./verilog_parser < grammar_examples/constant_declarations_grammar.v
-
-variable_declarations: parser
-	./verilog_parser < grammar_examples/variable_declarations_grammar.v
-
-net_declarations: parser
-	./verilog_parser < grammar_examples/net_declarations_grammar.v
-
-port_declarations: parser
-	./verilog_parser < grammar_examples/port_declarations_grammar.v
-
-grammar_example: parser
-	./verilog_parser < grammar_examples/grammar_example.v
-
-example: parser
-	./verilog_parser < grammar_examples/example.v
+grammar_examples: parser
+	cd grammar_examples && $(MAKE)
 
 parser: lexic.l verilog_parser.y
 	bison -d -v verilog_parser.y

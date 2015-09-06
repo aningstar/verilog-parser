@@ -30,6 +30,6 @@ module counter ( clk, reset, count );
   dffpr_2 \count_reg[3]  ( .d(N4), .ck(clk), .rb(n18), .q(count[3]) );
   dffpr_2 \count_reg[1]  ( .d(N2), .ck(clk), .rb(n18), .q(count[1]) );
   dffpr_2 \count_reg[0]  ( .d(N1), .ck(clk), .rb(n18), .q(count[0]) );
-  inv_2 U4 ( .a(reset). .x(n18) );
+  inv_2 U4 ( .a(reset), .x(n18) );
 endmodule
 
