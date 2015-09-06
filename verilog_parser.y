@@ -515,7 +515,11 @@ nonempty_expression_in_brackets_list: OPENBRACKETS range_expression
 
 /* 'range_expression' can also be an 'expression' but this is already covered */
 /* in 'variable_lvalue'. */
-range_expression: constant_expression COLON constant_expression { }
+/* TODO */
+/* The correct first rule is: */
+/*    constant_expression COLON constant_expression */
+/* but at this level all expressions are accepted. */
+range_expression: expression COLON expression { }
 |                 expression PLUS COLON constant_expression     { }
 |                 expression MINUS COLON constant_expression    { }
 ;
