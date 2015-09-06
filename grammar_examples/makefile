@@ -54,3 +54,18 @@ port_declarations:
 
 example: 
 	../verilog_parser example.v
+
+debug:
+	valgrind ../verilog_parser function_definitions_grammar.v
+	valgrind ../verilog_parser task_definitions_grammar.v
+	#valgrind ../verilog_parser generate_blocks.v
+	valgrind ../verilog_parser module_instances_grammar.v
+	valgrind ../verilog_parser array_selects_grammar.v
+	valgrind ../verilog_parser bit_selects_grammar.v
+	valgrind ../verilog_parser constant_declarations_grammar.v
+	valgrind ../verilog_parser variable_declarations_grammar.v
+	valgrind ../verilog_parser net_declarations_grammar.v
+	valgrind ../verilog_parser port_declarations_grammar.v
+	valgrind ../verilog_parser primitive_instances_grammar.v
+	valgrind ../verilog_parser procedural_blocks_grammar.v
+	valgrind ../verilog_parser specify_blocks_grammar.v

@@ -292,64 +292,63 @@ that comments are invisible to the parser). */
 
 %%
 
-/*
-long int convert_str_to_bin(char *binary_string) {
-	long int result;
-	char *number_start;
-	
-	/* Remove binary prefix XX'b or XX'B from number. *
-	strtok(binary_string, "'");
-	number_start = strtok(NULL, "'");
-	number_start++;
-	
-	/* Convert to base 2. *
-	result = strtol(number_start, NULL, 2);
-	
-	return(result);
-}
 
-long int convert_str_to_oct(char *octal_string) {
-	long int result;
-	char *number_start;
-	
-	/* Remove octal prefix XX'o or XX'O from number. *
-	strtok(octal_string, "'");
-	number_start = strtok(NULL, "'");
-	number_start++;
-	
-	/* Convert to base 8. *
-	result = strtol(number_start, NULL, 8);
-	
-	return(result);
-}
-
-long int convert_str_to_dec(char *decimal_string) {
-	long int result;
-	char *number_start;
-	
-	/* Remove decimal prefix XX'd or XX'D from number. *
-	strtok(decimal_string, "'");
-	number_start = strtok(NULL, "'");
-	number_start++;
-	
-	/* Convert to base 10. *
-	result = strtol(number_start, NULL, 10);
-	
-	return(result);
-}
-
-long int convert_str_to_hex(char *hexadecimal_string) {
-	long int result;
-	char *number_start;
-	
-	/* Remove hexadecimal prefix XX'o or XX'O from number. *
-	strtok(hexadecimal_string, "'");
-	number_start = strtok(NULL, "'");
-	number_start++;
-	
-	/* Convert to base 16. *
-	result = strtol(number_start, NULL, 16);
-	
-	return(result);
-}
-*/
+//long int convert_str_to_bin(char *binary_string) {
+//	long int result;
+//	char *number_start;
+//	
+//	/* Remove binary prefix XX'b or XX'B from number. */
+//	strtok(binary_string, "'");
+//	number_start = strtok(NULL, "'");
+//	number_start++;
+//	
+//	/* Convert to base 2. */
+//	result = strtol(number_start, NULL, 2);
+//	
+//	return(result);
+//}
+//
+//long int convert_str_to_oct(char *octal_string) {
+//	long int result;
+//	char *number_start;
+//	
+//	/* Remove octal prefix XX'o or XX'O from number. */
+//	strtok(octal_string, "'");
+//	number_start = strtok(NULL, "'");
+//	number_start++;
+//	
+//	/* Convert to base 8. */
+//	result = strtol(number_start, NULL, 8);
+//	
+//	return(result);
+//}
+//
+//long int convert_str_to_dec(char *decimal_string) {
+//	long int result;
+//	char *number_start;
+//	
+//	/* Remove decimal prefix XX'd or XX'D from number. */
+//	strtok(decimal_string, "'");
+//	number_start = strtok(NULL, "'");
+//	number_start++;
+//	
+//	/* Convert to base 10. */
+//	result = strtol(number_start, NULL, 10);
+//	
+//	return(result);
+//}
+//
+//long int convert_str_to_hex(char *hexadecimal_string) {
+//	long int result;
+//	char *number_start;
+//	
+//	/* Remove hexadecimal prefix XX'o or XX'O from number. */
+//	strtok(hexadecimal_string, "'");
+//	number_start = strtok(NULL, "'");
+//	number_start++;
+//	
+//	/* Convert to base 16. */
+//	result = strtol(number_start, NULL, 16);
+//	
+//	return(result);
+//}

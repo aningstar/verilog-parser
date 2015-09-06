@@ -16,6 +16,7 @@
 #define RESET "\033[0m"
 
 //#define SYNTAX_DEBUG 
+//#define PRINT_TABLES
 
 /* Function prototypes. */
 
@@ -26,6 +27,7 @@ void print_instances(void);
 void reset_reduction_flags(int *reduction_and_flag, int *reduction_or_flag);
 void turn_reduction_flag_on(int *reduction_flag);
 void check_reduction_flag(int reduction_flag);
+//void yyerror(char *error_string);
 
 /* Global variable declarations */
 
@@ -3801,10 +3803,8 @@ num_integer:
 
 %%
 
-main (int argc, char *argv[]) {
+int main (int argc, char *argv[]) {
 
-    int i;
-    
     yyin = fopen(argv[1], "r"); // open given file
 
     // DEBUG
@@ -3819,10 +3819,12 @@ main (int argc, char *argv[]) {
         printf(KGRN "*\n"RESET);
     #endif
     
-    print_modules();
-    print_instances();
+    #ifdef PRINT_TABLES
+        print_modules();
+        print_instances();
+    #endif
 
-    close(yyin); // close file
+    fclose(yyin); // close file
 
     return 0;
 }
@@ -3960,7 +3962,7 @@ void turn_reduction_flag_on(int *reduction_flag) {
 /*     when making a binary_or. */
 void check_reduction_flag(int reduction_flag) {
     if (reduction_flag == 1) {
-        yyerror("\"a & &b\" and \"a | |b\" is invalid Verilog syntax");
+        yyerror(" 'a & &b' and 'a | |b' is invalid Verilog syntax");
         exit(EXIT_FAILURE);
     }
 }
