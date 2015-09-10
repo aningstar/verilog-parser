@@ -18,25 +18,28 @@
 //#define SYNTAX_DEBUG 
 #define PRINT_TABLES
 
-/* Function prototypes. */
 
+typedef enum {N, S, E, W, FN, FS, FE, FW} orientation;
+typedef unsigned char  string; // shorthand for unsigned char  //
+typedef unsigned long hash; // hash type //
+// Placement/Placeable Modules //
+typedef struct plmodule Plmodule; // Verilog module //
+// list with the module cells that contains each module
+typedef struct mcell Mcell;
+// read from file
+extern FILE *yyin;
+
+/* Function prototypes. */
+void addMcell(Mcell *head, int module_key); 
 void add_module(char name[]);
-void add_module_instance(char name[]);
+void add_instance(char name[]);
+int check_for_module(char name[]);
 void print_modules(void);
 void print_instances(void);
 void reset_reduction_flags(int *reduction_and_flag, int *reduction_or_flag);
 void turn_reduction_flag_on(int *reduction_flag);
 void check_reduction_flag(int reduction_flag);
 //void yyerror(char *error_string);
-
-/* Global variable declarations */
-
-typedef enum {N, S, E, W, FN, FS, FE, FW} orientation;
-typedef unsigned char  string; // shorthand for unsigned char  //
-typedef unsigned long hash; // hash type //
-
-// read from file
-extern FILE *yyin;
 
 /* Flags used to determine if the last expression created was a reduction_and */
 /* or a reduction_or (value 1) or not (value 0). */
@@ -85,12 +88,10 @@ struct gatepinhash
     hash net[HASHDEPTH]; // net hash reference - zero if none //
     int netdepth[HASHDEPTH]; // net hash depth //
 };
-// Placement/Placeable Modules //
-typedef struct plmodule Plmodule; // Verilog module //
 
 struct plmodule
 {
-    string hashes[HASHDEPTH]; // hash strings - module name //
+    char hashes[HASHDEPTH]; // hash strings - module name //
     int hashpresent[HASHDEPTH]; // hash present //
     string globalhierarchyname[HASHDEPTH]; // global hierarchical name for this
                                            // module //
@@ -117,14 +118,27 @@ struct plmodule
                                      // EASTSIDE, NORTHSIDE //
 };
 
+struct mcell {
+    int module_key;
+    struct mcell *next;
+};
+
 // Pointer to the modules hash table
-Plmodule **modules = NULL;;
+Plmodule **modules = NULL;
+// Pointer to the hash table that contains the lists of cells for each module
+// Each entry is a list with keys for the modules hash table
+Mcell **cells = NULL;
+// Pointer to the head of the list that contains the cells for the current 
+// module
+Mcell *current_head = NULL;
 // Pointer to the instaces hash table
 char **instances = NULL;
 // the number of stored modules to the modules hash table
 int number_of_modules = 0;
 // the number of stored instance to the instances hash table
 int number_of_instances = 0;
+// variable used for function's returned values
+int returned_value = 0;
 %}
 
 %union {
@@ -303,6 +317,8 @@ module:
     { 
         add_module($2); // create a plmodule node in modules hash table
                         // and store module name to plmodule struct
+        cells[number_of_modules - 1] = current_head;
+        current_head = NULL;
     }
 |   module_keyword IDENTIFIER OPENPARENTHESES
     module_port_list CLOSEPARENTHESES
@@ -310,6 +326,8 @@ module:
     { 
         add_module($2); // create a plmodule node in modules hash table
                         // and store module name to plmodule struct
+        cells[number_of_modules - 1] = current_head;
+        current_head = NULL;
     }
 |   module_keyword IDENTIFIER OPENPARENTHESES nonempty_identifier_list 
     CLOSEPARENTHESES SEMICOLON module_port_body
@@ -317,6 +335,8 @@ module:
     { 
         add_module($2); // create a plmodule node in modules hash table
                         // and store module name to plmodule struct
+        cells[number_of_modules - 1] = current_head;
+        current_head = NULL;
     }
 ;
 
@@ -2860,23 +2880,37 @@ module_instances:
         #ifdef SYNTAX_DEBUG
             printf("module_instance ");
         #endif
-        add_module_instance($2);
+        // if modules table does not contain the instance module
+        // add it to table
+        returned_value = check_for_module($1);
+        if (returned_value == -1) {
+            add_module($1);   
+            // add the cell to the list
+            addMcell(current_head, number_of_modules - 1);
+        }else {
+            // add the cell to the list
+            addMcell(current_head, returned_value);        
+        }
     }
 |   IDENTIFIER IDENTIFIER OPENPARENTHESES connections CLOSEPARENTHESES 
     { 
         #ifdef SYNTAX_DEBUG
             printf("module_instance ");
         #endif
-        add_module_instance($2);
+        // if modules table does not contain the instance module
+        // add it to table
+        if (returned_value == -1) {
+            add_module($1);   
+            // add the cell to the list
+            addMcell(current_head, number_of_modules - 1);
+        }else {
+            // add the cell to the list
+            addMcell(current_head, returned_value);        
+        }
     }
     /* 3st type module instances (explicit parameter redefinition) */
 |   DEFPARAM IDENTIFIER PERIOD IDENTIFIER EQUALS_SIGN number 
-    { 
-        #ifdef SYNTAX_DEBUG
-            printf("module_instance ");
-        #endif
-        add_module_instance($4);
-    }
+    { }
     /* 4st and 5st type module instances(implicit and explicit) */
 |   IDENTIFIER HASH OPENPARENTHESES redefinition_list CLOSEPARENTHESES 
     IDENTIFIER OPENPARENTHESES connections CLOSEPARENTHESES 
@@ -2884,7 +2918,7 @@ module_instances:
         #ifdef SYNTAX_DEBUG
             printf("module_instance ");
         #endif
-        add_module_instance($6);
+        //add_instance($6);
     }
 ;
 /* Parameter values are redefined in the same order in which */
@@ -4174,7 +4208,6 @@ int main (int argc, char *argv[]) {
     
     #ifdef PRINT_TABLES
         print_modules();
-        print_instances();
     #endif
 
     fclose(yyin); // close file
@@ -4200,12 +4233,20 @@ void add_module(char name[]) {
         modules[0] = (Plmodule*) malloc(sizeof(Plmodule));
         // increases the number of stored modules
         number_of_modules = 1;
+        // allocates space for cell list for this module
+        cells = (Mcell**) malloc(sizeof(Mcell*));
+        cells[0] = NULL;
     // reallocates space at the modules hash table for another Plmodule struct
     }else {
         modules = (Plmodule**) 
                   realloc(modules, (number_of_modules + 1)*sizeof(Plmodule)); 
         modules[number_of_modules] = (Plmodule*) malloc(sizeof(Plmodule));
+
+        // allocates space for cell list for this module
+        cells = (Mcell**) realloc(cells, 
+                  (number_of_modules + 1)*sizeof(Mcell)); 
         // increases the number of stored modules
+        cells[number_of_modules - 1] = NULL;
         number_of_modules = number_of_modules + 1;
     }
 
@@ -4214,12 +4255,12 @@ void add_module(char name[]) {
     strcpy(modules[number_of_modules - 1]->hashes, name);
 }
 
-/* Function: void add_module_instance(char name[]) */
+/* Function: void add_instance(char name[]) */
 /* Arguments: string with the name of instance  */
 /* Returns: - */
 /* Description: Allocates space for a string in the */
 /*     instances table and increases the number_of_instances counter */
-void add_module_instance(char name[]) {
+void add_instance(char name[]) {
     // checks if instances hash table is empty
     if (instances == NULL) {
         // allocates space for one string
@@ -4241,45 +4282,71 @@ void add_module_instance(char name[]) {
 
 void print_modules(void) {
     int i;
+    Mcell *curr = NULL;
     //print the modules names from the modules hash tables
-    printf(KBLU "MODULES\n" RESET);
+    printf(KBLU "MODULES : %d\n" RESET, number_of_modules);
     for (i = 0; i < number_of_modules; i++) {
-        printf("<%s>\n", modules[i]->hashes);
+        printf("<%s : { ", modules[i]->hashes);
+        for(curr = cells[i]; curr != NULL; curr = curr->next) {
+            printf(" %s, ",modules[curr->module_key]->hashes);
+        }
+        printf(" }>\n");
     }
 }
 
 void print_instances(void) {
     int i;
-    printf(KBLU "INSTANCES\n" RESET);
+    printf(KBLU "INSTANCES : %d\n" RESET,number_of_instances);
     for (i = 0; i < number_of_instances; i++) {
         printf("<%s>\n", instances[i]);
     }
 }
 
 /* Function: void check_for_module(char name[]) */
-/* Arguments: string with the name of instance module  */
-/* Returns: - */
+/* Arguments: string with the name of instance module */
+/* Returns: 1 module exists, 0 module does not exist */
 /* Description: Checks the instance module if exists to */
-/*      the modules hash table. If does not exists the */
+/*      the modules hash table. If does not exist the */
 /*      main thread terminated with error message */
-void check_for_module(char name[]) {
+int check_for_module(char name[]) {
     int i = 0;
-    int return_value = 1;
+    int cmp_value = 1;
     if (modules != NULL) {
         // checks all stored modules
         for (i = 0; i < number_of_modules; i++) {
             // compares the current module with the instance module
-            return_value = strcmp(modules[number_of_modules]->hashes,name);
+            cmp_value = strcmp(modules[i]->hashes,name);
             // if module exists breaks the loop
-            if (return_value == 0) {
-                break;
+            if (cmp_value == 0) {
+                return i;
             }
         }
     }
-    // if module does not exists, terminates the main thread with error message
-    if (return_value == 1) {
-        printf(KRED "ERROR: Module instance does not exists\n" RESET);
-        exit(0);
+    // if module does not exist, return 0 
+    if (cmp_value != 0) {
+        return -1;
+    }
+}
+
+/* Function: void addMcell(Mcell *head, int module_key) */
+/* Arguments: the list's head of cells and the module_key */
+/*      for the new cell */
+/* Returns: - */
+/* Description: add to the list of cells a new cell */
+void addMcell(Mcell *head, int module_key) {
+    // if list is empty
+    if (head == NULL) {
+        // add a new cell struct to list's head
+        head = (Mcell*)malloc(sizeof(Mcell));
+        head->module_key = module_key;
+        head->next = NULL;
+    }else {
+        printf("?\n");
+        // add a new cell struct at the beggining of the list
+        Mcell *cell = (Mcell*)malloc(sizeof(Mcell));
+        cell->module_key = module_key;
+        cell->next = head->next;
+        head = cell;
     }
 }
 
