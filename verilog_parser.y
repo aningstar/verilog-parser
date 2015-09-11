@@ -31,8 +31,8 @@ extern FILE *yyin;
 
 /* Function prototypes. */
 Mcell *addMcell(Mcell *head, int module_key); 
-void add_module(char name[]);
 int check_for_module(char name[]);
+void add_module(char name[]);
 void print_modules(void);
 void reset_reduction_flags(int *reduction_and_flag, int *reduction_or_flag);
 void turn_reduction_flag_on(int *reduction_flag);
@@ -315,6 +315,8 @@ module:
     { 
         add_module($2); // create a plmodule node in modules hash table
                         // and store module name to plmodule struct
+
+        // store the list of submodules for the current module
         cells[number_of_modules - 1] = current_head;
         current_head = NULL;
     }
@@ -324,6 +326,8 @@ module:
     { 
         add_module($2); // create a plmodule node in modules hash table
                         // and store module name to plmodule struct
+
+        // store the list of submodules for the current module
         cells[number_of_modules - 1] = current_head;
         current_head = NULL;
     }
@@ -333,6 +337,8 @@ module:
     { 
         add_module($2); // create a plmodule node in modules hash table
                         // and store module name to plmodule struct
+
+        // store the list of submodules for the current module
         cells[number_of_modules - 1] = current_head;
         current_head = NULL;
     }
@@ -4244,8 +4250,8 @@ void add_module(char name[]) {
         // allocates space for cell list for this module
         cells = (Mcell**) realloc(cells, 
                   (number_of_modules + 1)*sizeof(Mcell*)); 
-        // increases the number of stored modules
         cells[number_of_modules] = NULL;
+        // increases the number of stored modules
         number_of_modules = number_of_modules + 1;
     }
 
@@ -4254,13 +4260,19 @@ void add_module(char name[]) {
     strcpy(modules[number_of_modules - 1]->hashes, name);
 }
 
+/* Function: void print_modules(void) */
+/* Arguments: -  */
+/* Returns: - */
+/* Description: Prints the modules and for each module the list */
+/*        the list of the submodules */
 void print_modules(void) {
     int i;
     Mcell *curr = NULL;
-    //print the modules names from the modules hash tables
+    //print the modules names from the modules table
     printf(KBLU "MODULES : %d\n" RESET, number_of_modules);
     for (i = 0; i < number_of_modules; i++) {
         printf("<%s : { ", modules[i]->hashes);
+        // print the list of submodules for the current module
         for(curr = cells[i]; curr != NULL; curr = curr->next) {
             printf(" %s, ",modules[curr->module_key]->hashes);
         }
@@ -4293,10 +4305,10 @@ int check_for_module(char name[]) {
     }
 }
 
-/* Function: void addMcell(Mcell *head, int module_key) */
+/* Function: Mcell *addMcell(Mcell *head, int module_key) */
 /* Arguments: the list's head of cells and the module_key */
 /*      for the new cell */
-/* Returns: - */
+/* Returns: the updated head of list */
 /* Description: add to the list of cells a new cell */
 Mcell *addMcell(Mcell *head, int module_key) {
     // if list is empty
