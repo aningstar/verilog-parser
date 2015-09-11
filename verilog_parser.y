@@ -30,12 +30,10 @@ typedef struct mcell Mcell;
 extern FILE *yyin;
 
 /* Function prototypes. */
-void addMcell(Mcell *head, int module_key); 
+Mcell *addMcell(Mcell *head, int module_key); 
 void add_module(char name[]);
-void add_instance(char name[]);
 int check_for_module(char name[]);
 void print_modules(void);
-void print_instances(void);
 void reset_reduction_flags(int *reduction_and_flag, int *reduction_or_flag);
 void turn_reduction_flag_on(int *reduction_flag);
 void check_reduction_flag(int reduction_flag);
@@ -2886,10 +2884,10 @@ module_instances:
         if (returned_value == -1) {
             add_module($1);   
             // add the cell to the list
-            addMcell(current_head, number_of_modules - 1);
+            current_head = addMcell(current_head, number_of_modules - 1);
         }else {
             // add the cell to the list
-            addMcell(current_head, returned_value);        
+            current_head = addMcell(current_head, returned_value);        
         }
     }
 |   IDENTIFIER IDENTIFIER OPENPARENTHESES connections CLOSEPARENTHESES 
@@ -2899,13 +2897,14 @@ module_instances:
         #endif
         // if modules table does not contain the instance module
         // add it to table
+        returned_value = check_for_module($1);
         if (returned_value == -1) {
             add_module($1);   
             // add the cell to the list
-            addMcell(current_head, number_of_modules - 1);
+            current_head = addMcell(current_head, number_of_modules - 1);
         }else {
             // add the cell to the list
-            addMcell(current_head, returned_value);        
+            current_head = addMcell(current_head, returned_value);        
         }
     }
     /* 3st type module instances (explicit parameter redefinition) */
@@ -4231,11 +4230,11 @@ void add_module(char name[]) {
         // allocates space for one Plmodule struct
         modules = (Plmodule**) malloc(sizeof(Plmodule*));
         modules[0] = (Plmodule*) malloc(sizeof(Plmodule));
-        // increases the number of stored modules
-        number_of_modules = 1;
         // allocates space for cell list for this module
         cells = (Mcell**) malloc(sizeof(Mcell*));
         cells[0] = NULL;
+        // increases the number of stored modules
+        number_of_modules = 1;
     // reallocates space at the modules hash table for another Plmodule struct
     }else {
         modules = (Plmodule**) 
@@ -4244,40 +4243,15 @@ void add_module(char name[]) {
 
         // allocates space for cell list for this module
         cells = (Mcell**) realloc(cells, 
-                  (number_of_modules + 1)*sizeof(Mcell)); 
+                  (number_of_modules + 1)*sizeof(Mcell*)); 
         // increases the number of stored modules
-        cells[number_of_modules - 1] = NULL;
+        cells[number_of_modules] = NULL;
         number_of_modules = number_of_modules + 1;
     }
 
     // copies the name of the module at the hashes member
     // of the Plmodule struct
     strcpy(modules[number_of_modules - 1]->hashes, name);
-}
-
-/* Function: void add_instance(char name[]) */
-/* Arguments: string with the name of instance  */
-/* Returns: - */
-/* Description: Allocates space for a string in the */
-/*     instances table and increases the number_of_instances counter */
-void add_instance(char name[]) {
-    // checks if instances hash table is empty
-    if (instances == NULL) {
-        // allocates space for one string
-        instances = (char**) malloc(sizeof(char*));
-        instances[0] = (char*) malloc(HASHDEPTH*sizeof(char));
-        number_of_instances = 1;
-    // reallocates space at the instances hash table for another string
-    }else {
-        instances = (char**) 
-                  realloc(instances, (number_of_instances + 1)*sizeof(char*)); 
-        instances[number_of_instances] = (char*) malloc(HASHDEPTH*sizeof(char));
-        // increases the number of strored instances
-        number_of_instances = number_of_instances + 1;
-    }
-
-    // copies the name of the instance at the hash table
-    strcpy(instances[number_of_instances - 1], name);
 }
 
 void print_modules(void) {
@@ -4293,15 +4267,6 @@ void print_modules(void) {
         printf(" }>\n");
     }
 }
-
-void print_instances(void) {
-    int i;
-    printf(KBLU "INSTANCES : %d\n" RESET,number_of_instances);
-    for (i = 0; i < number_of_instances; i++) {
-        printf("<%s>\n", instances[i]);
-    }
-}
-
 /* Function: void check_for_module(char name[]) */
 /* Arguments: string with the name of instance module */
 /* Returns: 1 module exists, 0 module does not exist */
@@ -4333,7 +4298,7 @@ int check_for_module(char name[]) {
 /*      for the new cell */
 /* Returns: - */
 /* Description: add to the list of cells a new cell */
-void addMcell(Mcell *head, int module_key) {
+Mcell *addMcell(Mcell *head, int module_key) {
     // if list is empty
     if (head == NULL) {
         // add a new cell struct to list's head
@@ -4341,13 +4306,13 @@ void addMcell(Mcell *head, int module_key) {
         head->module_key = module_key;
         head->next = NULL;
     }else {
-        printf("?\n");
         // add a new cell struct at the beggining of the list
         Mcell *cell = (Mcell*)malloc(sizeof(Mcell));
         cell->module_key = module_key;
-        cell->next = head->next;
+        cell->next = head;
         head = cell;
     }
+    return head;
 }
 
 /* Function: void reset_reduction_flags(int *reduction_and_flag, int */
