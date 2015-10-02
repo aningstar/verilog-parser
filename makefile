@@ -9,12 +9,12 @@ grammar_examples: parser
 parser: lexic.l verilog_parser.y
 	bison -d -v verilog_parser.y
 	lex lexic.l
-	gcc lex.yy.c verilog_parser.tab.c -lfl -o verilog_parser
+	gcc lex.yy.c verilog_parser.tab.c structures.c main.c -lfl -o verilog_parser
 
 debug: lexic.l verilog_parser.y
 	bison -d -v verilog_parser.y
 	lex lexic.l
-	gcc -Wall -g lex.yy.c verilog_parser.tab.c -lfl -o verilog_parser
+	gcc -Wall -g lex.yy.c verilog_parser.tab.c structures.c main.c -lfl -o verilog_parser
 
 run_debug: debug
 	cd testcases && $(MAKE) debug

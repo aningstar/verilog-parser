@@ -3,6 +3,7 @@
 *.output
 *.tab.c
 *.tab.h
+*.o
 lex.yy.c
 verilog_parser.tab.h
 verilog_parser.tab.c
