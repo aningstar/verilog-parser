@@ -52,7 +52,7 @@ inside them. */
 "endfunction"         { return ENDFUNCTION; }
 "endgenerate"         { return ENDGENERATE; }
 "endmodule"           { return ENDMODULE; }
-"endprimitive"        { printf("ENDPRIMITIVE\n"); }
+"endprimitive"        { return ENDPRIMITIVE; }
 "endspecify"          { return ENDSPECIFY; }
 "endtable"            { printf("ENDTABLE\n"); }
 "endtask"             { return ENDTASK; }
@@ -93,7 +93,7 @@ inside them. */
 "parameter"           { return PARAMETER;}
 "pmos"                { return PMOS; }
 "posedge"             { return POSEDGE; }
-"primitive"           { printf("PRIMITIVE\n"); }
+"primitive"           { return PRIMITIVE; }
 "pull0"               { return PULL0; }
 "pull1"               { return PULL1; }
 "pulldown"            { return PULLDOWN; }

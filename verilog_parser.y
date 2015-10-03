@@ -77,6 +77,8 @@
 %token Z_ONE_UPPER Z_ZERO_LOW Z_ONE_LOW ZERO_X_UPPER ONE_X_UPPER 
 %token ZERO_X_LOW ONE_X_LOW ZERO_Z_UPPER ONE_Z_UPPER ZERO_Z_LOW
 %token ONE_Z_LOW
+/* Version 2001 udp declaration */
+%token PRIMITIVE ENDPRIMITIVE
 
 /* Tokens with precedence. */
 
@@ -154,7 +156,8 @@
 %%
 
 description: /* empty */
-| description module 
+| description module_declaration 
+| description udp_declaration
 ;
 
 /*            Module Definition            */
@@ -178,7 +181,7 @@ description: /* empty */
 /* The keyword macromodule is a synonym for */
 /* module. */
 
-module: 
+module_declaration: 
     module_keyword IDENTIFIER module_parameter OPENPARENTHESES
     module_port_list CLOSEPARENTHESES
     SEMICOLON module_items ENDMODULE 
@@ -4025,6 +4028,32 @@ end_edge_offset:
 /* The largest pulse width that is ignored by the timing check $width */
 width_threshold:
     expression 
+;
+
+/* Udp declaration */
+udp_declaration: 
+    PRIMITIVE IDENTIFIER OPENPARENTHESES udp_port_list CLOSEPARENTHESES 
+    SEMICOLON udp_port_declaration_body udp_body ENDPRIMITIVE
+    { }
+|   PRIMITIVE IDENTIFIER OPENPARENTHESES udp_declaration_port_list 
+    CLOSEPARENTHESES SEMICOLON udp_body ENDPRIMITIVE
+    { }
+;
+
+udp_port_list:
+    nonempty_identifier_list
+    { }
+;
+
+udp_port_declaration_body:
+    udp_output_declaration udp_input_declaration_list
+    { }
+;
+
+udp_body:
+;
+
+udp_declaration_port_list:
 ;
 
 /*                TODO                  */
