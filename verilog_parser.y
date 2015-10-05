@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "structures.h"
 
-//#define SYNTAX_DEBUG 
+#define SYNTAX_DEBUG 
 
 %}
 
@@ -4030,23 +4030,92 @@ width_threshold:
     expression 
 ;
 
-/* Udp declaration */
+/*           Udp declaration             */
+/*****************************************/
+/* There are 2 types of udp declarations */
+/*****************************************/
+/* 1st type: (added in Verilog 2001) */
+/*    primitive primitive_name */
+/*    ( output reg = logic_value terminal_declaration, */
+/*     input terminal_declarations ); */
+/*      table */
+/*          table_entry; */
+/*          table_entry; */
+/*      endtable */
+/*    endprimitive */
+/* 2nd type: (old style port list) */
+/*    primitive primitive_name (output, input, input, ... ); */
+/*      output terminal_declaration; */
+/*      input terminal_declarations; */
+/*      reg output_terminal; */
+/*      initial output_terminal = logic_value; */
+/*      table */
+/*          table_entry; */
+/*          table_entry; */
+/*      endtable */
+/*    endprimitive */
+/*****************************************/
+/* Only one output is allowed, which must be the first terminal. */
+/* The maximum number of inputs is at least 9 inputs for a sequential */
+/* UDP and 10 inputs for a combinational UDP. */
+
 udp_declaration: 
+    /* 1st type: (added in Verilog 2001) */
     PRIMITIVE IDENTIFIER OPENPARENTHESES udp_port_list CLOSEPARENTHESES 
     SEMICOLON udp_port_declaration_body udp_body ENDPRIMITIVE
-    { }
+    { 
+        #ifdef SYNTAX_DEBUG
+            printf("udp_declaration\n");
+        #endif
+    }
+    /* 2nd type: (old style port list) */
 |   PRIMITIVE IDENTIFIER OPENPARENTHESES udp_declaration_port_list 
     CLOSEPARENTHESES SEMICOLON udp_body ENDPRIMITIVE
-    { }
+    { 
+        #ifdef SYNTAX_DEBUG
+            printf("udp_declaration\n");
+        #endif
+    }
 ;
 
+/* output_port_identifier, input_port_identifier {,input_port_identifier } */
 udp_port_list:
     nonempty_identifier_list
     { }
 ;
 
 udp_port_declaration_body:
-    udp_output_declaration udp_input_declaration_list
+    udp_port_declaration
+    { }
+|   udp_port_declaration_body udp_port_declaration
+    { }
+;
+
+udp_port_declaration:
+    udp_output_declaration SEMICOLON
+    { }
+|   udp_input_declaration SEMICOLON
+    { }
+|   udp_reg_declaration SEMICOLON
+    { }
+;
+
+udp_output_declaration:
+    OUTPUT IDENTIFIER
+    { }
+|   OUTPUT REG IDENTIFIER
+    { }
+|   OUTPUT REG IDENTIFIER EQUALS_SIGN expression
+    { }
+;
+
+udp_input_declaration:
+    INPUT nonempty_identifier_list
+    { }
+;
+
+udp_reg_declaration:
+    REG IDENTIFIER
     { }
 ;
 
@@ -4054,6 +4123,15 @@ udp_body:
 ;
 
 udp_declaration_port_list:
+    udp_output_declaration COMMA udp_input_declaration_list
+    { }
+;
+
+udp_input_declaration_list:
+    udp_input_declaration
+    { }
+|   udp_input_declaration_list COMMA udp_input_declaration
+    { }
 ;
 
 /*                TODO                  */
