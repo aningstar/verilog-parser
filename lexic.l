@@ -54,7 +54,7 @@ inside them. */
 "endmodule"           { return ENDMODULE; }
 "endprimitive"        { return ENDPRIMITIVE; }
 "endspecify"          { return ENDSPECIFY; }
-"endtable"            { printf("ENDTABLE\n"); }
+"endtable"            { return ENDTABLE; }
 "endtask"             { return ENDTASK; }
 "event"               { return EVENT; }
 "for"                 { return FOR; }
@@ -122,7 +122,7 @@ inside them. */
 "strong1"             { return STRONG1; }
 "supply0"             { return SUPPLY0; }
 "supply1"             { return SUPPLY1; }
-"table"               { printf("TABLE\n"); }
+"table"               { return TABLE; }
 "task"                { return TASK; }
 "time"                { return TIME;}
 "tran"                { return TRAN; }
@@ -237,6 +237,24 @@ that comments are invisible to the parser). */
 "'b1"         { return BIN_ONE_LOW; }
 "'B0"         { return BIN_ZERO_UPPER; }
 "'B1"         { return BIN_ONE_UPPER; }
+
+"1'bx"        { return ONE_BIN_X_LOW_LOW; }
+"1'bX"        { return ONE_BIN_X_LOW_UPPER; }
+"1'Bx"        { return ONE_BIN_X_UPPER_LOW; }
+"1'BX"        { return ONE_BIN_X_UPPER_UPPER; }
+
+"x"           { return X_LOW; }
+"X"           { return X_UPPER; }
+"b"           { return B_LOW; }
+"B"           { return B_UPPER; }
+"r"           { return R_LOW; }
+"R"           { return R_UPPER; }
+"f"           { return F_LOW; }
+"F"           { return F_UPPER; }
+"p"           { return P_LOW; }
+"P"           { return P_UPPER; }
+"n"           { return N_LOW; }
+"N"           { return N_UPPER; }
 
 "X0"          { return X_ZERO_UPPER; } 
 "X1"          { return X_ONE_UPPER; }

@@ -13,6 +13,7 @@ all:
 	../verilog_parser < procedural_blocks_grammar.v
 	../verilog_parser < specify_blocks_grammar.v
 	../verilog_parser < expressions_grammar.v
+	../verilog_parser < udp_declarations.v
 
 expressions:
 	../verilog_parser < expressions_grammar.v
@@ -72,3 +73,4 @@ debug:
 	valgrind ../verilog_parser primitive_instances_grammar.v
 	valgrind ../verilog_parser procedural_blocks_grammar.v
 	valgrind ../verilog_parser specify_blocks_grammar.v
+	valgrind ../verilog_parser < udp_declarations.v

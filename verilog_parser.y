@@ -78,7 +78,13 @@
 %token ZERO_X_LOW ONE_X_LOW ZERO_Z_UPPER ONE_Z_UPPER ZERO_Z_LOW
 %token ONE_Z_LOW
 /* Version 2001 udp declaration */
-%token PRIMITIVE ENDPRIMITIVE
+%token PRIMITIVE ENDPRIMITIVE TABLE ENDTABLE
+%token ONE_BIN_X_LOW_LOW ONE_BIN_X_LOW_UPPER ONE_BIN_X_UPPER_LOW  
+%token ONE_BIN_X_UPPER_UPPER
+%token <name> X_LOW X_UPPER B_LOW B_UPPER R_LOW R_UPPER F_LOW F_UPPER 
+%token <name> P_LOW P_UPPER N_LOW N_UPPER
+
+%type <name> identifier
 
 /* Tokens with precedence. */
 
@@ -152,6 +158,8 @@
 
 %error-verbose
 %locations
+%glr-parser
+%expect 1
 
 %%
 
@@ -182,7 +190,7 @@ description: /* empty */
 /* module. */
 
 module_declaration: 
-    module_keyword IDENTIFIER module_parameter OPENPARENTHESES
+    module_keyword identifier module_parameter OPENPARENTHESES
     module_port_list CLOSEPARENTHESES
     SEMICOLON module_items ENDMODULE 
     { 
@@ -193,7 +201,7 @@ module_declaration:
         cells[number_of_modules - 1] = current_head;
         current_head = NULL;
     }
-|   module_keyword IDENTIFIER OPENPARENTHESES
+|   module_keyword identifier OPENPARENTHESES
     module_port_list CLOSEPARENTHESES
     SEMICOLON module_items ENDMODULE 
     { 
@@ -204,7 +212,7 @@ module_declaration:
         cells[number_of_modules - 1] = current_head;
         current_head = NULL;
     }
-|   module_keyword IDENTIFIER OPENPARENTHESES nonempty_identifier_list 
+|   module_keyword identifier OPENPARENTHESES nonempty_identifier_list 
     CLOSEPARENTHESES SEMICOLON module_port_body
     module_items ENDMODULE
     { 
@@ -227,9 +235,9 @@ module_parameter:
 ;
 
 module_parameter_declaration_list:
-    PARAMETER IDENTIFIER EQUALS_SIGN number 
+    PARAMETER identifier EQUALS_SIGN number 
     { }
-|   PARAMETER IDENTIFIER EQUALS_SIGN number COMMA 
+|   PARAMETER identifier EQUALS_SIGN number COMMA 
     module_parameter_declaration_list 
     { }
 ;
@@ -247,7 +255,7 @@ nonempty_module_port_list:
             printf("module_port_declaration "); 
         #endif
     }
-|   nonempty_module_port_list COMMA IDENTIFIER
+|   nonempty_module_port_list COMMA identifier
     {
         #ifdef SYNTAX_DEBUG
             printf("module_port_declaration "); 
@@ -286,13 +294,13 @@ module_items: /* empty */
 ;
 
 nonempty_identifier_list: 
-    IDENTIFIER 
+    identifier 
     { 
          #ifdef SYNTAX_DEBUG
              printf("identifier ");
          #endif
     }
-|   nonempty_identifier_list COMMA IDENTIFIER
+|   nonempty_identifier_list COMMA identifier
     { 
          #ifdef SYNTAX_DEBUG
              printf("comma identifier ");
@@ -450,7 +458,7 @@ generate_statement_item:
 ;
 
 generate_item_group:
-    BEGIN_TOKEN COLON IDENTIFIER nonempty_generate_item_list END 
+    BEGIN_TOKEN COLON identifier nonempty_generate_item_list END 
     { }
 |   BEGIN_TOKEN nonempty_generate_item_list END 
     { }
@@ -496,7 +504,7 @@ genvar:
 /*          port_direction port_type       */
 task_definition:
      /* 1st type: (added in Verilog-2001) */
-    TASK AUTOMATIC IDENTIFIER OPENPARENTHESES task_port_list 
+    TASK AUTOMATIC identifier OPENPARENTHESES task_port_list 
     CLOSEPARENTHESES SEMICOLON task_body ENDTASK 
     { 
         #ifdef SYNTAX_DEBUG
@@ -504,14 +512,14 @@ task_definition:
         #endif
     }
     /* without body */
-|   TASK AUTOMATIC IDENTIFIER OPENPARENTHESES task_port_list 
+|   TASK AUTOMATIC identifier OPENPARENTHESES task_port_list 
     CLOSEPARENTHESES SEMICOLON ENDTASK 
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
         #endif
     }
-|   TASK IDENTIFIER OPENPARENTHESES task_port_list CLOSEPARENTHESES 
+|   TASK identifier OPENPARENTHESES task_port_list CLOSEPARENTHESES 
     SEMICOLON task_body ENDTASK 
     { 
         #ifdef SYNTAX_DEBUG
@@ -519,7 +527,7 @@ task_definition:
         #endif
     }
     /* without body */
-|   TASK IDENTIFIER OPENPARENTHESES task_port_list CLOSEPARENTHESES 
+|   TASK identifier OPENPARENTHESES task_port_list CLOSEPARENTHESES 
     SEMICOLON ENDTASK 
     { 
         #ifdef SYNTAX_DEBUG
@@ -527,7 +535,7 @@ task_definition:
         #endif
     }
      /* 2st type: (old style) */
-|   TASK AUTOMATIC IDENTIFIER SEMICOLON task_port_body task_body 
+|   TASK AUTOMATIC identifier SEMICOLON task_port_body task_body 
     ENDTASK 
     { 
         #ifdef SYNTAX_DEBUG
@@ -535,7 +543,7 @@ task_definition:
         #endif
     }
     /* without ports */
-|   TASK AUTOMATIC IDENTIFIER SEMICOLON task_body 
+|   TASK AUTOMATIC identifier SEMICOLON task_body 
     ENDTASK 
     { 
         #ifdef SYNTAX_DEBUG
@@ -543,41 +551,41 @@ task_definition:
         #endif
     }
     /* without body */
-|   TASK AUTOMATIC IDENTIFIER SEMICOLON task_port_body ENDTASK 
+|   TASK AUTOMATIC identifier SEMICOLON task_port_body ENDTASK 
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
         #endif
     }
     /* without ports and body */
-|   TASK AUTOMATIC IDENTIFIER SEMICOLON ENDTASK 
+|   TASK AUTOMATIC identifier SEMICOLON ENDTASK 
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
         #endif
     }
-|   TASK IDENTIFIER SEMICOLON task_port_body task_body ENDTASK 
+|   TASK identifier SEMICOLON task_port_body task_body ENDTASK 
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
         #endif
     }
     /* without ports */
-|   TASK IDENTIFIER SEMICOLON task_body ENDTASK 
+|   TASK identifier SEMICOLON task_body ENDTASK 
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
         #endif
     }
     /* without body */
-|   TASK IDENTIFIER SEMICOLON task_port_body ENDTASK 
+|   TASK identifier SEMICOLON task_port_body ENDTASK 
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
         #endif
     }
     /* without ports and body */
-|   TASK IDENTIFIER SEMICOLON ENDTASK 
+|   TASK identifier SEMICOLON ENDTASK 
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
@@ -622,19 +630,19 @@ task_port_body:
 ;
 
 task_port_declaration: 
-    port_direction SIGNED range IDENTIFIER 
+    port_direction SIGNED range identifier 
     { }
-|   port_direction SIGNED IDENTIFIER 
+|   port_direction SIGNED identifier 
     { }
-|   port_direction range IDENTIFIER 
+|   port_direction range identifier 
     { }
-|   port_direction REG SIGNED range IDENTIFIER 
+|   port_direction REG SIGNED range identifier 
     { }
-|   port_direction REG SIGNED IDENTIFIER 
+|   port_direction REG SIGNED identifier 
     { }
-|   port_direction REG range IDENTIFIER 
+|   port_direction REG range identifier 
     { }
-|   port_direction task_port_type IDENTIFIER 
+|   port_direction task_port_type identifier 
     { }
 ;
 
@@ -683,61 +691,61 @@ task_body:
 /* 'automatic', 'signed' and 'range_or_type' are all optional. */
 function_declaration: 
     /* 1st type function declarations. */
-    FUNCTION AUTOMATIC SIGNED range_or_type IDENTIFIER OPENPARENTHESES 
+    FUNCTION AUTOMATIC SIGNED range_or_type identifier OPENPARENTHESES 
     nonempty_function_port_list CLOSEPARENTHESES SEMICOLON
     block_item_declaration_list function_statement ENDFUNCTION 
     { }
-|   FUNCTION AUTOMATIC SIGNED IDENTIFIER OPENPARENTHESES 
+|   FUNCTION AUTOMATIC SIGNED identifier OPENPARENTHESES 
     nonempty_function_port_list CLOSEPARENTHESES SEMICOLON 
     block_item_declaration_list function_statement ENDFUNCTION 
     { }
-|   FUNCTION AUTOMATIC range_or_type IDENTIFIER OPENPARENTHESES 
+|   FUNCTION AUTOMATIC range_or_type identifier OPENPARENTHESES 
     nonempty_function_port_list CLOSEPARENTHESES SEMICOLON
     block_item_declaration_list function_statement ENDFUNCTION 
     { }
-|   FUNCTION AUTOMATIC IDENTIFIER OPENPARENTHESES nonempty_function_port_list 
+|   FUNCTION AUTOMATIC identifier OPENPARENTHESES nonempty_function_port_list 
     CLOSEPARENTHESES SEMICOLON block_item_declaration_list function_statement 
     ENDFUNCTION 
     { }
-|   FUNCTION SIGNED range_or_type IDENTIFIER OPENPARENTHESES 
+|   FUNCTION SIGNED range_or_type identifier OPENPARENTHESES 
     nonempty_function_port_list CLOSEPARENTHESES SEMICOLON 
     block_item_declaration_list function_statement ENDFUNCTION 
     { }
-|   FUNCTION SIGNED IDENTIFIER OPENPARENTHESES nonempty_function_port_list 
+|   FUNCTION SIGNED identifier OPENPARENTHESES nonempty_function_port_list 
     CLOSEPARENTHESES SEMICOLON block_item_declaration_list function_statement 
     ENDFUNCTION 
     { }
-|   FUNCTION range_or_type IDENTIFIER OPENPARENTHESES 
+|   FUNCTION range_or_type identifier OPENPARENTHESES 
     nonempty_function_port_list CLOSEPARENTHESES SEMICOLON 
     block_item_declaration_list function_statement ENDFUNCTION 
     { }
-|   FUNCTION IDENTIFIER OPENPARENTHESES nonempty_function_port_list 
+|   FUNCTION identifier OPENPARENTHESES nonempty_function_port_list 
     CLOSEPARENTHESES SEMICOLON block_item_declaration_list function_statement 
     ENDFUNCTION 
     { }
     /* 2nd type function declarations. */
-|   FUNCTION AUTOMATIC SIGNED range_or_type IDENTIFIER SEMICOLON 
+|   FUNCTION AUTOMATIC SIGNED range_or_type identifier SEMICOLON 
     nonempty_function_item_declaration_list function_statement ENDFUNCTION 
     { }
-|   FUNCTION AUTOMATIC SIGNED IDENTIFIER SEMICOLON 
+|   FUNCTION AUTOMATIC SIGNED identifier SEMICOLON 
     nonempty_function_item_declaration_list function_statement ENDFUNCTION 
     { }
-|   FUNCTION AUTOMATIC range_or_type IDENTIFIER SEMICOLON 
+|   FUNCTION AUTOMATIC range_or_type identifier SEMICOLON 
     nonempty_function_item_declaration_list function_statement ENDFUNCTION 
     { }
-|   FUNCTION AUTOMATIC IDENTIFIER SEMICOLON  
+|   FUNCTION AUTOMATIC identifier SEMICOLON  
     nonempty_function_item_declaration_list function_statement ENDFUNCTION 
     { }
-|   FUNCTION SIGNED range_or_type IDENTIFIER SEMICOLON 
+|   FUNCTION SIGNED range_or_type identifier SEMICOLON 
     nonempty_function_item_declaration_list function_statement ENDFUNCTION 
     { }
-|   FUNCTION SIGNED IDENTIFIER SEMICOLON 
+|   FUNCTION SIGNED identifier SEMICOLON 
     nonempty_function_item_declaration_list function_statement ENDFUNCTION 
     { }
-|   FUNCTION range_or_type IDENTIFIER SEMICOLON 
+|   FUNCTION range_or_type identifier SEMICOLON 
     nonempty_function_item_declaration_list function_statement ENDFUNCTION 
     { }
-|   FUNCTION IDENTIFIER SEMICOLON nonempty_function_item_declaration_list 
+|   FUNCTION identifier SEMICOLON nonempty_function_item_declaration_list 
     function_statement ENDFUNCTION 
     { }
 ;
@@ -761,7 +769,7 @@ nonempty_tf_input_declaration_list:
     { }
 |   nonempty_tf_input_declaration_list COMMA tf_input_declaration 
     { }
-|   nonempty_tf_input_declaration_list COMMA IDENTIFIER 
+|   nonempty_tf_input_declaration_list COMMA identifier 
     { }
 ;
 
@@ -770,28 +778,28 @@ nonempty_function_port_list:
     { }
 |   nonempty_function_port_list COMMA tf_input_declaration 
     { }
-|   nonempty_function_port_list COMMA IDENTIFIER 
+|   nonempty_function_port_list COMMA identifier 
     { }
 ;
 
 tf_input_declaration: 
-    INPUT REG SIGNED range IDENTIFIER 
+    INPUT REG SIGNED range identifier 
     { }
-|   INPUT REG SIGNED IDENTIFIER 
+|   INPUT REG SIGNED identifier 
     { }
-|   INPUT REG range IDENTIFIER 
+|   INPUT REG range identifier 
     { }
-|   INPUT REG IDENTIFIER 
+|   INPUT REG identifier 
     { }
-|   INPUT SIGNED range IDENTIFIER 
+|   INPUT SIGNED range identifier 
     { }
-|   INPUT SIGNED IDENTIFIER 
+|   INPUT SIGNED identifier 
     { }
-|   INPUT range IDENTIFIER 
+|   INPUT range identifier 
     { }
-|   INPUT IDENTIFIER 
+|   INPUT identifier 
     { }
-|   INPUT task_port_type IDENTIFIER 
+|   INPUT task_port_type identifier 
     { }
 ;
 
@@ -901,9 +909,9 @@ variable_assignment:
 /* | hierarchical_variable_identifier [ range_expression ] */ 
 /* | variable_concatenation */
 variable_lvalue: 
-    IDENTIFIER                                             
+    identifier                                             
     { }
-|   IDENTIFIER nonempty_expression_in_brackets_list        
+|   identifier nonempty_expression_in_brackets_list        
     { }
 |   variable_concatenation                                 
     { }
@@ -946,7 +954,7 @@ nonempty_variable_concatenation_value_list:
 ;
 
 function_seq_block: 
-    BEGIN_TOKEN COLON IDENTIFIER block_item_declaration_list 
+    BEGIN_TOKEN COLON identifier block_item_declaration_list 
     function_statement_list END 
     { }
 |   BEGIN_TOKEN function_statement_list END 
@@ -996,9 +1004,9 @@ list_of_block_variable_identifiers:
 ;
 
 block_variable_type: 
-    IDENTIFIER 
+    identifier 
     { }
-|   IDENTIFIER nonempty_dimension_list 
+|   identifier nonempty_dimension_list 
     { }
 ;
 
@@ -1020,14 +1028,14 @@ event_declaration:
 ;
 
 nonempty_list_of_event_identifiers: 
-    IDENTIFIER nonempty_dimension_list 
+    identifier nonempty_dimension_list 
     { }
-|   IDENTIFIER                         
+|   identifier                         
     { }
 |                                   
-    nonempty_list_of_event_identifiers COMMA IDENTIFIER nonempty_dimension_list 
+    nonempty_list_of_event_identifiers COMMA identifier nonempty_dimension_list 
     { }
-|   nonempty_list_of_event_identifiers COMMA IDENTIFIER 
+|   nonempty_list_of_event_identifiers COMMA identifier 
     { }
 ;
 
@@ -1044,11 +1052,11 @@ nonempty_list_of_variable_identifiers:
 ;
 
 variable_type: 
-    IDENTIFIER                            
+    identifier                            
     { }
-|   IDENTIFIER EQUALS_SIGN constant_expression 
+|   identifier EQUALS_SIGN constant_expression 
     { }
-|   IDENTIFIER nonempty_dimension_list    
+|   identifier nonempty_dimension_list    
     { }
 ;
 
@@ -1079,7 +1087,7 @@ nonempty_list_of_param_assignments:
 ;
 
 param_assignment: 
-    IDENTIFIER EQUALS_SIGN constant_expression 
+    identifier EQUALS_SIGN constant_expression 
     { }
 ;
 
@@ -1115,11 +1123,11 @@ nonempty_list_of_real_identifiers:
 ;
 
 real_type: 
-    IDENTIFIER                            
+    identifier                            
     { }
-|   IDENTIFIER EQUALS_SIGN constant_expression 
+|   identifier EQUALS_SIGN constant_expression 
     { }
-|   IDENTIFIER nonempty_dimension_list    
+|   identifier nonempty_dimension_list    
     { }
 ;
 
@@ -1140,7 +1148,7 @@ function_statement_list:
 ;
 
 disable_statement: 
-    DISABLE IDENTIFIER SEMICOLON
+    DISABLE identifier SEMICOLON
     { } 
 ;
 
@@ -1235,11 +1243,11 @@ attribute_list:
 ;
 
 attribute: 
-    IDENTIFIER                  
+    identifier                  
     { }
-|   IDENTIFIER EQUALS_SIGN IDENTIFIER
+|   identifier EQUALS_SIGN identifier
     { }
-|   IDENTIFIER EQUALS_SIGN number
+|   identifier EQUALS_SIGN number
     { }
 ;
 
@@ -1310,36 +1318,36 @@ port_declaration:
 ;
 
 module_port_declaration: 
-    port_direction port_type SIGNED range IDENTIFIER 
+    port_direction port_type SIGNED range identifier 
     %prec PORT_DECLARATION_PRECEDENCE 
     { }
-|   port_direction port_type SIGNED IDENTIFIER 
+|   port_direction port_type SIGNED identifier 
     %prec PORT_DECLARATION_PRECEDENCE 
     { }
-|   port_direction port_type range IDENTIFIER 
+|   port_direction port_type range identifier 
     %prec PORT_DECLARATION_PRECEDENCE 
     { }
-|   port_direction port_type IDENTIFIER 
+|   port_direction port_type identifier 
     %prec PORT_DECLARATION_PRECEDENCE 
     { }
-|   port_direction SIGNED range IDENTIFIER 
+|   port_direction SIGNED range identifier 
     %prec PORT_DECLARATION_PRECEDENCE 
     { }
-|   port_direction SIGNED IDENTIFIER 
+|   port_direction SIGNED identifier 
     %prec PORT_DECLARATION_PRECEDENCE 
     { }
-|   port_direction range IDENTIFIER 
+|   port_direction range identifier 
     %prec PORT_DECLARATION_PRECEDENCE 
     { }
-|   port_direction IDENTIFIER 
+|   port_direction identifier 
     %prec PORT_DECLARATION_PRECEDENCE 
     { }
 ;
 
 port_identifier_list:
-    IDENTIFIER 
+    identifier 
     { }
-|   port_identifier_list COMMA IDENTIFIER 
+|   port_identifier_list COMMA identifier 
     { }
 ;
 
@@ -1458,52 +1466,52 @@ net_declaration:
     { }
     /* 2nd type net declarations (except trireg). */
 |   net_type_except_trireg optional_vectored_or_scalared strength
-    SIGNED range transition_delay IDENTIFIER EQUALS_SIGN expression 
+    SIGNED range transition_delay identifier EQUALS_SIGN expression 
     { }
 |   net_type_except_trireg optional_vectored_or_scalared strength
-    SIGNED range IDENTIFIER EQUALS_SIGN expression 
+    SIGNED range identifier EQUALS_SIGN expression 
     { }
 |   net_type_except_trireg optional_vectored_or_scalared strength
-    SIGNED transition_delay IDENTIFIER EQUALS_SIGN expression 
+    SIGNED transition_delay identifier EQUALS_SIGN expression 
     { }
 |   net_type_except_trireg optional_vectored_or_scalared strength
-    SIGNED IDENTIFIER EQUALS_SIGN expression 
+    SIGNED identifier EQUALS_SIGN expression 
     { }
 |   net_type_except_trireg optional_vectored_or_scalared strength
-    range transition_delay IDENTIFIER EQUALS_SIGN expression 
+    range transition_delay identifier EQUALS_SIGN expression 
     { }
 |   net_type_except_trireg optional_vectored_or_scalared strength
-    range IDENTIFIER EQUALS_SIGN expression 
+    range identifier EQUALS_SIGN expression 
     { }
 |   net_type_except_trireg optional_vectored_or_scalared strength
-    transition_delay IDENTIFIER EQUALS_SIGN expression 
+    transition_delay identifier EQUALS_SIGN expression 
     { }
 |   net_type_except_trireg optional_vectored_or_scalared strength
-    IDENTIFIER EQUALS_SIGN expression 
+    identifier EQUALS_SIGN expression 
     { }
     /* 2nd type net declarations (trireg). */
 |   TRIREG optional_vectored_or_scalared strength SIGNED range
-    transition_delay IDENTIFIER EQUALS_SIGN expression 
+    transition_delay identifier EQUALS_SIGN expression 
     { }
 |   TRIREG optional_vectored_or_scalared strength SIGNED range
-    IDENTIFIER EQUALS_SIGN expression 
+    identifier EQUALS_SIGN expression 
     { }
 |   TRIREG optional_vectored_or_scalared strength SIGNED
-    transition_delay IDENTIFIER EQUALS_SIGN expression 
+    transition_delay identifier EQUALS_SIGN expression 
     { }
-|   TRIREG optional_vectored_or_scalared strength SIGNED IDENTIFIER
+|   TRIREG optional_vectored_or_scalared strength SIGNED identifier
     EQUALS_SIGN expression 
     { }
 |   TRIREG optional_vectored_or_scalared strength range
-    transition_delay IDENTIFIER EQUALS_SIGN expression 
+    transition_delay identifier EQUALS_SIGN expression 
     { }
-|   TRIREG optional_vectored_or_scalared strength range IDENTIFIER
+|   TRIREG optional_vectored_or_scalared strength range identifier
     EQUALS_SIGN expression 
     { }
 |   TRIREG optional_vectored_or_scalared strength transition_delay
-    IDENTIFIER EQUALS_SIGN expression 
+    identifier EQUALS_SIGN expression 
     { }
-|   TRIREG optional_vectored_or_scalared strength IDENTIFIER EQUALS_SIGN
+|   TRIREG optional_vectored_or_scalared strength identifier EQUALS_SIGN
     expression 
     { }
     /* 3rd type net declarations. */
@@ -1615,9 +1623,9 @@ net_name_list:
 ;
 
 net_name: 
-    IDENTIFIER      
+    identifier      
     { }
-|   IDENTIFIER array
+|   identifier array
     { }
 ;
 
@@ -1970,7 +1978,7 @@ constant_replication: number OPENBRACES constant_concatenation_list CLOSEBRACES
     { }
 ;
 
-constant_function_call: IDENTIFIER OPENPARENTHESES
+constant_function_call: identifier OPENPARENTHESES
     constant_function_call_argument_list CLOSEPARENTHESES { }
 ;
 
@@ -1982,12 +1990,12 @@ constant_function_call_argument_list: constant_function_argument { }
 constant_function_argument: number { 
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|                           IDENTIFIER %prec IDENTIFIER_ONLY {
+|                           identifier %prec IDENTIFIER_ONLY {
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
 ;
 
-function_call: IDENTIFIER OPENPARENTHESES function_call_argument_list
+function_call: identifier OPENPARENTHESES function_call_argument_list
     CLOSEPARENTHESES { }
 ;
 
@@ -2123,11 +2131,11 @@ variable_name_list:
 ;
 
 variable_name_or_assignment: 
-    IDENTIFIER                       
+    identifier                       
     { }
-|   IDENTIFIER EQUALS_SIGN integer_or_real 
+|   identifier EQUALS_SIGN integer_or_real 
     { }
-|   IDENTIFIER array                 
+|   identifier array                 
     { }
 ;
 
@@ -2236,13 +2244,13 @@ constant_assignment_list:
 /* Constants may contain integers, real numbers, time, delays, or ASCII */
 /* strings. */
 constant_assignment: 
-    IDENTIFIER EQUALS_SIGN number 
+    identifier EQUALS_SIGN number 
     { 
         #ifdef SYNTAX_DEBUG
             printf("constant "); 
         #endif
     }
-|   IDENTIFIER EQUALS_SIGN IDENTIFIER    
+|   identifier EQUALS_SIGN identifier    
     { 
         #ifdef SYNTAX_DEBUG
             printf("constant "); 
@@ -2278,13 +2286,13 @@ constant_type:
 ;
 
 assignment: 
-    IDENTIFIER EQUALS_SIGN expression 
+    identifier EQUALS_SIGN expression 
     { 
         #ifdef SYNTAX_DEBUG
             printf("assignment "); 
         #endif
     }
-|   IDENTIFIER EQUALS_SIGN array_select
+|   identifier EQUALS_SIGN array_select
     { 
         #ifdef SYNTAX_DEBUG
             printf("array_select_assignment "); 
@@ -2302,13 +2310,13 @@ assignment:
 /* delay , strength and size are optional */
 continuous_assignment: 
     /* Explicit Continuous Assignment */
-    ASSIGN transition_delay IDENTIFIER EQUALS_SIGN expression 
+    ASSIGN transition_delay identifier EQUALS_SIGN expression 
     {
         #ifdef SYNTAX_DEBUG
             printf("explicit_continuous_assignment\n"); 
         #endif
     }
-|   ASSIGN IDENTIFIER EQUALS_SIGN expression
+|   ASSIGN identifier EQUALS_SIGN expression
     {
         #ifdef SYNTAX_DEBUG
             printf("explicit_continuous_assignment\n"); 
@@ -2658,21 +2666,21 @@ replication:
 /* be a literal number, a constant or a call to a constant function. */
 bit_select: 
     /* Bit Select (1st type). */
-    IDENTIFIER index 
+    identifier index 
     { 
         #ifdef SYNTAX_DEBUG
             printf("bit_select ");
         #endif
     }
     /* Constant Part Select (2nd type). */
-|   IDENTIFIER OPENBRACKETS bit_number COLON bit_number CLOSEBRACKETS
+|   identifier OPENBRACKETS bit_number COLON bit_number CLOSEBRACKETS
     { 
         #ifdef SYNTAX_DEBUG
             printf("constant_part_select ");
         #endif
     }
     /* Variable Part Select 1 (3rd type). */
-|   IDENTIFIER OPENBRACKETS bit_number PLUS COLON part_select_width 
+|   identifier OPENBRACKETS bit_number PLUS COLON part_select_width 
     CLOSEBRACKETS 
     { 
         #ifdef SYNTAX_DEBUG
@@ -2680,7 +2688,7 @@ bit_select:
         #endif
     }
     /* Variable Part Select 2 (4th type). */
-|   IDENTIFIER OPENBRACKETS bit_number MINUS COLON part_select_width 
+|   identifier OPENBRACKETS bit_number MINUS COLON part_select_width 
     CLOSEBRACKETS 
     { 
         #ifdef SYNTAX_DEBUG
@@ -2695,14 +2703,14 @@ index: OPENBRACKETS bit_number CLOSEBRACKETS { }
 /* The bit number must be a literal number or a constant. */
 bit_number: 
     num_integer
-|   IDENTIFIER 
+|   identifier 
 ;
 
 /* The width of the part select must be a literal number, a constant or a */
 /* call to a constant function. */
 part_select_width: 
     num_integer                   
-|   IDENTIFIER                    
+|   identifier                    
 |   constant_function_call        
 ;
 
@@ -2719,16 +2727,16 @@ part_select_width:
 /* expression. */
 array_select: 
     /* 1st and 2nd type array selects. */
-    IDENTIFIER array_index_list 
+    identifier array_index_list 
     { }
     /* 3rd type array selects. */
-|   IDENTIFIER array_index_list OPENBRACKETS bit_number COLON bit_number 
+|   identifier array_index_list OPENBRACKETS bit_number COLON bit_number 
     CLOSEBRACKETS 
     { }
-|   IDENTIFIER array_index_list OPENBRACKETS bit_number PLUS COLON
+|   identifier array_index_list OPENBRACKETS bit_number PLUS COLON
     part_select_width CLOSEBRACKETS 
     { }
-|   IDENTIFIER array_index_list OPENBRACKETS bit_number MINUS COLON
+|   identifier array_index_list OPENBRACKETS bit_number MINUS COLON
     part_select_width CLOSEBRACKETS 
     { }
 ;
@@ -2757,7 +2765,7 @@ array_index_list:
 
 module_instances:
     /* 1st and 2st type module instances */
-    IDENTIFIER IDENTIFIER range OPENPARENTHESES connections CLOSEPARENTHESES 
+    identifier identifier range OPENPARENTHESES connections CLOSEPARENTHESES 
     { 
         #ifdef SYNTAX_DEBUG
             printf("module_instance ");
@@ -2774,7 +2782,7 @@ module_instances:
             current_head = addMcell(current_head, returned_value);        
         }
     }
-|   IDENTIFIER IDENTIFIER OPENPARENTHESES connections CLOSEPARENTHESES 
+|   identifier identifier OPENPARENTHESES connections CLOSEPARENTHESES 
     { 
         #ifdef SYNTAX_DEBUG
             printf("module_instance ");
@@ -2792,11 +2800,11 @@ module_instances:
         }
     }
     /* 3st type module instances (explicit parameter redefinition) */
-|   DEFPARAM IDENTIFIER PERIOD IDENTIFIER EQUALS_SIGN number 
+|   DEFPARAM identifier PERIOD identifier EQUALS_SIGN number 
     { }
     /* 4st and 5st type module instances(implicit and explicit) */
-|   IDENTIFIER HASH OPENPARENTHESES redefinition_list CLOSEPARENTHESES 
-    IDENTIFIER OPENPARENTHESES connections CLOSEPARENTHESES 
+|   identifier HASH OPENPARENTHESES redefinition_list CLOSEPARENTHESES 
+    identifier OPENPARENTHESES connections CLOSEPARENTHESES 
     { 
         #ifdef SYNTAX_DEBUG
             printf("module_instance ");
@@ -2815,7 +2823,7 @@ redefinition_list:
 redefinition_value: 
     number 
     { }
-|   PERIOD IDENTIFIER OPENPARENTHESES number CLOSEPARENTHESES 
+|   PERIOD identifier OPENPARENTHESES number CLOSEPARENTHESES 
     { }
 ;
 
@@ -2844,7 +2852,7 @@ signal:
 /* and signal connected to it, in any order. */
 port_name_connection:                      
     /* No signal to port (.port_name()) */
-    PERIOD IDENTIFIER OPENPARENTHESES signal_values CLOSEPARENTHESES 
+    PERIOD identifier OPENPARENTHESES signal_values CLOSEPARENTHESES 
     { }
 ;
 
@@ -2854,7 +2862,7 @@ port_name_connection:
 /* connection or nothing */
 signal_values:
 |   scalar_constant               
-|   IDENTIFIER                    
+|   identifier                    
 |   bit_select           
 |   array_select         
 |   vector_signal                 
@@ -2886,10 +2894,10 @@ vector_signal:
 /* specified. */
 primitive_instance: 
     /* 1st type primitive instances. */
-    gate_type strength transition_delay IDENTIFIER range OPENPARENTHESES 
+    gate_type strength transition_delay identifier range OPENPARENTHESES 
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
-|   gate_type strength transition_delay IDENTIFIER OPENPARENTHESES 
+|   gate_type strength transition_delay identifier OPENPARENTHESES 
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
 |   gate_type strength transition_delay range OPENPARENTHESES 
@@ -2898,10 +2906,10 @@ primitive_instance:
 |   gate_type strength transition_delay OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
-|   gate_type strength IDENTIFIER range OPENPARENTHESES
+|   gate_type strength identifier range OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
-|   gate_type strength IDENTIFIER OPENPARENTHESES
+|   gate_type strength identifier OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
 |   gate_type strength range OPENPARENTHESES
@@ -2910,10 +2918,10 @@ primitive_instance:
 |   gate_type strength OPENPARENTHESES nonempty_identifier_list
     CLOSEPARENTHESES 
     { }
-|   gate_type transition_delay IDENTIFIER range OPENPARENTHESES
+|   gate_type transition_delay identifier range OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
-|   gate_type transition_delay IDENTIFIER OPENPARENTHESES
+|   gate_type transition_delay identifier OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
 |   gate_type transition_delay range OPENPARENTHESES
@@ -2922,10 +2930,10 @@ primitive_instance:
 |   gate_type transition_delay OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
-|   gate_type IDENTIFIER range OPENPARENTHESES
+|   gate_type identifier range OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
-|   gate_type IDENTIFIER OPENPARENTHESES
+|   gate_type identifier OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
 |   gate_type range OPENPARENTHESES nonempty_identifier_list
@@ -2935,10 +2943,10 @@ primitive_instance:
     CLOSEPARENTHESES 
     { }
     /* 2nd type primitive instances. */
-|   switch_type transition_delay IDENTIFIER range OPENPARENTHESES 
+|   switch_type transition_delay identifier range OPENPARENTHESES 
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
-|   switch_type transition_delay IDENTIFIER OPENPARENTHESES
+|   switch_type transition_delay identifier OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
 |   switch_type transition_delay range OPENPARENTHESES
@@ -2947,10 +2955,10 @@ primitive_instance:
 |   switch_type transition_delay OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
-|   switch_type IDENTIFIER range OPENPARENTHESES
+|   switch_type identifier range OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
-|   switch_type IDENTIFIER OPENPARENTHESES
+|   switch_type identifier OPENPARENTHESES
     nonempty_identifier_list CLOSEPARENTHESES 
     { }
 |   switch_type range OPENPARENTHESES nonempty_identifier_list
@@ -3065,7 +3073,7 @@ statement_group:
 /* NOTE: BEGIN is a keyword reserved for start conditions in flex. */
 /* BEGIN_TOKEN is used as the Verilog token instead. */
 named_begin_group: 
-    BEGIN_TOKEN COLON IDENTIFIER named_group_procedural_statements END 
+    BEGIN_TOKEN COLON identifier named_group_procedural_statements END 
     { }
 ;
 
@@ -3075,7 +3083,7 @@ unnamed_begin_group:
 ;
 
 named_fork_group: 
-    FORK COLON IDENTIFIER named_group_procedural_statements JOIN
+    FORK COLON identifier named_group_procedural_statements JOIN
     { }
 ;
 
@@ -3097,7 +3105,7 @@ named_group_procedural_statement:
     /* Local variable declaration. */
     variable_declaration SEMICOLON    
     { }
-|   DISABLE IDENTIFIER SEMICOLON      
+|   DISABLE identifier SEMICOLON      
     { }
 |   time_control procedural_statement 
     { }
@@ -3151,7 +3159,7 @@ time_control:
     { }
     /* Parenthesis are not required when there is only one signal in
     the list and no edge is specified. */
-|   AT IDENTIFIER 
+|   AT identifier 
     { }
     /* 4th type procedural time control. */
 |   AT ASTERISK 
@@ -3177,8 +3185,8 @@ procedural_time_conrol_signal_list:
 /* edge is optional maybe either 'posedge' or 'negedge'. If no edge is */
 /* specified, then any logic transition is used. */
 procedural_time_conrol_signal: 
-    edge IDENTIFIER 
-|   IDENTIFIER      
+    edge identifier 
+|   identifier      
 ;
 
 procedural_statement: 
@@ -3186,7 +3194,7 @@ procedural_statement:
     { }
 |   procedural_programming_statement                   
     { }
-|   TRIGGER_EVENT_OPERATOR IDENTIFIER SEMICOLON        
+|   TRIGGER_EVENT_OPERATOR identifier SEMICOLON        
     { }
 ;
 
@@ -3245,7 +3253,7 @@ procedural_assignment_statement:
 ;
 
 variable_or_bit_select: 
-    IDENTIFIER 
+    identifier 
 |   bit_select 
 ;
 
@@ -3403,7 +3411,7 @@ signal_list_with_edge:
 ;
 
 signal_with_edge:
-    edge IDENTIFIER 
+    edge identifier 
     { }
 ;
 
@@ -3473,7 +3481,7 @@ specparam_assignment_list:
 ;
 
 specparam_assignment:
-    IDENTIFIER EQUALS_SIGN transition_delay_unit 
+    identifier EQUALS_SIGN transition_delay_unit 
     { }
 |   pulse_control_specparam 
     { }
@@ -3499,7 +3507,7 @@ pulse_propagation:
     /* pulsestyle_onevent list_of_path_outputs; */
     PULSESTYLE_ONEVENT SEMICOLON
     { }
-|   PULSESTYLE_ONEVENT IDENTIFIER SEMICOLON
+|   PULSESTYLE_ONEVENT identifier SEMICOLON
     { }
 |   PULSESTYLE_ONEVENT OPENPARENTHESES nonempty_identifier_list 
     CLOSEPARENTHESES SEMICOLON
@@ -3508,7 +3516,7 @@ pulse_propagation:
     /* pulsestyle_ondetect list_of_path_outputs; */
 |   PULSESTYLE_ONDETECT SEMICOLON
     { }
-|   PULSESTYLE_ONDETECT IDENTIFIER SEMICOLON
+|   PULSESTYLE_ONDETECT identifier SEMICOLON
     { }
 |   PULSESTYLE_ONDETECT OPENPARENTHESES nonempty_identifier_list 
     CLOSEPARENTHESES SEMICOLON
@@ -3517,7 +3525,7 @@ pulse_propagation:
     /* showcancelled list_of_path_outputs; */
 |   SHOWCANCELLED SEMICOLON
     { }
-|   SHOWCANCELLED IDENTIFIER SEMICOLON
+|   SHOWCANCELLED identifier SEMICOLON
     { }
 |   SHOWCANCELLED OPENPARENTHESES nonempty_identifier_list 
     CLOSEPARENTHESES SEMICOLON
@@ -3526,7 +3534,7 @@ pulse_propagation:
     /* noshowcancelled list_of_path_outputs; */
 |   NOSHOWCANCELLED SEMICOLON
     { }
-|   NOSHOWCANCELLED IDENTIFIER SEMICOLON
+|   NOSHOWCANCELLED identifier SEMICOLON
     { }
 |   NOSHOWCANCELLED OPENPARENTHESES nonempty_identifier_list 
     CLOSEPARENTHESES SEMICOLON
@@ -3543,8 +3551,8 @@ simple_path_delay:
 
 /* (edge input_port path_token (output_port polarity:source)) = (delay); */
 edge_sensitive_path_delay:
-    OPENPARENTHESES edge IDENTIFIER path_token 
-    OPENPARENTHESES IDENTIFIER polarity COLON IDENTIFIER 
+    OPENPARENTHESES edge identifier path_token 
+    OPENPARENTHESES identifier polarity COLON identifier 
     CLOSEPARENTHESES CLOSEPARENTHESES EQUALS_SIGN path_delay 
     SEMICOLON 
     { }
@@ -3596,15 +3604,15 @@ path_delay:
     { }
 |   OPENPARENTHESES transition_delay_unit CLOSEPARENTHESES
     { }
-|   IDENTIFIER 
+|   identifier 
     { }
-|   OPENPARENTHESES IDENTIFIER CLOSEPARENTHESES
+|   OPENPARENTHESES identifier CLOSEPARENTHESES
 
     /* rise, fall output transitions */
 |   OPENPARENTHESES transition_delay_unit COMMA 
     transition_delay_unit CLOSEPARENTHESES 
     { }
-|   OPENPARENTHESES IDENTIFIER COMMA IDENTIFIER CLOSEPARENTHESES 
+|   OPENPARENTHESES identifier COMMA identifier CLOSEPARENTHESES 
     { }
 
     /* rise, fall, turn-off output transitions */
@@ -3612,7 +3620,7 @@ path_delay:
     transition_delay_unit COMMA transition_delay_unit 
     CLOSEPARENTHESES 
     { }
-|   OPENPARENTHESES IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER 
+|   OPENPARENTHESES identifier COMMA identifier COMMA identifier 
     CLOSEPARENTHESES 
     { }
     
@@ -3622,8 +3630,8 @@ path_delay:
     COMMA transition_delay_unit COMMA transition_delay_unit COMMA 
     transition_delay_unit CLOSEPARENTHESES 
     { }
-|   OPENPARENTHESES IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER 
-    COMMA IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER 
+|   OPENPARENTHESES identifier COMMA identifier COMMA identifier 
+    COMMA identifier COMMA identifier COMMA identifier 
     CLOSEPARENTHESES 
     { }
        
@@ -3637,10 +3645,10 @@ path_delay:
     COMMA transition_delay_unit COMMA transition_delay_unit
     COMMA transition_delay_unit
     { }
-|   OPENPARENTHESES IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER 
-    COMMA IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER 
-    COMMA IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER
-    COMMA IDENTIFIER COMMA IDENTIFIER COMMA IDENTIFIER
+|   OPENPARENTHESES identifier COMMA identifier COMMA identifier 
+    COMMA identifier COMMA identifier COMMA identifier 
+    COMMA identifier COMMA identifier COMMA identifier
+    COMMA identifier COMMA identifier COMMA identifier
     { }
 
 ;
@@ -3862,28 +3870,28 @@ timing_checks:
 /* tracking timing violations on the data_event. The type is module input or */
 /* inout that is scalar or vector net. */
 reference_event:
-    timing_check_event_control IDENTIFIER THREE_AND 
+    timing_check_event_control identifier THREE_AND 
     scalar_timing_check_condition
     { }
-|   timing_check_event_control IDENTIFIER 
+|   timing_check_event_control identifier 
     { }
-|   IDENTIFIER THREE_AND scalar_timing_check_condition
+|   identifier THREE_AND scalar_timing_check_condition
     { }
-|   IDENTIFIER
+|   identifier
     { }
 ;
 
 /* The signal change that initiates the timing check and is monitored for */
 /* violations. The type is module input or inout that is scalar or vector net */
 data_event:
-    timing_check_event_control IDENTIFIER THREE_AND 
+    timing_check_event_control identifier THREE_AND 
     scalar_timing_check_condition
     { }
-|   timing_check_event_control IDENTIFIER 
+|   timing_check_event_control identifier 
     { }
-|   IDENTIFIER THREE_AND scalar_timing_check_condition
+|   identifier THREE_AND scalar_timing_check_condition
     { }
-|   IDENTIFIER
+|   identifier
     { }
 ;
 
@@ -3976,7 +3984,7 @@ timing_check_limit:
 /* notifier (optional) is a 1-bit reg variable that is automatically */
 /* toggled whenever the timing check detects a violation. */
 notifier:
-    IDENTIFIER 
+    identifier 
 ;
 
 /* stamptime_condition (optional) is condition for enabling or disabling */
@@ -3994,15 +4002,15 @@ checktime_condition:
 /* delayed_ref (optional) is delayed signal for negative timing checks. */
 /* This argument was added in Verilog-2001. */
 delayed_ref: 
-    IDENTIFIER 
-|   IDENTIFIER mintypemax_expression 
+    identifier 
+|   identifier mintypemax_expression 
 ;
 
 /* delayed_data (optional) is delayed signal for negative timing checks. */
 /* This argument was added in Verilog-2001. */
 delayed_data:
-    IDENTIFIER 
-|   IDENTIFIER mintypemax_expression 
+    identifier 
+|   identifier mintypemax_expression 
 ;
 
 /* event_based_flag (optional) when set, causes the timing check to be event */
@@ -4066,7 +4074,7 @@ width_threshold:
 
 udp_declaration: 
     /* 1st type: (added in Verilog 2001) */
-    PRIMITIVE IDENTIFIER OPENPARENTHESES udp_port_list CLOSEPARENTHESES 
+    PRIMITIVE identifier OPENPARENTHESES udp_port_list CLOSEPARENTHESES 
     SEMICOLON udp_port_declaration_body udp_body ENDPRIMITIVE
     { 
         #ifdef SYNTAX_DEBUG
@@ -4074,7 +4082,7 @@ udp_declaration:
         #endif
     }
     /* 2nd type: (old style port list) */
-|   PRIMITIVE IDENTIFIER OPENPARENTHESES udp_declaration_port_list 
+|   PRIMITIVE identifier OPENPARENTHESES udp_declaration_port_list 
     CLOSEPARENTHESES SEMICOLON udp_body ENDPRIMITIVE
     { 
         #ifdef SYNTAX_DEBUG
@@ -4106,19 +4114,19 @@ udp_port_declaration:
 ;
 
 udp_output_declaration:
-    OUTPUT IDENTIFIER
+    OUTPUT identifier
     { 
         #ifdef SYNTAX_DEBUG
             printf("output identifier ");
         #endif
     }
-|   OUTPUT REG IDENTIFIER
+|   OUTPUT REG identifier
     {
         #ifdef SYNTAX_DEBUG
             printf("output reg identifier ");
         #endif
     }
-|   OUTPUT REG IDENTIFIER EQUALS_SIGN expression
+|   OUTPUT REG identifier EQUALS_SIGN expression
     { 
         #ifdef SYNTAX_DEBUG
             printf("output reg identifier equal expression ");
@@ -4132,7 +4140,7 @@ udp_input_declaration:
 ;
 
 udp_input_single_declaration:
-    INPUT IDENTIFIER
+    INPUT identifier
     { 
         #ifdef SYNTAX_DEBUG
             printf("input identifier ");
@@ -4141,7 +4149,7 @@ udp_input_single_declaration:
 ;
 
 udp_reg_declaration:
-    REG IDENTIFIER
+    REG identifier
     { 
         #ifdef SYNTAX_DEBUG
             printf("reg identifier ");
@@ -4155,7 +4163,7 @@ udp_declaration_port_list:
 ;
 
 udp_input_declaration_list:
-    COMMA IDENTIFIER
+    COMMA identifier
     { 
         #ifdef SYNTAX_DEBUG
             printf("comma identifier ");
@@ -4166,7 +4174,7 @@ udp_input_declaration_list:
 |   udp_input_declaration_list COMMA udp_input_single_declaration
     {
     }
-|   udp_input_declaration_list COMMA IDENTIFIER
+|   udp_input_declaration_list COMMA identifier
     { 
         #ifdef SYNTAX_DEBUG
             printf("comma identifier ");
@@ -4175,6 +4183,141 @@ udp_input_declaration_list:
 ;
 
 udp_body:
+    combinational_body
+    { }
+|   sequential_body
+    { }
+;
+
+combinational_body:
+    TABLE combinational_entry_list ENDTABLE
+    { }
+;
+
+sequential_body:
+    udp_initial_statement TABLE sequential_entry_list ENDTABLE
+    { }
+|   TABLE sequential_entry_list ENDTABLE
+    { }
+;
+
+combinational_entry_list:
+    combinational_entry
+    { }
+|   combinational_entry_list combinational_entry
+    { }
+;
+
+sequential_entry_list:
+    sequential_entry
+    { }
+|   sequential_entry_list sequential_entry
+    { }
+;
+
+combinational_entry:
+    level_input_list COLON output_symbol SEMICOLON
+    { }
+;
+
+sequential_entry:
+    seq_input_list COLON current_state COLON next_state SEMICOLON
+    { }
+;
+
+seq_input_list:
+    level_input_list
+    { }
+|   edge_input_list
+    { } 
+; 
+
+level_input_list:
+    level_symbol
+    { }
+|   level_input_list level_symbol
+    { }
+;
+
+edge_input_list:
+    level_input_list edge_indicator level_input_list
+    { }
+|   level_input_list edge_indicator
+    { }
+|   edge_indicator level_input_list
+    { }
+;
+
+edge_indicator:
+    OPENPARENTHESES spesial_symbols CLOSEPARENTHESES
+    { }
+|   edge_symbol
+    { }
+;
+
+current_state:
+    level_symbol
+;
+
+next_state:
+    output_symbol
+|   MINUS
+;
+
+output_symbol:
+    ZERO
+|   ONE
+|   X_LOW
+|   X_UPPER
+;
+
+level_symbol:
+    ZERO
+|   ONE
+|   X_LOW
+|   X_UPPER
+|   QUESTION_MARK
+|   B_LOW
+|   B_UPPER
+;
+
+edge_symbol:
+    R_LOW
+|   R_UPPER
+|   F_LOW
+|   F_UPPER
+|   P_LOW
+|   P_UPPER
+|   N_LOW
+|   N_UPPER
+|   ASTERISK
+;
+
+spesial_symbols:
+    ZERO_ONE
+|   ONE_ZERO
+|   ZERO_X_UPPER
+|   ONE_X_UPPER
+|   X_ZERO_UPPER
+|   X_ONE_UPPER
+;
+
+/* initial = output_port_identifier = init_val; */
+udp_initial_statement:
+    INITIAL_TOKEN identifier EQUALS_SIGN init_val 
+;
+
+init_val:
+    ONE_BIN_ZERO_LOW
+|   ONE_BIN_ONE_LOW
+|   ONE_BIN_ZERO_UPPER
+|   ONE_BIN_ONE_UPPER
+|   ONE_BIN_X_LOW_LOW
+|   ONE_BIN_X_LOW_UPPER 
+|   ONE_BIN_X_UPPER_LOW
+|   ONE_BIN_X_UPPER_UPPER
+|   ONE
+|   ZERO
 ;
 
 
@@ -4204,6 +4347,10 @@ number:
 |   NUM_INTEGER        
 |   ZERO_ONE           
 |   ONE_ZERO           
+|   ONE_BIN_X_LOW_LOW
+|   ONE_BIN_X_LOW_UPPER
+|   ONE_BIN_X_UPPER_LOW
+|   ONE_BIN_X_UPPER_UPPER
 ;
 
 num_integer:
@@ -4212,6 +4359,22 @@ num_integer:
 |   ZERO 
 |   ZERO_ONE 
 |   ONE_ZERO 
+;
+
+identifier:
+    IDENTIFIER
+|   X_LOW
+|   X_UPPER
+|   B_LOW
+|   B_UPPER
+|   R_LOW
+|   R_UPPER
+|   F_LOW
+|   F_UPPER
+|   P_LOW
+|   P_UPPER
+|   N_LOW
+|   N_UPPER
 ;
 
 %%
