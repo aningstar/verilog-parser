@@ -1,4 +1,4 @@
-Parsing Gate-Level Verilog Netlists (.v) in C
+Parsing Gate-Level Verilog Netlists (.v)
 ===
 
 The current version of parser supports:
