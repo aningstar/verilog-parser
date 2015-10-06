@@ -287,11 +287,15 @@ module_items: /* empty */
 
 nonempty_identifier_list: 
     IDENTIFIER 
-    { }
+    { 
+         #ifdef SYNTAX_DEBUG
+             printf("identifier ");
+         #endif
+    }
 |   nonempty_identifier_list COMMA IDENTIFIER
     { 
          #ifdef SYNTAX_DEBUG
-             printf("nonempty_identifier_list ");
+             printf("comma identifier ");
          #endif
     }
 ;
@@ -1305,7 +1309,8 @@ port_declaration:
     { }
 ;
 
-module_port_declaration: port_direction port_type SIGNED range IDENTIFIER 
+module_port_declaration: 
+    port_direction port_type SIGNED range IDENTIFIER 
     %prec PORT_DECLARATION_PRECEDENCE 
     { }
 |   port_direction port_type SIGNED IDENTIFIER 
@@ -4102,11 +4107,23 @@ udp_port_declaration:
 
 udp_output_declaration:
     OUTPUT IDENTIFIER
-    { }
+    { 
+        #ifdef SYNTAX_DEBUG
+            printf("output identifier ");
+        #endif
+    }
 |   OUTPUT REG IDENTIFIER
-    { }
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("output reg identifier ");
+        #endif
+    }
 |   OUTPUT REG IDENTIFIER EQUALS_SIGN expression
-    { }
+    { 
+        #ifdef SYNTAX_DEBUG
+            printf("output reg identifier equal expression ");
+        #endif
+    }
 ;
 
 udp_input_declaration:
@@ -4114,12 +4131,22 @@ udp_input_declaration:
     { }
 ;
 
-udp_reg_declaration:
-    REG IDENTIFIER
-    { }
+udp_input_single_declaration:
+    INPUT IDENTIFIER
+    { 
+        #ifdef SYNTAX_DEBUG
+            printf("input identifier ");
+        #endif
+    }
 ;
 
-udp_body:
+udp_reg_declaration:
+    REG IDENTIFIER
+    { 
+        #ifdef SYNTAX_DEBUG
+            printf("reg identifier ");
+        #endif
+    }
 ;
 
 udp_declaration_port_list:
@@ -4128,11 +4155,28 @@ udp_declaration_port_list:
 ;
 
 udp_input_declaration_list:
-    udp_input_declaration
+    COMMA IDENTIFIER
+    { 
+        #ifdef SYNTAX_DEBUG
+            printf("comma identifier ");
+        #endif
+    }
+|   udp_input_single_declaration
     { }
-|   udp_input_declaration_list COMMA udp_input_declaration
-    { }
+|   udp_input_declaration_list COMMA udp_input_single_declaration
+    {
+    }
+|   udp_input_declaration_list COMMA IDENTIFIER
+    { 
+        #ifdef SYNTAX_DEBUG
+            printf("comma identifier ");
+        #endif
+    }
 ;
+
+udp_body:
+;
+
 
 /*                TODO                  */
 /* This maybe is included to expression */
