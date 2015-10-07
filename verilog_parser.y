@@ -4043,6 +4043,13 @@ width_threshold:
     expression 
 ;
 
+/*                TODO                  */
+/* This maybe is included to expression */
+mintypemax_expression:
+    expression 
+|   expression COLON expression COLON expression 
+;
+
 /*           Udp declaration             */
 /*****************************************/
 /* There are 2 types of udp declarations */
@@ -4318,14 +4325,6 @@ init_val:
 |   ONE_BIN_X_UPPER_UPPER
 |   ONE
 |   ZERO
-;
-
-
-/*                TODO                  */
-/* This maybe is included to expression */
-mintypemax_expression:
-    expression 
-|   expression COLON expression COLON expression 
 ;
 
 integer_or_real: 
