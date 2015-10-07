@@ -165,6 +165,66 @@ inside them. */
 "$width"              { return WIDTH; }
 "$nochange"           { return NOCHANGE; }
 
+    /* Text Output System Tasks */
+"$display"            { return SYSTEM_IDENTIFIER; }
+"$displayb"           { return SYSTEM_IDENTIFIER; }
+"$displayo"           { return SYSTEM_IDENTIFIER; }
+"$displayh"           { return SYSTEM_IDENTIFIER; }
+
+"$write"              { return SYSTEM_IDENTIFIER; }
+"$writeb"             { return SYSTEM_IDENTIFIER; }
+"$writeo"             { return SYSTEM_IDENTIFIER; }
+"$writeh"             { return SYSTEM_IDENTIFIER; }
+
+"$strobe"             { return SYSTEM_IDENTIFIER; }
+"$strobeb"            { return SYSTEM_IDENTIFIER; }
+"$strobeo"            { return SYSTEM_IDENTIFIER; }
+"$strobeh"            { return SYSTEM_IDENTIFIER; }
+
+"$monitor"            { return SYSTEM_IDENTIFIER; }
+"$monitorb"           { return SYSTEM_IDENTIFIER; }
+"$monitoro"           { return SYSTEM_IDENTIFIER; }
+"$monitorh"           { return SYSTEM_IDENTIFIER; }
+
+    /* File I/O System Tasks and Functions */
+"$fopen"              { return SYSTEM_IDENTIFIER; }
+"$fclose"             { return SYSTEM_IDENTIFIER; }
+"$fmonitor"           { return SYSTEM_IDENTIFIER; }
+"$fdisplay"           { return SYSTEM_IDENTIFIER; }
+"$fwrite"             { return SYSTEM_IDENTIFIER; }
+"$fstrobe"            { return SYSTEM_IDENTIFIER; }
+"$fgetc"              { return SYSTEM_IDENTIFIER; }
+"$ungetc"             { return SYSTEM_IDENTIFIER; }
+"$fgets"              { return SYSTEM_IDENTIFIER; }
+"$fscanf"             { return SYSTEM_IDENTIFIER; }
+"$fread"              { return SYSTEM_IDENTIFIER; }
+"$ftell"              { return SYSTEM_IDENTIFIER; }
+"$fseek"              { return SYSTEM_IDENTIFIER; }
+"$rewind"             { return SYSTEM_IDENTIFIER; }
+"$ferror"             { return SYSTEM_IDENTIFIER; }
+"$fflush"             { return SYSTEM_IDENTIFIER; }
+
+    /* Other Common System Tasks and Functions */
+"$finish"             { return SYSTEM_IDENTIFIER; }
+"$stop"               { return SYSTEM_IDENTIFIER; }
+"$time"               { return SYSTEM_IDENTIFIER; }
+"$stime"              { return SYSTEM_IDENTIFIER; }
+"$realtime"           { return SYSTEM_IDENTIFIER; }
+"$timeformat"         { return SYSTEM_IDENTIFIER; }
+"$printtimescale"     { return SYSTEM_IDENTIFIER; }
+"$swrite"             { return SYSTEM_IDENTIFIER; }
+"$swriteb"            { return SYSTEM_IDENTIFIER; }
+"$swriteo"            { return SYSTEM_IDENTIFIER; }
+"$swrited"            { return SYSTEM_IDENTIFIER; }
+"$sformat"            { return SYSTEM_IDENTIFIER; }
+"$sscanf"             { return SYSTEM_IDENTIFIER; }
+"$readmemb"           { return SYSTEM_IDENTIFIER; }
+"$readmemh"           { return SYSTEM_IDENTIFIER; }
+"$realtobits"         { return SYSTEM_IDENTIFIER; }
+"$bitstoreal"         { return SYSTEM_IDENTIFIER; }
+"$test$plusargs"      { return SYSTEM_IDENTIFIER; }
+"$value$plusargs"     { return SYSTEM_IDENTIFIER; }
+
     /* Match Verilog 2001 comments. Tokens are not returned for comments (so
 that comments are invisible to the parser). */
 <INITIAL>{
@@ -279,7 +339,6 @@ that comments are invisible to the parser). */
                                                    }
 
 [\\][^\n\t ]+                                      { return IDENTIFIER; }
-"$"[a-zA-Z0-9_$]*                                  { return SYSTEM_IDENTIFIER; }
  
     /* Match Verilog 2001 real numbers. */
 [0-9]+[.][0-9][0-9_]*                              { return REALV; }
