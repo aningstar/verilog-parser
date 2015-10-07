@@ -16,7 +16,6 @@
 /* Token declarations */
 
 %token <name> IDENTIFIER
-%token SYSTEM_IDENTIFIER
 %token NUM_INTEGER REALV
 /* Verilog 2001 unsigned literals. */
 %token UNSIG_BIN UNSIG_OCT UNSIG_DEC UNSIG_HEX
@@ -1163,10 +1162,10 @@ disable_statement:
 ;
 
 system_task_enable: 
-    SYSTEM_IDENTIFIER OPENPARENTHESES nonempty_expression_list_with_commas 
+    system_identifier OPENPARENTHESES nonempty_expression_list_with_commas 
     CLOSEPARENTHESES 
     { }
-|   SYSTEM_IDENTIFIER %prec SYSTEM_TASK_ENABLE_WITHOUT_EXPRESSIONS_PRECEDENCE 
+|   system_identifier %prec SYSTEM_TASK_ENABLE_WITHOUT_EXPRESSIONS_PRECEDENCE 
     { }
 ;
 
@@ -4368,6 +4367,60 @@ num_integer:
 |   ZERO 
 |   ZERO_ONE 
 |   ONE_ZERO 
+;
+
+system_identifier:
+    F_DISPLAY 
+|   F_DISPLAYB 
+|   F_DISPLAYO 
+|   F_DISPLAYH 
+|   F_WRITE 
+|   F_WRITEB 
+|   F_WRITEO   
+|   F_WRITEH 
+|   F_STROBE 
+|   F_STROBEB 
+|   F_STROBEO 
+|   F_STROBEH 
+|   F_MONITOR 
+|   F_MONITORB 
+|   F_MONITORO 
+|   F_MONITORH  
+|   F_FOPEN 
+|   F_FCLOSE 
+|   F_FMONITOR 
+|   F_FDISPLAY 
+|   F_FWRITE 
+|   F_FSTROBE 
+|   F_FGETC 
+|   F_UNGETC 
+|   F_FGETS 
+|   F_FSCANF 
+|   F_FREAD 
+|   F_FTELL 
+|   F_FSEEK 
+|   F_REWIND 
+|   F_FERROR 
+|   F_FFLUSH 
+|   F_FINISH 
+|   F_STOP 
+|   F_TIME 
+|   F_STIME 
+|   F_REALTIME  
+|   F_TIMEFORMAT 
+|   F_PRINTTIMESCALE 
+|   F_SWRITE 
+|   F_SWRITEB 
+|   F_SWRITEO 
+|   F_SWRITED 
+|   F_SFORMAT 
+|   F_SSCANF 
+|   F_READMEMB 
+|   F_READMEMH 
+|   F_REALTOBITS 
+|   F_BITSTOREAL 
+|   F_TEST_PLUSARGS 
+|   F_VALUE_PLUSARGS
 ;
 
 identifier:
