@@ -166,64 +166,64 @@ inside them. */
 "$nochange"           { return NOCHANGE; }
 
     /* Text Output System Tasks */
-"$display"            { return SYSTEM_IDENTIFIER; }
-"$displayb"           { return SYSTEM_IDENTIFIER; }
-"$displayo"           { return SYSTEM_IDENTIFIER; }
-"$displayh"           { return SYSTEM_IDENTIFIER; }
-
-"$write"              { return SYSTEM_IDENTIFIER; }
-"$writeb"             { return SYSTEM_IDENTIFIER; }
-"$writeo"             { return SYSTEM_IDENTIFIER; }
-"$writeh"             { return SYSTEM_IDENTIFIER; }
-
-"$strobe"             { return SYSTEM_IDENTIFIER; }
-"$strobeb"            { return SYSTEM_IDENTIFIER; }
-"$strobeo"            { return SYSTEM_IDENTIFIER; }
-"$strobeh"            { return SYSTEM_IDENTIFIER; }
-
-"$monitor"            { return SYSTEM_IDENTIFIER; }
-"$monitorb"           { return SYSTEM_IDENTIFIER; }
-"$monitoro"           { return SYSTEM_IDENTIFIER; }
-"$monitorh"           { return SYSTEM_IDENTIFIER; }
+"$display"            { return F_DISPLAY;  }
+"$displayb"           { return F_DISPLAYB; }
+"$displayo"           { return F_DISPLAYO; }
+"$displayh"           { return F_DISPLAYH; }
+                                       
+"$write"              { return F_WRITE;    }
+"$writeb"             { return F_WRITEB;   }
+"$writeo"             { return F_WRITEO;   }
+"$writeh"             { return F_WRITEH;   }
+                                       
+"$strobe"             { return F_STROBE;   }
+"$strobeb"            { return F_STROBEB;  }
+"$strobeo"            { return F_STROBEO;  }
+"$strobeh"            { return F_STROBEH;  }
+                                       
+"$monitor"            { return F_MONITOR;  }
+"$monitorb"           { return F_MONITORB; }
+"$monitoro"           { return F_MONITORO; }
+"$monitorh"           { return F_MONITORH; }
 
     /* File I/O System Tasks and Functions */
-"$fopen"              { return SYSTEM_IDENTIFIER; }
-"$fclose"             { return SYSTEM_IDENTIFIER; }
-"$fmonitor"           { return SYSTEM_IDENTIFIER; }
-"$fdisplay"           { return SYSTEM_IDENTIFIER; }
-"$fwrite"             { return SYSTEM_IDENTIFIER; }
-"$fstrobe"            { return SYSTEM_IDENTIFIER; }
-"$fgetc"              { return SYSTEM_IDENTIFIER; }
-"$ungetc"             { return SYSTEM_IDENTIFIER; }
-"$fgets"              { return SYSTEM_IDENTIFIER; }
-"$fscanf"             { return SYSTEM_IDENTIFIER; }
-"$fread"              { return SYSTEM_IDENTIFIER; }
-"$ftell"              { return SYSTEM_IDENTIFIER; }
-"$fseek"              { return SYSTEM_IDENTIFIER; }
-"$rewind"             { return SYSTEM_IDENTIFIER; }
-"$ferror"             { return SYSTEM_IDENTIFIER; }
-"$fflush"             { return SYSTEM_IDENTIFIER; }
+"$fopen"              { return F_FOPEN;    }
+"$fclose"             { return F_FCLOSE;   }
+"$fmonitor"           { return F_FMONITOR; }
+"$fdisplay"           { return F_FDISPLAY; }
+"$fwrite"             { return F_FWRITE;   }
+"$fstrobe"            { return F_FSTROBE;  }
+"$fgetc"              { return F_FGETC;    }
+"$ungetc"             { return F_UNGETC;   }
+"$fgets"              { return F_FGETS;    }
+"$fscanf"             { return F_FSCANF;   }
+"$fread"              { return F_FREAD;    }
+"$ftell"              { return F_FTELL;    }
+"$fseek"              { return F_FSEEK;    }
+"$rewind"             { return F_REWIND;   }
+"$ferror"             { return F_FERROR;   }
+"$fflush"             { return F_FFLUSH;   }
 
     /* Other Common System Tasks and Functions */
-"$finish"             { return SYSTEM_IDENTIFIER; }
-"$stop"               { return SYSTEM_IDENTIFIER; }
-"$time"               { return SYSTEM_IDENTIFIER; }
-"$stime"              { return SYSTEM_IDENTIFIER; }
-"$realtime"           { return SYSTEM_IDENTIFIER; }
-"$timeformat"         { return SYSTEM_IDENTIFIER; }
-"$printtimescale"     { return SYSTEM_IDENTIFIER; }
-"$swrite"             { return SYSTEM_IDENTIFIER; }
-"$swriteb"            { return SYSTEM_IDENTIFIER; }
-"$swriteo"            { return SYSTEM_IDENTIFIER; }
-"$swrited"            { return SYSTEM_IDENTIFIER; }
-"$sformat"            { return SYSTEM_IDENTIFIER; }
-"$sscanf"             { return SYSTEM_IDENTIFIER; }
-"$readmemb"           { return SYSTEM_IDENTIFIER; }
-"$readmemh"           { return SYSTEM_IDENTIFIER; }
-"$realtobits"         { return SYSTEM_IDENTIFIER; }
-"$bitstoreal"         { return SYSTEM_IDENTIFIER; }
-"$test$plusargs"      { return SYSTEM_IDENTIFIER; }
-"$value$plusargs"     { return SYSTEM_IDENTIFIER; }
+"$finish"             { return F_FINISH;         }
+"$stop"               { return F_STOP;           }
+"$time"               { return F_TIME;           }
+"$stime"              { return F_STIME;          }
+"$realtime"           { return F_REALTIME;       }
+"$timeformat"         { return F_TIMEFORMAT;     }
+"$printtimescale"     { return F_PRINTTIMESCALE; }
+"$swrite"             { return F_SWRITE;         }
+"$swriteb"            { return F_SWRITEB;        }
+"$swriteo"            { return F_SWRITEO;        }
+"$swrited"            { return F_SWRITED;        }
+"$sformat"            { return F_SFORMAT;        }
+"$sscanf"             { return F_SSCANF;         }
+"$readmemb"           { return F_READMEMB;       }
+"$readmemh"           { return F_READMEMH;       }
+"$realtobits"         { return F_REALTOBITS;     }
+"$bitstoreal"         { return F_BITSTOREAL;     }
+"$test$plusargs"      { return F_TEST_PLUSARGS;  }
+"$value$plusargs"     { return F_VALUE_PLUSARGS; }
 
     /* Match Verilog 2001 comments. Tokens are not returned for comments (so
 that comments are invisible to the parser). */
@@ -337,6 +337,7 @@ that comments are invisible to the parser). */
 [a-zA-Z_][a-zA-Z0-9_$]*                            { yylval.name = strdup(yytext);
                                                      return IDENTIFIER; 
                                                    }
+[".*"]                                             { return TEXT; }
 
 [\\][^\n\t ]+                                      { return IDENTIFIER; }
  
