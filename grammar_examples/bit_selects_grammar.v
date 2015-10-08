@@ -10,4 +10,6 @@ module abc (id3, id4);
     g = vector6[4 +: functionr(2134)];
     h = vector6[4 -: functionr(2134)];
 
+    $write("a = %b, %b",id3,id4);
+
 endmodule

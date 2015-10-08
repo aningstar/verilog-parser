@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "structures.h"
 
-#define SYNTAX_DEBUG 
+//#define SYNTAX_DEBUG 
 
 %}
 
@@ -47,10 +47,6 @@
 /* Verilog 2001 switch primitive tokens. */
 %token PMOS NMOS RPMOS RNMOS CMOS RCMOS TRAN RTRAN TRANIF0 TRANIF1 RTRANIF0
 %token RTRANIF1
-/* Verilog 2001 system function tokens. The "$signed" and "$unsigned" system */
-/* functions should not be consfused with the "signed" "unsigned" Verilog */
-/* keywords. */
-%token SIGNED_SYSTEM_FUNCTION UNSIGNED_SYSTEM_FUNCTION
 /* Verilog 2001 generate blocks */
 %token GENERATE ENDGENERATE
 /* Verilog 2001 procedural block tokens */
@@ -86,8 +82,8 @@
 %token F_MONITORO F_MONITORH F_FOPEN F_FCLOSE F_FMONITOR F_FDISPLAY F_FWRITE 
 %token F_FSTROBE F_FGETC F_UNGETC F_FGETS F_FSCANF F_FREAD F_FTELL F_FSEEK 
 %token F_REWIND F_FERROR F_FFLUSH F_FINISH F_STOP F_TIME F_STIME F_REALTIME  
-%token F_TIMEFORMAT F_PRINTTIMESCALE F_SWRITE F_SWRITEB F_SWRITEO F_SWRITED 
-%token F_SFORMAT F_SSCANF F_READMEMB F_READMEMH F_REALTOBITS 
+%token F_TIMEFORMAT F_PRINTTIMESCALE F_SIGNED F_UNSIGNED F_SWRITE F_SWRITEB 
+%token F_SWRITEO F_SWRITED F_SFORMAT F_SSCANF F_READMEMB F_READMEMH F_REALTOBITS
 %token F_BITSTOREAL F_TEST_PLUSARGS F_VALUE_PLUSARGS
 %token TEXT
 
@@ -300,6 +296,7 @@ module_items: /* empty */
 |   module_items function_declaration { }
 |   module_items specify_block { }
 |   module_items procedural_programming_statement { }
+|   module_items system_task { }
 ;
 
 nonempty_identifier_list: 
@@ -1930,7 +1927,7 @@ constant_expression:
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|   SIGNED_SYSTEM_FUNCTION OPENPARENTHESES constant_primary
+|   F_SIGNED OPENPARENTHESES constant_primary
     CLOSEPARENTHESES 
     {
         #ifdef SYNTAX_DEBUG
@@ -1938,7 +1935,7 @@ constant_expression:
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|   UNSIGNED_SYSTEM_FUNCTION OPENPARENTHESES constant_primary
+|   F_UNSIGNED OPENPARENTHESES constant_primary
     CLOSEPARENTHESES 
     {
         #ifdef SYNTAX_DEBUG
@@ -2606,14 +2603,14 @@ expression:
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|   SIGNED_SYSTEM_FUNCTION OPENPARENTHESES expression CLOSEPARENTHESES
+|   F_SIGNED OPENPARENTHESES expression CLOSEPARENTHESES
     {
         #ifdef SYNTAX_DEBUG
             printf("cast_to_signed_system_function ");
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
-|   UNSIGNED_SYSTEM_FUNCTION OPENPARENTHESES expression CLOSEPARENTHESES
+|   F_UNSIGNED OPENPARENTHESES expression CLOSEPARENTHESES
     {
         #ifdef SYNTAX_DEBUG
             printf("cast_to_unsigned_system_function ");
@@ -4369,7 +4366,30 @@ num_integer:
 |   ONE_ZERO 
 ;
 
-system_identifier:
+/* Common System Tasks and Functions */
+system_task:
+    system_task_identifier OPENPARENTHESES TEXT COMMA
+    list_of_arguments CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   system_task_identifier OPENPARENTHESES TEXT CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+
+;
+
+list_of_arguments:
+    identifier { }
+|   list_of_arguments COMMA identifier { }
+;
+
+system_task_identifier:
     F_DISPLAY 
 |   F_DISPLAYB 
 |   F_DISPLAYO 
@@ -4385,7 +4405,11 @@ system_identifier:
 |   F_MONITOR 
 |   F_MONITORB 
 |   F_MONITORO 
-|   F_MONITORH  
+|   F_MONITORH 
+;
+
+system_identifier:
+    system_task_identifier    
 |   F_FOPEN 
 |   F_FCLOSE 
 |   F_FMONITOR 
@@ -4409,6 +4433,8 @@ system_identifier:
 |   F_REALTIME  
 |   F_TIMEFORMAT 
 |   F_PRINTTIMESCALE 
+|   F_SIGNED
+|   F_UNSIGNED
 |   F_SWRITE 
 |   F_SWRITEB 
 |   F_SWRITEO 

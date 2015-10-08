@@ -21,6 +21,7 @@ inside them. */
 %}
 %x multi_line_comment
 %x single_line_comment
+%x text_with_format
 
 %%
 
@@ -148,10 +149,8 @@ inside them. */
 "xor"                 { return XOR; }
 
 "PATHPULSE$"[a-zA-Z0-9_$]* { return PATHPULSE; }
-    /* Match Verilog 2001 system function keywords. */
-"$signed"             { return SIGNED_SYSTEM_FUNCTION; }
-"$unsigned"           { return UNSIGNED_SYSTEM_FUNCTION; }
 
+    /* Match Verilog 2001 system function keywords. */
 "$setup"              { return SETUP; }
 "$hold"               { return HOLD; }
 "$setuphold"          { return SETUPHOLD; }
@@ -212,6 +211,8 @@ inside them. */
 "$realtime"           { return F_REALTIME;       }
 "$timeformat"         { return F_TIMEFORMAT;     }
 "$printtimescale"     { return F_PRINTTIMESCALE; }
+"$signed"             { return F_SIGNED;         }
+"$unsigned"           { return F_UNSIGNED;       }
 "$swrite"             { return F_SWRITE;         }
 "$swriteb"            { return F_SWRITEB;        }
 "$swriteo"            { return F_SWRITEO;        }
@@ -225,16 +226,27 @@ inside them. */
 "$test$plusargs"      { return F_TEST_PLUSARGS;  }
 "$value$plusargs"     { return F_VALUE_PLUSARGS; }
 
+<INITIAL>
+{
+[/][*]              { BEGIN(multi_line_comment); }
+["]                 { BEGIN(text_with_format); }
+}
+
     /* Match Verilog 2001 comments. Tokens are not returned for comments (so
 that comments are invisible to the parser). */
-<INITIAL>{
-[/][*]                BEGIN(multi_line_comment);
-}
-<multi_line_comment>{
-[*][/]                BEGIN(INITIAL);
-[^*]+                 // eat comment in chunks
+<multi_line_comment>
+{
+[*][/]              { BEGIN(INITIAL); }
+[^*]+               // eat comment in chunks
 [*]
 }
+    /* Match text */
+<text_with_format>
+{ 
+["]                 { BEGIN(INITIAL); return TEXT;}
+[^"]+
+} 
+
 [/][/].*[\n]
 
     /* Match Verilog 2001 symbols. */
@@ -337,7 +349,6 @@ that comments are invisible to the parser). */
 [a-zA-Z_][a-zA-Z0-9_$]*                            { yylval.name = strdup(yytext);
                                                      return IDENTIFIER; 
                                                    }
-[".*"]                                             { return TEXT; }
 
 [\\][^\n\t ]+                                      { return IDENTIFIER; }
  
