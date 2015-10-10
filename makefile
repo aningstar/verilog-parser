@@ -1,24 +1,16 @@
-all: testcases grammar_examples
-
-testcases: parser
-	cd testcases && $(MAKE)
-
-grammar_examples: parser
-	cd grammar_examples && $(MAKE) 
 
 parser: lexic.l verilog_parser.y
 	bison -d -v verilog_parser.y
 	lex lexic.l
 	gcc lex.yy.c verilog_parser.tab.c structures.c main.c -lfl -o verilog_parser
 
+gui: frame.c
+	gcc `pkg-config --cflags gtk+-3.0` -o frame frame.c `pkg-config --libs gtk+-3.0`
+
 debug: lexic.l verilog_parser.y
 	bison -d -v verilog_parser.y
 	lex lexic.l
 	gcc -Wall -g lex.yy.c verilog_parser.tab.c structures.c main.c -lfl -o verilog_parser
-
-run_debug: debug
-	cd testcases && $(MAKE) debug
-	cd grammar_examples && $(MAKE) debug
 
 clean: 
 	rm lex.yy.c
