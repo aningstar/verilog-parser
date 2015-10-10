@@ -1,6 +1,14 @@
-objects: lib/%.tab.c lib/%.tab.h
+BC = bison
+LC = lex
+RM = rm
+BFLAGS = -d
 
-all: $(objects)
-	bison -d $<	src/verilog_parser.y
+all:  
+	$(BC) $(BFLAGS) src/verilog_parser.y
+	$(LC) src/lexic.l
+	mv *.c lib/
+	mv *.h lib/
 
-$(objects): 
+clean:
+	$(RM) lib/verilog_parser.*
+	$(RM) lib/lex.yy.c

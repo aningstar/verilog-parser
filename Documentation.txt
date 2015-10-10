@@ -1,7 +1,0 @@
-Scanner - Lexical Analyzer
-    -Keywords
-    -Literal Real Numbers
-    -Literal Integer Numbers
-    (literal numbers can be '0, '1, 'x, 'z)
-    (concatenation operands must be sized)
-    (some operators don't work on real operands)
