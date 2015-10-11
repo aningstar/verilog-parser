@@ -14,9 +14,11 @@ all:
 	../verilog_parser < specify_blocks_grammar.v
 	../verilog_parser < expressions_grammar.v
 	../verilog_parser < udp_declarations.v
+	../verilog_parser < system_tasks_grammar.v
 
 expressions:
 	../verilog_parser < expressions_grammar.v
+
 specify_blocks: 
 	../verilog_parser specify_blocks_grammar.v
 
@@ -55,6 +57,13 @@ net_declarations:
 
 port_declarations: 
 	../verilog_parser port_declarations_grammar.v
+
+udp_declarations:
+	../verilog_parser < udp_declarations.v
+
+system_tasks:
+	../verilog_parser < system_tasks_grammar.v
+
 
 example: 
 	../verilog_parser example.v

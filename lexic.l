@@ -244,7 +244,11 @@ that comments are invisible to the parser). */
 <text_with_format>
 { 
 ["]                 { BEGIN(INITIAL); return TEXT;}
-[^"]+
+[^"\\]+
+"\\""t"
+"\\""n"
+"\\"["]
+"\\""\\"
 } 
 
 [/][/].*[\n]

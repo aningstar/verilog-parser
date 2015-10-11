@@ -4368,14 +4368,14 @@ num_integer:
 
 /* Common System Tasks and Functions */
 system_task:
-    system_task_identifier OPENPARENTHESES TEXT COMMA
+    text_output_system_task_identifier OPENPARENTHESES TEXT COMMA
     list_of_arguments CLOSEPARENTHESES SEMICOLON
     {
         #ifdef SYNTAX_DEBUG
             printf("system_task ");
         #endif
     }
-|   system_task_identifier OPENPARENTHESES TEXT CLOSEPARENTHESES SEMICOLON
+|   text_output_system_task_identifier OPENPARENTHESES TEXT CLOSEPARENTHESES SEMICOLON
     {
         #ifdef SYNTAX_DEBUG
             printf("system_task ");
@@ -4389,7 +4389,7 @@ list_of_arguments:
 |   list_of_arguments COMMA identifier { }
 ;
 
-system_task_identifier:
+text_output_system_task_identifier:
     F_DISPLAY 
 |   F_DISPLAYB 
 |   F_DISPLAYO 
@@ -4409,7 +4409,7 @@ system_task_identifier:
 ;
 
 system_identifier:
-    system_task_identifier    
+    text_output_system_task_identifier    
 |   F_FOPEN 
 |   F_FCLOSE 
 |   F_FMONITOR 
