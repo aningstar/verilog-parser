@@ -48,7 +48,6 @@ void print_modules(void) {
     int i;
     Mcell *curr = NULL;
     //print the modules names from the modules table
-    printf(KBLU "MODULES : %d\n" RESET, number_of_modules);
     for (i = 0; i < number_of_modules; i++) {
         printf("<%s : { ", modules[i]->hashes);
         // print the list of submodules for the current module
@@ -57,6 +56,7 @@ void print_modules(void) {
         }
         printf(" }>\n");
     }
+    fflush(stdout);
 }
 /* Function: void check_for_module(char name[]) */
 /* Arguments: string with the name of instance module */

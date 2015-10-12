@@ -258,18 +258,21 @@ nonempty_module_port_list:
     { 
         #ifdef SYNTAX_DEBUG
             printf("module_port_declaration "); 
+            fflush(stdout);
         #endif
     }
 |   nonempty_module_port_list COMMA identifier
     {
         #ifdef SYNTAX_DEBUG
             printf("module_port_declaration "); 
+            fflush(stdout);
         #endif
     }
 |   nonempty_module_port_list COMMA module_port_declaration
     { 
      #ifdef SYNTAX_DEBUG
          printf("module_port_declaration "); 
+         fflush(stdout);
      #endif
     }
 ;
@@ -279,12 +282,14 @@ module_port_body:
     { 
         #ifdef SYNTAX_DEBUG
             printf("module_port_declaration "); 
+            fflush(stdout);
         #endif
     }
 |   module_port_body port_declaration SEMICOLON 
     { 
         #ifdef SYNTAX_DEBUG
             printf("module_port_declaration "); 
+            fflush(stdout);
         #endif
     }
 ;
@@ -304,12 +309,14 @@ nonempty_identifier_list:
     { 
          #ifdef SYNTAX_DEBUG
              printf("identifier ");
+             fflush(stdout);
          #endif
     }
 |   nonempty_identifier_list COMMA identifier
     { 
          #ifdef SYNTAX_DEBUG
              printf("comma identifier ");
+             fflush(stdout);
          #endif
     }
 ;
@@ -333,12 +340,14 @@ generate_block:
     { 
         #ifdef SYNTAX_DEBUG
             printf("generate\n");
+            fflush(stdout);
         #endif
     }
 |   GENERATE nonempty_generate_item_list ENDGENERATE 
     { 
         #ifdef SYNTAX_DEBUG
             printf("generate\n");
+            fflush(stdout);
         #endif
     }
 ;
@@ -395,6 +404,7 @@ generate_programming_statement:
     { 
         #ifdef SYNTAX_DEBUG
              printf("simple_if "); 
+             fflush(stdout);
         #endif
     } 
     /* 2rd type generate programming statements. Higher precedence than the rule
@@ -405,6 +415,7 @@ generate_programming_statement:
     {
         #ifdef SYNTAX_DEBUG
             printf("if_else ");
+            fflush(stdout);
         #endif
     }
     /* 3rd type generate programming statement
@@ -481,6 +492,7 @@ genvar:
     { 
         #ifdef SYNTAX_DEBUG
             printf("genvar\n"); 
+            fflush(stdout);
         #endif
     }
 ;
@@ -515,6 +527,7 @@ task_definition:
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
+            fflush(stdout);
         #endif
     }
     /* without body */
@@ -523,6 +536,7 @@ task_definition:
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
+            fflush(stdout);
         #endif
     }
 |   TASK identifier OPENPARENTHESES task_port_list CLOSEPARENTHESES 
@@ -530,6 +544,7 @@ task_definition:
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
+            fflush(stdout);
         #endif
     }
     /* without body */
@@ -538,6 +553,7 @@ task_definition:
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
+            fflush(stdout);
         #endif
     }
      /* 2st type: (old style) */
@@ -546,6 +562,7 @@ task_definition:
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
+            fflush(stdout);
         #endif
     }
     /* without ports */
@@ -554,6 +571,7 @@ task_definition:
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
+            fflush(stdout);
         #endif
     }
     /* without body */
@@ -561,6 +579,7 @@ task_definition:
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
+            fflush(stdout);
         #endif
     }
     /* without ports and body */
@@ -568,12 +587,14 @@ task_definition:
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
+            fflush(stdout);
         #endif
     }
 |   TASK identifier SEMICOLON task_port_body task_body ENDTASK 
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
+            fflush(stdout);
         #endif
     }
     /* without ports */
@@ -581,6 +602,7 @@ task_definition:
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
+            fflush(stdout);
         #endif
     }
     /* without body */
@@ -588,6 +610,7 @@ task_definition:
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
+            fflush(stdout);
         #endif
     }
     /* without ports and body */
@@ -595,6 +618,7 @@ task_definition:
     { 
         #ifdef SYNTAX_DEBUG
             printf("task_definition\n"); 
+            fflush(stdout);
         #endif
     }
 ;
@@ -610,12 +634,14 @@ nonempty_task_port_list:
     {
         #ifdef SYNTAX_DEBUG
             printf("task_port_declaration ");
+            fflush(stdout);
         #endif
     }
 |   task_port_declaration COMMA task_port_list 
     {
         #ifdef SYNTAX_DEBUG
             printf("task_port_declaration ");
+            fflush(stdout);
         #endif
     }
 ;
@@ -625,12 +651,14 @@ task_port_body:
     {
         #ifdef SYNTAX_DEBUG
             printf("task_port_declaration ");
+            fflush(stdout);
         #endif
     }
 |   task_port_body task_port_declaration SEMICOLON 
     {
         #ifdef SYNTAX_DEBUG
             printf("task_port_declaration ");
+            fflush(stdout);
         #endif
     }
 ;
@@ -1187,36 +1215,42 @@ statement:
     { 
         #ifdef SYNTAX_DEBUG
             printf("\n"); 
+            fflush(stdout);
         #endif
     }
 |   declaration SEMICOLON 
     { 
         #ifdef SYNTAX_DEBUG
             printf("\n"); 
+            fflush(stdout);
         #endif
     }
 |   declaration_with_attributes SEMICOLON 
     { 
         #ifdef SYNTAX_DEBUG
             printf("\n"); 
+            fflush(stdout);
         #endif
     }
 |   primitive_instance SEMICOLON 
     { 
         #ifdef SYNTAX_DEBUG
             printf("primitive_instance\n");
+            fflush(stdout);
         #endif
     }
 |   module_instances SEMICOLON 
     { 
         #ifdef SYNTAX_DEBUG
             printf("module_instance\n");
+            fflush(stdout);
         #endif
     }
 |   procedural_block 
     { 
         #ifdef SYNTAX_DEBUG
             printf("procedural_block\n");
+            fflush(stdout);
         #endif
     }
 |   continuous_assignment SEMICOLON 
@@ -1237,6 +1271,7 @@ attributes:
     {
         #ifdef SYNTAX_DEBUG
             printf("attributes"); 
+            fflush(stdout);
         #endif
     }
 ;
@@ -1262,24 +1297,28 @@ declaration:
     {
         #ifdef SYNTAX_DEBUG
             printf("net_declaration "); 
+            fflush(stdout);
         #endif
     }
 |   variable_declaration 
     {
         #ifdef SYNTAX_DEBUG
             printf("variable_declaration ");
+            fflush(stdout);
         #endif
     }
 |   constant_or_event_declaration
     {
         #ifdef SYNTAX_DEBUG
             printf("constant_or_event_declaration ");
+            fflush(stdout);
         #endif
     }
 |   genvar
     {
         #ifdef SYNTAX_DEBUG
             printf("genvar_declaration ");
+            fflush(stdout);
         #endif
     }
 ;
@@ -1363,18 +1402,21 @@ port_direction :
     { 
         #ifdef SYNTAX_DEBUG
             printf("input "); 
+            fflush(stdout);
         #endif
     }
 |   OUTPUT 
     { 
         #ifdef SYNTAX_DEBUG
             printf("output "); 
+            fflush(stdout);
         #endif
     }
 |   INOUT 
     { 
         #ifdef SYNTAX_DEBUG
             printf("inout "); 
+            fflush(stdout);
         #endif
     }
 ;
@@ -1556,12 +1598,14 @@ optional_vectored_or_scalared: /* empty */
     { 
         #ifdef SYNTAX_DEBUG
             printf("vectored "); 
+            fflush(stdout);
         #endif
     }
 |   SCALARED 
     {
         #ifdef SYNTAX_DEBUG
             printf("scalared "); 
+            fflush(stdout);
         #endif
     }
 ;
@@ -1573,6 +1617,7 @@ net_type_except_trireg:
     { 
         #ifdef SYNTAX_DEBUG
             printf("wire "); 
+            fflush(stdout);
         #endif
     }
 |   WOR     
@@ -1641,12 +1686,14 @@ array:
     {
         #ifdef SYNTAX_DEBUG
             printf("array ");
+            fflush(stdout);
         #endif
     }
 |   array range 
     {
         #ifdef SYNTAX_DEBUG
             printf("array ");
+            fflush(stdout);
         #endif
     }
 ;
@@ -1659,6 +1706,7 @@ range:
     { 
         #ifdef SYNTAX_DEBUG
             printf("range ");
+            fflush(stdout);
         #endif
     }
 ;
@@ -1670,6 +1718,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("logical_not ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1677,6 +1726,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_not ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1685,6 +1735,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("unary_plus ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1692,6 +1743,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("unary_minus ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1699,6 +1751,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("addition ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1706,6 +1759,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("subtraction ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1713,6 +1767,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("multiplication ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1720,6 +1775,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("division ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1727,6 +1783,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("modulus ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1734,6 +1791,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("exponentation ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1742,6 +1800,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("parenthesised_expression ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1749,6 +1808,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_left_shift ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1756,6 +1816,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_right_shift ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1764,6 +1825,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("arithmetic_left_shift ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1772,6 +1834,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("arithmetic_right_shift ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1779,6 +1842,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("less_than ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1786,6 +1850,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("less_than_or_equal ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1793,6 +1858,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("greater_than ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1800,6 +1866,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("greater_than_or_equal ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1807,6 +1874,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("equal ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1814,6 +1882,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("not_equal ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1821,6 +1890,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("identical ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1828,6 +1898,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("not_intetical ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1835,6 +1906,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("reduction_and ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
         turn_reduction_flag_on(&reduction_and_flag);
@@ -1843,6 +1915,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("reduction_nand ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1850,6 +1923,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("reduction_or ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
         turn_reduction_flag_on(&reduction_or_flag);
@@ -1858,6 +1932,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("reduction_nor ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1865,6 +1940,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("reduction_xor ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1872,6 +1948,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("reduction_xnor ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1879,6 +1956,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_and ");
+            fflush(stdout);
         #endif
         check_reduction_flag(reduction_and_flag);
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
@@ -1887,6 +1965,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_xor ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1894,6 +1973,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_xnor ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1901,6 +1981,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_or ");
+            fflush(stdout);
         #endif
         check_reduction_flag(reduction_or_flag);
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
@@ -1909,6 +1990,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("logical_and ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1916,6 +1998,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("logical_or ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1924,6 +2007,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("conditional ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1932,6 +2016,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("cast_to_signed_system_function ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1940,6 +2025,7 @@ constant_expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("cast_to_unsigned_system_function ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1951,6 +2037,7 @@ constant_primary:
 |   constant_function_call {
         #ifdef SYNTAX_DEBUG
             printf("constant_function ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -1959,6 +2046,7 @@ constant_primary:
     {
         #ifdef SYNTAX_DEBUG
             printf("constant_concatenation ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2016,12 +2104,14 @@ strength:
     { 
         #ifdef SYNTAX_DEBUG
             printf("strength0, strength1 "); 
+            fflush(stdout);
         #endif
     }
 |   OPENPARENTHESES strength1 COMMA strength0 CLOSEPARENTHESES
     { 
         #ifdef SYNTAX_DEBUG
             printf("strength1, strength0 "); 
+            fflush(stdout);
         #endif
     }
 ;
@@ -2055,6 +2145,7 @@ capacitance_strength:
     { 
         #ifdef SYNTAX_DEBUG
             printf("capacitance_strength ");
+            fflush(stdout);
         #endif
     }
 ;
@@ -2107,24 +2198,28 @@ variable_type_except_reg:
     { 
         #ifdef SYNTAX_DEBUG
             printf("integer "); 
+            fflush(stdout);
         #endif
     }
 |   TIME     
     { 
         #ifdef SYNTAX_DEBUG
             printf("time "); 
+            fflush(stdout);
         #endif
     }
 |   REAL     
     { 
         #ifdef SYNTAX_DEBUG
             printf("real "); 
+            fflush(stdout);
         #endif
     }
 |   REALTIME 
     { 
         #ifdef SYNTAX_DEBUG
             printf("realtime "); 
+            fflush(stdout);
         #endif
     }
 ;
@@ -2165,24 +2260,28 @@ constant_or_event_declaration:
     { 
         #ifdef SYNTAX_DEBUG
             printf("parameter "); 
+            fflush(stdout);
         #endif
     }
 |   PARAMETER SIGNED constant_assignment_list
     { 
         #ifdef SYNTAX_DEBUG
             printf("parameter "); 
+            fflush(stdout);
         #endif
     }
 |   PARAMETER range constant_assignment_list
     { 
         #ifdef SYNTAX_DEBUG
             printf("parameter "); 
+            fflush(stdout);
         #endif
     }
 |   PARAMETER constant_assignment_list
     { 
         #ifdef SYNTAX_DEBUG
             printf("parameter "); 
+            fflush(stdout);
         #endif
     }
     /* 2nd type constant declarations. */
@@ -2190,6 +2289,7 @@ constant_or_event_declaration:
     { 
         #ifdef SYNTAX_DEBUG
             printf("parameter "); 
+            fflush(stdout);
         #endif
     }
     /* 3rd type constant declarations. */
@@ -2197,24 +2297,28 @@ constant_or_event_declaration:
     { 
         #ifdef SYNTAX_DEBUG
             printf("localparam "); 
+            fflush(stdout);
         #endif
     }
 |   LOCALPARAM SIGNED constant_assignment_list
     { 
         #ifdef SYNTAX_DEBUG
             printf("localparam "); 
+            fflush(stdout);
         #endif
     }
 |   LOCALPARAM range constant_assignment_list
     { 
         #ifdef SYNTAX_DEBUG
             printf("localparam "); 
+            fflush(stdout);
         #endif
     }
 |   LOCALPARAM constant_assignment_list
     { 
         #ifdef SYNTAX_DEBUG
             printf("localparam "); 
+            fflush(stdout);
         #endif
     }
     /* 4th type constant declarations. */
@@ -2222,6 +2326,7 @@ constant_or_event_declaration:
     { 
         #ifdef SYNTAX_DEBUG
             printf("localparam "); 
+            fflush(stdout);
         #endif
     }
     /* 5th type constant declarations. */
@@ -2229,6 +2334,7 @@ constant_or_event_declaration:
     { 
         #ifdef SYNTAX_DEBUG
             printf("specparam "); 
+            fflush(stdout);
         #endif
     }
     /* 6th type event declarations. */
@@ -2236,6 +2342,7 @@ constant_or_event_declaration:
     { 
         #ifdef SYNTAX_DEBUG
             printf("event "); 
+            fflush(stdout);
         #endif
     }
 ;
@@ -2254,12 +2361,14 @@ constant_assignment:
     { 
         #ifdef SYNTAX_DEBUG
             printf("constant "); 
+            fflush(stdout);
         #endif
     }
 |   identifier EQUALS_SIGN identifier    
     { 
         #ifdef SYNTAX_DEBUG
             printf("constant "); 
+            fflush(stdout);
         #endif
     }
 ;
@@ -2269,24 +2378,28 @@ constant_type:
     { 
         #ifdef SYNTAX_DEBUG
             printf("integer "); 
+            fflush(stdout);
         #endif
     }
 |   REAL       
     { 
         #ifdef SYNTAX_DEBUG
             printf("real "); 
+            fflush(stdout);
         #endif
     }
 |   TIME       
     { 
         #ifdef SYNTAX_DEBUG
             printf("time "); 
+            fflush(stdout);
         #endif
     }
 |   REALTIME   
     { 
         #ifdef SYNTAX_DEBUG
             printf("realtime "); 
+            fflush(stdout);
         #endif
     }
 ;
@@ -2296,12 +2409,14 @@ assignment:
     { 
         #ifdef SYNTAX_DEBUG
             printf("assignment "); 
+            fflush(stdout);
         #endif
     }
 |   identifier EQUALS_SIGN array_select
     { 
         #ifdef SYNTAX_DEBUG
             printf("array_select_assignment "); 
+            fflush(stdout);
         #endif
     }
 ;
@@ -2320,18 +2435,21 @@ continuous_assignment:
     {
         #ifdef SYNTAX_DEBUG
             printf("explicit_continuous_assignment\n"); 
+            fflush(stdout);
         #endif
     }
 |   ASSIGN identifier EQUALS_SIGN expression
     {
         #ifdef SYNTAX_DEBUG
             printf("explicit_continuous_assignment\n"); 
+            fflush(stdout);
         #endif
     }
 |   ASSIGN array_select EQUALS_SIGN expression
     {
         #ifdef SYNTAX_DEBUG
             printf("explicit_continuous_assignment\n"); 
+            fflush(stdout);
         #endif
     }
     /* TODO bit select is needed? */
@@ -2339,6 +2457,7 @@ continuous_assignment:
     {
         #ifdef SYNTAX_DEBUG
             printf("explicit_continuous_assignment\n"); 
+            fflush(stdout);
         #endif
     }
 ;
@@ -2350,6 +2469,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("logical_not ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2357,6 +2477,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_not ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2364,6 +2485,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("unary_plus ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2371,6 +2493,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("unary_minus ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2378,6 +2501,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("addition ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2385,6 +2509,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("subtraction ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2392,6 +2517,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("multiplication ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2399,6 +2525,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("division ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2406,6 +2533,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("modulus ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2413,6 +2541,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("exponentation ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2421,6 +2550,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("parenthesised_expression ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2428,6 +2558,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_left_shift ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2435,6 +2566,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_right_shift ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2442,6 +2574,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("arithmetic_left_shift ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2449,6 +2582,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("arithmetic_right_shift ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2456,6 +2590,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("less_than ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2463,6 +2598,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("less_than_or_equal ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2470,6 +2606,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("greater_than ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2477,6 +2614,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("greater_than_or_equal ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2484,6 +2622,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("equal ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2491,6 +2630,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("not_equal ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2498,6 +2638,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("identical ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2505,6 +2646,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("not_intetical ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2512,6 +2654,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("reduction_and ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
         turn_reduction_flag_on(&reduction_and_flag);
@@ -2520,6 +2663,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("reduction_nand ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2527,6 +2671,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("reduction_or ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
         turn_reduction_flag_on(&reduction_or_flag);
@@ -2535,6 +2680,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("reduction_nor ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2542,6 +2688,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("reduction_xor ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2549,6 +2696,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("reduction_xnor ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2556,6 +2704,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_and ");
+            fflush(stdout);
         #endif
         check_reduction_flag(reduction_and_flag);
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
@@ -2564,6 +2713,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_xor ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2571,6 +2721,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_xnor ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2578,6 +2729,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("bitwise_or ");
+            fflush(stdout);
         #endif
         check_reduction_flag(reduction_or_flag);
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
@@ -2586,6 +2738,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("logical_and ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2593,6 +2746,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("logical_or ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2600,6 +2754,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("conditional ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2607,6 +2762,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("cast_to_signed_system_function ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2614,6 +2770,7 @@ expression:
     {
         #ifdef SYNTAX_DEBUG
             printf("cast_to_unsigned_system_function ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2627,6 +2784,7 @@ primary: constant_function_argument { }
     {
         #ifdef SYNTAX_DEBUG
             printf("function ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2634,6 +2792,7 @@ primary: constant_function_argument { }
     {
         #ifdef SYNTAX_DEBUG
             printf("concatenation ");
+            fflush(stdout);
         #endif
         reset_reduction_flags(&reduction_and_flag, &reduction_or_flag);
     }
@@ -2676,6 +2835,7 @@ bit_select:
     { 
         #ifdef SYNTAX_DEBUG
             printf("bit_select ");
+            fflush(stdout);
         #endif
     }
     /* Constant Part Select (2nd type). */
@@ -2683,6 +2843,7 @@ bit_select:
     { 
         #ifdef SYNTAX_DEBUG
             printf("constant_part_select ");
+            fflush(stdout);
         #endif
     }
     /* Variable Part Select 1 (3rd type). */
@@ -2691,6 +2852,7 @@ bit_select:
     { 
         #ifdef SYNTAX_DEBUG
             printf("variable_part_select ");
+            fflush(stdout);
         #endif
     }
     /* Variable Part Select 2 (4th type). */
@@ -2699,6 +2861,7 @@ bit_select:
     { 
         #ifdef SYNTAX_DEBUG
             printf("variable_part_select ");
+            fflush(stdout);
         #endif
     }
 ;
@@ -2775,6 +2938,7 @@ module_instances:
     { 
         #ifdef SYNTAX_DEBUG
             printf("module_instance ");
+            fflush(stdout);
         #endif
         // if modules table does not contain the instance module
         // add it to table
@@ -2792,6 +2956,7 @@ module_instances:
     { 
         #ifdef SYNTAX_DEBUG
             printf("module_instance ");
+            fflush(stdout);
         #endif
         // if modules table does not contain the instance module
         // add it to table
@@ -2814,6 +2979,7 @@ module_instances:
     { 
         #ifdef SYNTAX_DEBUG
             printf("module_instance ");
+            fflush(stdout);
         #endif
         //add_instance($6);
     }
@@ -2844,12 +3010,14 @@ signal:
     {
         #ifdef SYNTAX_DEBUG
             printf("simple_signal "); 
+            fflush(stdout);
         #endif
     }
 |   port_name_connection          
     { 
         #ifdef SYNTAX_DEBUG
             printf("port_name_connection ");
+            fflush(stdout);
         #endif
     }
 ;
@@ -3303,6 +3471,7 @@ procedural_programming_statement:
     { 
         #ifdef SYNTAX_DEBUG
             printf("simple_if "); 
+            fflush(stdout);
         #endif
     }
     /* 2nd type procedural programming statements. Higher precedence than the 
@@ -3313,6 +3482,7 @@ procedural_programming_statement:
     { 
         #ifdef SYNTAX_DEBUG
             printf("if_else ");
+            fflush(stdout);
         #endif
     }
     /* 3rd type procedural programming statement(the default case is optional.*/
@@ -3441,6 +3611,7 @@ specify_block:
     { 
         #ifdef SYNTAX_DEBUG
             printf("specify_block\n");
+            fflush(stdout);
         #endif
     }
 ;
@@ -4092,6 +4263,7 @@ udp_declaration:
     { 
         #ifdef SYNTAX_DEBUG
             printf("udp_declaration\n");
+            fflush(stdout);
         #endif
     }
     /* 2nd type: (old style port list) */
@@ -4100,6 +4272,7 @@ udp_declaration:
     { 
         #ifdef SYNTAX_DEBUG
             printf("udp_declaration\n");
+            fflush(stdout);
         #endif
     }
 ;
@@ -4131,18 +4304,21 @@ udp_output_declaration:
     { 
         #ifdef SYNTAX_DEBUG
             printf("output identifier ");
+            fflush(stdout);
         #endif
     }
 |   OUTPUT REG identifier
     {
         #ifdef SYNTAX_DEBUG
             printf("output reg identifier ");
+            fflush(stdout);
         #endif
     }
 |   OUTPUT REG identifier EQUALS_SIGN expression
     { 
         #ifdef SYNTAX_DEBUG
             printf("output reg identifier equal expression ");
+            fflush(stdout);
         #endif
     }
 ;
@@ -4157,6 +4333,7 @@ udp_input_single_declaration:
     { 
         #ifdef SYNTAX_DEBUG
             printf("input identifier ");
+            fflush(stdout);
         #endif
     }
 ;
@@ -4166,6 +4343,7 @@ udp_reg_declaration:
     { 
         #ifdef SYNTAX_DEBUG
             printf("reg identifier ");
+            fflush(stdout);
         #endif
     }
 ;
@@ -4180,6 +4358,7 @@ udp_input_declaration_list:
     { 
         #ifdef SYNTAX_DEBUG
             printf("comma identifier ");
+            fflush(stdout);
         #endif
     }
 |   udp_input_single_declaration
@@ -4191,6 +4370,7 @@ udp_input_declaration_list:
     { 
         #ifdef SYNTAX_DEBUG
             printf("comma identifier ");
+            fflush(stdout);
         #endif
     }
 ;
@@ -4373,12 +4553,14 @@ system_task:
     {
         #ifdef SYNTAX_DEBUG
             printf("system_task ");
+            fflush(stdout);
         #endif
     }
 |   system_task_identifier OPENPARENTHESES TEXT CLOSEPARENTHESES SEMICOLON
     {
         #ifdef SYNTAX_DEBUG
             printf("system_task ");
+            fflush(stdout);
         #endif
     }
 
@@ -4469,6 +4651,7 @@ identifier:
 
 yyerror(char *error_string) {
     fprintf(stderr, "ERROR in line %d: %s\n", yylloc.first_line, error_string);
+    fflush(stdout);
 }
 
 /* Function: void reset_reduction_flags(int *reduction_and_flag, int */
