@@ -8,7 +8,6 @@
     <property name="border_width">6</property>
     <property name="default_width">1400</property>
     <property name="default_height">800</property>
-    <signal name="notify" handler="gtk_main_quit" swapped="no"/>
     <child>
       <object class="GtkBox" id="box">
         <property name="visible">True</property>
@@ -211,7 +210,7 @@
                 <property name="label" translatable="yes">parse_file_button</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-execute</property>
-                <signal name="clicked" handler="parse_file" swapped="no"/>
+                <signal name="clicked" handler="parse_file" object="close_file_button" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "structures.h"
 
-//#define SYNTAX_DEBUG 
+#define SYNTAX_DEBUG 
 
 %}
 
