@@ -11,13 +11,11 @@
 
 extern FILE *yyin;
 
-GtkTextBuffer *buffer;
 GtkBuilder *builder;
 GObject *window;
 GObject *parse_file_button;
 GObject *open_file_button;
 GObject *parser_output;
-GtkTextIter iter;
 gchar *filename;
 
 /* File descriptors for pipe. */
@@ -56,17 +54,17 @@ void open_file () {
 static void *display_parser_output() {
 
     gint chars_read;
-    gchar buf[20];
+    gchar buf[1024];
 
     //Redirect fds[1] to be writed with the standard output.
     dup2 (fds[1], 1);
 
     while(1) {
         // read from pipe
-        chars_read = read(fds[0], buf, 20);
+        chars_read = read(fds[0], buf, 1024);
         fprintf(stderr, "%i chars: %s\n", chars_read, buf);
-        gtk_text_buffer_insert(buffer, &iter, buf, chars_read);
-        gtk_text_buffer_get_end_iter(buffer, &iter);
+        gtk_label_set_text((GtkLabel*)parser_output, buf);
+        sleep(1);
     }
     return 0;
 }
@@ -101,8 +99,6 @@ void run (int argc, char **argv) {
                           G_CALLBACK (open_file), NULL);
 
     parser_output = gtk_builder_get_object(builder,"parser_output");
-    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (parser_output));
-    gtk_text_buffer_get_end_iter(buffer, &iter);
 
     /* This is the singnal connection to call input_callback when we have data in standard output read end pipe. */
     //gdk_input_add(fds[0], GDK_INPUT_READ, write_parser_output, NULL);
