@@ -12,3 +12,5 @@ verilog_parser
 testcases/
 grammar_examples/
 push.sh
+build.xml~
+parser.log
