@@ -61,7 +61,10 @@ void *display_parser_output() {
 
     //Redirect fds[1] to be writed with the standard output.
     dup2 (fds[1], 1);
-
+    // TODO
+    // Listen for a stop signal from main thread,
+    // to stop the loop. After the signal remove the
+    // parser log file.
     while(1) {
         // read from pipe
         chars_read = read(fds[0], buf, 1024);
