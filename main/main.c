@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <gtk/gtk.h>
 #include "gui.h"
+#include "parser.h"
 
 extern int fds[2];
 
