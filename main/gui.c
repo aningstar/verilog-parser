@@ -57,4 +57,7 @@ void init(int argc, char **argv) {
     // take parser output lable from UI description
     parser.parser_output_label =
         gtk_builder_get_object(parser.builder,"parser_output");
+    // take tree view object from UI description
+    parser.treeview = gtk_builder_get_object(parser.builder, "treeview");
+
 }

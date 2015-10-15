@@ -6,6 +6,7 @@ struct gtk_parser {
     GObject *parse_file_button;
     GObject *open_file_button;
     GObject *parser_output_label;
+    GObject *treeview;
 };
 
 ParserGUI parser;
