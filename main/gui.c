@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include "parser.h"
 #include "gui.h"
+#include "treeview.h"
 
 /* Terminate program when window closed */
 void destroy(GtkWidget *widget, gpointer data) {
@@ -60,4 +61,5 @@ void init(int argc, char **argv) {
     // take tree view object from UI description
     parser.treeview = gtk_builder_get_object(parser.builder, "treeview");
 
+    init_treeview();
 }
