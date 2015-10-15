@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include "gui.h"
 #include "parser.h"
+#include "treeview.h"
 #include "../parser/lib/verilog_parser.tab.h"
 #include "../parser/lib/structures.h"
 
@@ -19,6 +20,8 @@ void parse_file(GObject *object) {
     yyparse();
     // close file
     fclose(yyin);
+
+    create_and_fill_model();
 }
 
 /* Takes the string, append it to the end of log file */

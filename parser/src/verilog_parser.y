@@ -4650,7 +4650,7 @@ identifier:
 %%
 
 yyerror(char *error_string) {
-    fprintf(stderr, "ERROR in line %d: %s\n", yylloc.first_line, error_string);
+    printf("\n*****\nERROR in line %d: %s\n", yylloc.first_line, error_string);
     fflush(stdout);
 }
 
