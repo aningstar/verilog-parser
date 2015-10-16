@@ -196,6 +196,19 @@
               </packing>
             </child>
             <child>
+              <object class="GtkToolButton" id="save_file_button">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">save_file_button</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-save</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkToolButton" id="parse_file_button">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>

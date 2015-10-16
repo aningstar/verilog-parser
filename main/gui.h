@@ -3,11 +3,17 @@ typedef struct gtk_parser ParserGUI;
 struct gtk_parser {
     GtkBuilder *builder;
     GObject *window;
-    GObject *parse_file_button;
+    // tool buttons
     GObject *open_file_button;
+    GObject *save_file_button;
+    GObject *parse_file_button;
+    GObject *close_file_button;
+    // parser output
     GObject *parser_output_label;
+    // tree
     GObject *treeview;
     GtkTreeStore *treestore;
+    // code view
     GObject *notebook;
 };
 
