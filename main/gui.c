@@ -67,6 +67,4 @@ void init(int argc, char **argv) {
     parser.notebook = gtk_builder_get_object(parser.builder, "notebook");
 
     init_treeview();
-
-    //notebook_add_page("grammar_examples/bit_selects_grammar.v");
 }
