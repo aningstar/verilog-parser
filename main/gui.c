@@ -26,9 +26,9 @@ void open_file () {
 
     if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_OK) {
         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
+        // add a page to the notebook with the given file
+        notebook_add_page(filename);
     }
-    // add a page to the notebook with the given file
-    notebook_add_page(filename);
     // destroy chooser widget
     gtk_widget_destroy (chooser);
 
