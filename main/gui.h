@@ -8,6 +8,7 @@ struct gtk_parser {
     GObject *parser_output_label;
     GObject *treeview;
     GtkTreeStore *treestore;
+    GObject *notebook;
 };
 
 ParserGUI parser;

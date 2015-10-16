@@ -15,7 +15,7 @@ extern FILE *yyin;
 /* Use verilog parser to parse the specified verilog file */
 void parse_file(GObject *object) {
     // open given file
-    yyin = fopen("grammar_examples/bit_selects_grammar.v", "r");
+    yyin = fopen(filename, "r");
     // parse file
     yyparse();
     // close file

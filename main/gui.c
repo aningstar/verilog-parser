@@ -7,6 +7,7 @@
 #include "parser.h"
 #include "gui.h"
 #include "treeview.h"
+#include "notebook.h"
 
 /* Terminate program when window closed */
 void destroy(GtkWidget *widget, gpointer data) {
@@ -20,12 +21,14 @@ void open_file () {
     chooser = gtk_file_chooser_dialog_new ("Open File",
                         GTK_WINDOW (parser.window),
                         GTK_FILE_CHOOSER_ACTION_OPEN,
-                        NULL, GTK_RESPONSE_CANCEL,
-                        NULL, GTK_RESPONSE_OK, NULL);
+                        ("_Cancel"), GTK_RESPONSE_CANCEL,
+                        ("_Open"), GTK_RESPONSE_OK, NULL);
 
     if (gtk_dialog_run (GTK_DIALOG (chooser)) == GTK_RESPONSE_OK) {
         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (chooser));
     }
+    // add a page to the notebook with the given file
+    notebook_add_page(filename);
     // destroy chooser widget
     gtk_widget_destroy (chooser);
 
@@ -60,6 +63,10 @@ void init(int argc, char **argv) {
         gtk_builder_get_object(parser.builder,"parser_output");
     // take tree view object from UI description
     parser.treeview = gtk_builder_get_object(parser.builder, "treeview");
+    // take notebook object from UI description
+    parser.notebook = gtk_builder_get_object(parser.builder, "notebook");
 
     init_treeview();
+
+    //notebook_add_page("grammar_examples/bit_selects_grammar.v");
 }

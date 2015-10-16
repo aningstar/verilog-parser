@@ -19,7 +19,7 @@ void create_and_fill_model () {
                       -1);
 
   int i = 0;
-  for (i = 0; i < 50; i++) {
+  for (i = 0; i < 10; i++) {
       /* ... and a third row */
       gtk_tree_store_append (parser.treestore, &child, &toplevel);
       gtk_tree_store_set (parser.treestore, &child,
