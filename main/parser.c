@@ -14,14 +14,20 @@ extern FILE *yyin;
 
 /* Use verilog parser to parse the specified verilog file */
 void parse_file(GObject *object) {
-    // open given file
-    yyin = fopen(filename, "r");
-    // parse file
-    yyparse();
-    // close file
-    fclose(yyin);
+    if (filename != NULL) {
+        printf("\n*****\n");
+        printf("Parsing %s", filename);
+        printf("\n*****\n");
+        fflush(stdout);
+        // open given file
+        yyin = fopen(filename, "r");
+        // parse file
+        yyparse();
+        // close file
+        fclose(yyin);
 
-    create_and_fill_model();
+        create_and_fill_model();
+    }
 }
 
 /* Takes the string, append it to the end of log file */
@@ -70,8 +76,8 @@ void *display_parser_output() {
     // parser log file.
     while(1) {
         // read from pipe
-        chars_read = read(fds[0], buf, 1024);
-        fprintf(stderr, "%i chars: %s\n", chars_read, buf);
+        chars_read = read(fds[0], buf, 100*1024);
+        fprintf(stderr, "%i chars: %s \n", chars_read, buf);
         // get refreshed parser log
         log = get_parser_log(buf);
         // display data to the label

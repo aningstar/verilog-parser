@@ -14,6 +14,8 @@ int main (int argc, char **argv) {
 
     pthread_t thread_1;
     int return_code;
+    filename = NULL;
+    remove("parser.log");
     // initialize gui
     init(argc, argv);
     // Create a pipe. File descriptors for the two ends of
