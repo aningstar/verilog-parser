@@ -33,6 +33,38 @@ void open_file () {
     gtk_widget_destroy (chooser);
 
 }
+
+void save_file() {
+    GError *error = NULL;
+    GtkWidget *view;
+    GtkTextBuffer *buffer;
+    GtkTextIter start, end;
+    gchar *text;
+    gboolean return_value;
+
+    // get current text view from notebook
+    view = notebook_current_view();
+    // disable text view
+    gtk_widget_set_sensitive(view, FALSE);
+    // get buffer of text view
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+    // get start and end iter
+    gtk_text_buffer_get_start_iter(buffer, &start);
+    gtk_text_buffer_get_end_iter(buffer, &end);
+    // get text from buffer
+    text = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+    gtk_text_buffer_set_modified(buffer, FALSE);
+
+    // write text to file
+    return_value = g_file_set_contents(filename, text, -1, &error);
+    if (return_value == FALSE) {
+        g_error_free(error);
+    }
+    // enable text view
+    gtk_widget_set_sensitive(view, TRUE);
+    // free text's memory
+    g_free(text);
+}
 /* Initialize gtk. Parse and save objects from UI description */
 void init(int argc, char **argv) {
 
@@ -56,8 +88,14 @@ void init(int argc, char **argv) {
     parser.open_file_button =
         gtk_builder_get_object (parser.builder, "open_file_button");
     // connect open file button with the open file function
-    g_signal_connect (parser.open_file_button,
-            "clicked", G_CALLBACK (open_file), NULL);
+    g_signal_connect (parser.open_file_button, "clicked",
+            G_CALLBACK (open_file), NULL);
+    //take save file button from the UI description
+    parser.save_file_button =
+        gtk_builder_get_object (parser.builder, "save_file_button");
+    // connect save file button with the save file function
+    g_signal_connect (parser.save_file_button, "clicked",
+            G_CALLBACK(save_file), NULL);
     // take parser output lable from UI description
     parser.parser_output_label =
         gtk_builder_get_object(parser.builder,"parser_output");

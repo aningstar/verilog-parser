@@ -6,6 +6,25 @@
 #include <unistd.h>
 #include "gui.h"
 
+GtkWidget *notebook_current_view() {
+    GtkWidget *current_widget;
+    GtkWidget *current_view;
+    gint current_page;
+    GList *list;
+
+    // get the number of current page
+    current_page = gtk_notebook_get_current_page(GTK_NOTEBOOK(parser.notebook));
+    // get the widget of the nth page
+    current_widget = gtk_notebook_get_nth_page(GTK_NOTEBOOK(parser.notebook),
+            current_page);
+    // get the children of scroll window
+    list = gtk_container_get_children(GTK_CONTAINER(current_widget));
+    // get the first children of list
+    list = g_list_first(list);
+    // return the current text view
+    return list->data;
+}
+
 // creates a text view with the contents
 // of the given file and append it to the
 // notebook
