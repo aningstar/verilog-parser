@@ -6,8 +6,10 @@ BFLAGS = -d
 all:  
 	$(BC) $(BFLAGS) src/verilog_parser.y
 	$(LC) src/lexic.l
-	mv *.c lib/
+	mv verilog_parser.tab.c lib/
+	mv lex.yy.c lib/
 	mv *.h lib/
+	gcc parser.c lib/*.c -o parser -lfl
 
 clean:
 	$(RM) lib/verilog_parser.*

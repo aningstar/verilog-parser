@@ -11,30 +11,23 @@
 #include "../parser/lib/verilog_parser.tab.h"
 #include "../parser/lib/structures.h"
 
-extern FILE *yyin;
 
 /* Use verilog parser to parse the specified verilog file */
 void parse_file(GObject *object) {
     gchar *filename;
+    gint return_value;
     filename = g_list_nth_data(opened_files, notebook_current_file_number());
     if (filename != NULL) {
-        printf("\n*****\n");
-        printf("Parsing %s", filename);
-        printf("\n*****\n");
-        fflush(stdout);
-        fprintf(stderr, "%s\n", filename);
-        // open given file
-        yyin = fopen(filename, "r");
-        // parse file
-        yyparse();
-        // close file
-        fclose(yyin);
-        printf("\n*****\n");
-        printf("Parsing Complete");
-        printf("\n*****\n");
-        fflush(stdout);
-
-        create_and_fill_model();
+        // spawn new process for parsing
+        if (fork() == 0) {
+            //Redirect fds[1] to be writed with the standard output.
+            dup2 (fds[1], 1);
+            // execute the parser's code
+            return_value = execl("./parser/parser", filename, NULL);
+            if (return_value == -1) {
+                perror("exec");
+            }
+        }
     }
 }
 /* Parser's Thread function. The thread checks the redirected */
@@ -50,8 +43,6 @@ void *display_parser_output() {
 
     buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(parser.parser_output));
 
-    //Redirect fds[1] to be writed with the standard output.
-    dup2 (fds[1], 1);
     // TODO
     // Listen for a stop signal from main thread,
     // to stop the loop. After the signal remove the
