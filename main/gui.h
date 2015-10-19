@@ -18,7 +18,7 @@ struct gtk_parser {
 };
 
 ParserGUI parser;
-gchar *filename;
+GList *opened_files;
 /* File descriptors for pipe. */
 int fds[2];
 

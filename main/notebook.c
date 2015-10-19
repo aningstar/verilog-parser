@@ -6,9 +6,14 @@
 #include <unistd.h>
 #include "gui.h"
 
+// returns the nth opened file in notebook
+guint notebook_current_file_number() {
+    // get the number of current page
+    return gtk_notebook_get_current_page(GTK_NOTEBOOK(parser.notebook));
+}
+// returns the text view of the selected tab of notebook
 GtkWidget *notebook_current_view() {
     GtkWidget *current_widget;
-    GtkWidget *current_view;
     gint current_page;
     GList *list;
 
@@ -24,7 +29,6 @@ GtkWidget *notebook_current_view() {
     // return the current text view
     return list->data;
 }
-
 // creates a text view with the contents
 // of the given file and append it to the
 // notebook
@@ -59,4 +63,5 @@ void notebook_add_page(gchar *filename) {
     }
     // append above objects to the notebook
     gtk_notebook_append_page(GTK_NOTEBOOK(parser.notebook), scrolled, label);
+    opened_files = g_list_append(opened_files, filename);
 }

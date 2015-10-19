@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <gtk/gtk.h>
 #include <sys/types.h>
@@ -13,10 +14,18 @@
 void destroy(GtkWidget *widget, gpointer data) {
     gtk_main_quit ();
 }
+
+void select_page() {
+    // free old filename
+    //g_free(filename);
+    // copy the new filename to global filename pointer
+    //strcpy(filename, notebook_current_file());
+}
 /* When open file button is pressed, the open_file function is called */
 /* and user searchs and opens a file. The filename is saved. */
 void open_file () {
     GtkWidget *chooser;
+    gchar *filename;
     // open a dialog and save the chosen file name
     chooser = gtk_file_chooser_dialog_new ("Open File",
                         GTK_WINDOW (parser.window),
@@ -33,7 +42,7 @@ void open_file () {
     gtk_widget_destroy (chooser);
 
 }
-
+// saves the selected file from notebook
 void save_file() {
     GError *error = NULL;
     GtkWidget *view;
@@ -41,6 +50,9 @@ void save_file() {
     GtkTextIter start, end;
     gchar *text;
     gboolean return_value;
+    gchar *filename;
+
+    filename = g_list_nth_data(opened_files, notebook_current_file_number());
 
     // get current text view from notebook
     view = notebook_current_view();
@@ -103,6 +115,6 @@ void init(int argc, char **argv) {
     parser.treeview = gtk_builder_get_object(parser.builder, "treeview");
     // take notebook object from UI description
     parser.notebook = gtk_builder_get_object(parser.builder, "notebook");
-
+    g_signal_connect(parser.notebook, "select-page", G_CALLBACK(select_page), NULL);
     init_treeview();
 }

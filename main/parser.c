@@ -7,6 +7,7 @@
 #include "gui.h"
 #include "parser.h"
 #include "treeview.h"
+#include "notebook.h"
 #include "../parser/lib/verilog_parser.tab.h"
 #include "../parser/lib/structures.h"
 
@@ -14,11 +15,14 @@ extern FILE *yyin;
 
 /* Use verilog parser to parse the specified verilog file */
 void parse_file(GObject *object) {
+    gchar *filename;
+    filename = g_list_nth_data(opened_files, notebook_current_file_number());
     if (filename != NULL) {
         printf("\n*****\n");
         printf("Parsing %s", filename);
         printf("\n*****\n");
         fflush(stdout);
+        fprintf(stderr, "%s\n", filename);
         // open given file
         yyin = fopen(filename, "r");
         // parse file
@@ -29,7 +33,6 @@ void parse_file(GObject *object) {
         create_and_fill_model();
     }
 }
-
 /* Takes the string, append it to the end of log file */
 /* and returns the refreshed log in a string */
 gchar *get_parser_log(gchar *string) {
@@ -37,11 +40,14 @@ gchar *get_parser_log(gchar *string) {
     long length;
     // open log file
     FILE *fd = fopen("parser.log","ab+");
-    // append string to file
-    fprintf(fd, "%s", string);
 
     // seek to the end of file
     fseek(fd, 0, SEEK_END);
+    // append string to file
+    fprintf(fd, "%s", string);
+    // seek to the end of file
+    fseek(fd, 0, SEEK_END);
+    // append string to file
     // save the file length
     length = ftell(fd);
     // seek to the beggining of file
@@ -77,7 +83,7 @@ void *display_parser_output() {
     while(1) {
         // read from pipe
         chars_read = read(fds[0], buf, 100*1024);
-        fprintf(stderr, "%i chars: %s \n", chars_read, buf);
+        //fprintf(stderr, "%i chars: %s \n", chars_read, buf);
         // get refreshed parser log
         log = get_parser_log(buf);
         // display data to the label
