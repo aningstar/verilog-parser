@@ -37,38 +37,6 @@ void parse_file(GObject *object) {
         create_and_fill_model();
     }
 }
-/* Takes the string, append it to the end of log file */
-/* and returns the refreshed log in a string */
-gchar *get_parser_log(gchar *string) {
-    char *buffer;
-    long length;
-    // open log file
-    FILE *fd = fopen("parser.log","ab+");
-
-    // seek to the end of file
-    fseek(fd, 0, SEEK_END);
-    // append string to file
-    fprintf(fd, "%s", string);
-    // seek to the end of file
-    fseek(fd, 0, SEEK_END);
-    // append string to file
-    // save the file length
-    length = ftell(fd);
-    // seek to the beggining of file
-    fseek(fd, 0, SEEK_SET);
-    // allocate space for the buffer
-    buffer = (char *) malloc(length*sizeof(char));
-    if (!buffer) {
-        perror("malloc: can't allocate memory\n");
-        return NULL;
-    }
-    // read contents to buffer
-    fread(buffer, 1, length-1, fd);
-
-    // close file
-    fclose(fd);
-    return buffer;
-}
 /* Parser's Thread function. The thread checks the redirected */
 /* standard ouput, for messages from parser and display them */
 /* to label */
