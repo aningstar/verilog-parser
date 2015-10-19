@@ -9,7 +9,7 @@ struct gtk_parser {
     GObject *parse_file_button;
     GObject *close_file_button;
     // parser output
-    GObject *parser_output_label;
+    GObject *parser_output;
     // tree
     GObject *treeview;
     GtkTreeStore *treestore;

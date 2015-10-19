@@ -29,6 +29,10 @@ void parse_file(GObject *object) {
         yyparse();
         // close file
         fclose(yyin);
+        printf("\n*****\n");
+        printf("Parsing Complete");
+        printf("\n*****\n");
+        fflush(stdout);
 
         create_and_fill_model();
     }
@@ -73,6 +77,10 @@ void *display_parser_output() {
     gint chars_read;
     gchar buf[100*1024];
     gchar *log;
+    GtkTextIter iter;
+    GtkTextBuffer *buffer;
+
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(parser.parser_output));
 
     //Redirect fds[1] to be writed with the standard output.
     dup2 (fds[1], 1);
@@ -81,13 +89,11 @@ void *display_parser_output() {
     // to stop the loop. After the signal remove the
     // parser log file.
     while(1) {
+        gtk_text_buffer_get_end_iter(buffer, &iter);
         // read from pipe
         chars_read = read(fds[0], buf, 100*1024);
         //fprintf(stderr, "%i chars: %s \n", chars_read, buf);
-        // get refreshed parser log
-        log = get_parser_log(buf);
-        // display data to the label
-        gtk_label_set_text((GtkLabel*)(parser.parser_output_label), log);
+        gtk_text_buffer_insert(buffer, &iter, buf, chars_read);
     }
     return 0;
 }

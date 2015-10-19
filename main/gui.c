@@ -109,7 +109,7 @@ void init(int argc, char **argv) {
     g_signal_connect (parser.save_file_button, "clicked",
             G_CALLBACK(save_file), NULL);
     // take parser output lable from UI description
-    parser.parser_output_label =
+    parser.parser_output =
         gtk_builder_get_object(parser.builder,"parser_output");
     // take tree view object from UI description
     parser.treeview = gtk_builder_get_object(parser.builder, "treeview");
