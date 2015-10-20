@@ -14,3 +14,4 @@ grammar_examples/
 push.sh
 build.xml~
 parser
+parser.c

@@ -2946,10 +2946,10 @@ module_instances:
         if (returned_value == -1) {
             add_module($1);   
             // add the cell to the list
-            current_head = addMcell(current_head, number_of_modules - 1);
+            current_head = addInstance(current_head, $2, number_of_modules - 1);
         }else {
             // add the cell to the list
-            current_head = addMcell(current_head, returned_value);        
+            current_head = addInstance(current_head, $2, returned_value);        
         }
     }
 |   identifier identifier OPENPARENTHESES connections CLOSEPARENTHESES 
@@ -2964,10 +2964,10 @@ module_instances:
         if (returned_value == -1) {
             add_module($1);   
             // add the cell to the list
-            current_head = addMcell(current_head, number_of_modules - 1);
+            current_head = addInstance(current_head, $2, number_of_modules - 1);
         }else {
             // add the cell to the list
-            current_head = addMcell(current_head, returned_value);        
+            current_head = addInstance(current_head, $2, returned_value);        
         }
     }
     /* 3st type module instances (explicit parameter redefinition) */
