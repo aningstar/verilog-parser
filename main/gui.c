@@ -11,22 +11,34 @@
 #include "../parser/lib/verilog_parser.tab.h"
 #include "../parser/lib/structures.h"
 
+extern FILE *yyin;
 
 /* Use verilog parser to parse the specified verilog file */
 void parse_file(GObject *object) {
     gchar *filename;
-    gint return_value;
     filename = g_list_nth_data(opened_files, notebook_current_file_number());
     if (filename != NULL) {
         // spawn new process for parsing
         if (fork() == 0) {
             //Redirect fds[1] to be writed with the standard output.
             dup2 (fds[1], 1);
-            // execute the parser's code
-            return_value = execl("./parser/parser", filename, NULL);
-            if (return_value == -1) {
-                perror("exec");
-            }
+            printf("\n*****\n");
+            printf("Parsing %s", filename);
+            printf("\n*****\n");
+            fflush(stdout);
+            fprintf(stderr, "%s\n", filename);
+            // open given file
+            yyin = fopen(filename, "r");
+            // parse file
+            yyparse();
+            // close file
+            fclose(yyin);
+            printf("\n*****\n");
+            printf("Parsing Complete");
+            printf("\n*****\n");
+            fflush(stdout);
+            // exit
+            exit(0);
         }
     }
 }
@@ -34,12 +46,10 @@ void parse_file(GObject *object) {
 /* standard ouput, for messages from parser and display them */
 /* to label */
 void *display_parser_output() {
-
     gint chars_read;
-    gchar buf[100*1024];
-    gchar *log;
-    GtkTextIter iter;
+    gchar buf[1024];
     GtkTextBuffer *buffer;
+    GtkTextIter iter;
 
     buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(parser.parser_output));
 
@@ -50,11 +60,9 @@ void *display_parser_output() {
     while(1) {
         gtk_text_buffer_get_end_iter(buffer, &iter);
         // read from pipe
-        chars_read = read(fds[0], buf, 100*1024);
-        //fprintf(stderr, "%i chars: %s \n", chars_read, buf);
+        chars_read = read(fds[0], buf, 1024);
         gtk_text_buffer_insert(buffer, &iter, buf, chars_read);
     }
-    return 0;
 }
 
 /* Terminate program when window closed */
