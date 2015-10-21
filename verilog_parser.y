@@ -86,6 +86,9 @@
 %token F_SWRITEO F_SWRITED F_SFORMAT F_SSCANF F_READMEMB F_READMEMH F_REALTOBITS
 %token F_BITSTOREAL F_TEST_PLUSARGS F_VALUE_PLUSARGS
 %token TEXT
+/* Open types. */
+%token OPEN_READ TRUNCATE_CREATE_FOR_WRITE OPEN_APPEND OPEN_UPDATE
+%token TRUNCATE_CREATE_FOR_UPDATE OPEN_APPEND_OR_CREATE_FOR_UPDATE
 
 %token <name> X_LOW X_UPPER B_LOW B_UPPER R_LOW R_UPPER F_LOW F_UPPER 
 %token <name> P_LOW P_UPPER N_LOW N_UPPER
@@ -4368,6 +4371,7 @@ num_integer:
 
 /* Common System Tasks and Functions */
 system_task:
+    /* Text Output System Tasks. */
     text_output_system_task_identifier OPENPARENTHESES TEXT COMMA
     list_of_arguments CLOSEPARENTHESES SEMICOLON
     {
@@ -4381,12 +4385,303 @@ system_task:
             printf("system_task ");
         #endif
     }
+    /* File I/O System Tasks and Functions. */
+|   identifier EQUALS_SIGN F_FOPEN OPENPARENTHESES TEXT CLOSEPARENTHESES
+    SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_FOPEN OPENPARENTHESES TEXT COMMA open_type
+    CLOSEPARENTHESES
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_FCLOSE OPENPARENTHESES identifier CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_FMONITOR OPENPARENTHESES identifier COMMA TEXT COMMA list_of_arguments
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_FDISPLAY OPENPARENTHESES identifier COMMA TEXT COMMA list_of_arguments
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_FWRITE OPENPARENTHESES identifier COMMA TEXT COMMA list_of_arguments
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_FSTROBE OPENPARENTHESES identifier COMMA TEXT COMMA list_of_arguments
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_FGETC OPENPARENTHESES identifier CLOSEPARENTHESES
+    SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_UNGETC OPENPARENTHESES identifier COMMA identifier
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_FGETS OPENPARENTHESES identifier COMMA identifier
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_FSCANF OPENPARENTHESES identifier COMMA TEXT COMMA
+    list_of_arguments CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_FREAD OPENPARENTHESES identifier COMMA identifier
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_FREAD OPENPARENTHESES identifier COMMA identifier
+    COMMA identifier COMMA identifier CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_FTELL OPENPARENTHESES identifier CLOSEPARENTHESES
+    SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_FSEEK OPENPARENTHESES identifier COMMA identifier
+    COMMA identifier CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_REWIND OPENPARENTHESES identifier CLOSEPARENTHESES
+    SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_FERROR OPENPARENTHESES identifier COMMA identifier
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_FFLUSH OPENPARENTHESES identifier CLOSEPARENTHESES
+    SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+    /* Other System Tasks and Functions. */
+|   F_FINISH OPENPARENTHESES num_integer CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_FINISH OPENPARENTHESES CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_STOP OPENPARENTHESES num_integer CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_STOP OPENPARENTHESES CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_TIME
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_STIME
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_REALTIME
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_TIMEFORMAT OPENPARENTHESES num_integer COMMA num_integer COMMA TEXT COMMA
+    num_integer CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_PRINTTIMESCALE OPENPARENTHESES identifier CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_PRINTTIMESCALE OPENPARENTHESES CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
 
+/* $signed(unsigned) and $unsigned(signed) are implemented in 'expression'. */
+
+|   F_SWRITE OPENPARENTHESES identifier COMMA list_of_text_and_arguments_pairs
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_SWRITEB OPENPARENTHESES identifier COMMA list_of_text_and_arguments_pairs
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_SWRITEO OPENPARENTHESES identifier COMMA list_of_text_and_arguments_pairs
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_SWRITED OPENPARENTHESES identifier COMMA list_of_text_and_arguments_pairs
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_SFORMAT OPENPARENTHESES identifier COMMA TEXT COMMA list_of_arguments
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_SSCANF OPENPARENTHESES TEXT COMMA list_of_arguments
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_READMEMB OPENPARENTHESES TEXT COMMA identifier COMMA num_integer COMMA
+    num_integer CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_READMEMB OPENPARENTHESES TEXT COMMA identifier CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_READMEMH OPENPARENTHESES TEXT COMMA identifier COMMA num_integer COMMA
+    num_integer CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   F_READMEMH OPENPARENTHESES TEXT COMMA identifier CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_REALTOBITS OPENPARENTHESES identifier
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_BITSTOREAL OPENPARENTHESES identifier
+    CLOSEPARENTHESES SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_TEST_PLUSARGS OPENPARENTHESES TEXT CLOSEPARENTHESES
+    SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
+|   identifier EQUALS_SIGN F_VALUE_PLUSARGS OPENPARENTHESES TEXT
+    CLOSEPARENTHESES COMMA identifier SEMICOLON
+    {
+        #ifdef SYNTAX_DEBUG
+            printf("system_task ");
+        #endif
+    }
 ;
 
 list_of_arguments:
     identifier { }
 |   list_of_arguments COMMA identifier { }
+;
+
+list_of_text_and_arguments_pairs:
+    TEXT COMMA list_of_arguments { }
+|   list_of_text_and_arguments_pairs COMMA TEXT COMMA list_of_arguments { }
 ;
 
 text_output_system_task_identifier:
@@ -4406,6 +4701,15 @@ text_output_system_task_identifier:
 |   F_MONITORB 
 |   F_MONITORO 
 |   F_MONITORH 
+;
+
+open_type:
+    OPEN_READ
+|   TRUNCATE_CREATE_FOR_WRITE
+|   OPEN_APPEND
+|   OPEN_UPDATE
+|   TRUNCATE_CREATE_FOR_UPDATE
+|   OPEN_APPEND_OR_CREATE_FOR_UPDATE
 ;
 
 system_identifier:

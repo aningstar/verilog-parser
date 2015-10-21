@@ -226,6 +226,23 @@ inside them. */
 "$test$plusargs"      { return F_TEST_PLUSARGS;  }
 "$value$plusargs"     { return F_VALUE_PLUSARGS; }
 
+    /* Open types. */
+"\"r\""               { return OPEN_READ;                        }
+"\"rb"\"              { return OPEN_READ;                        }
+"\"w"\"               { return TRUNCATE_CREATE_FOR_WRITE;        }
+"\"wb"\"              { return TRUNCATE_CREATE_FOR_WRITE;        }
+"\"a"\"               { return OPEN_APPEND;                      }
+"\"ab"\"              { return OPEN_APPEND;                      }
+"\"r+"\"              { return OPEN_UPDATE;                      }
+"\"r+b"\"             { return OPEN_UPDATE;                      }
+"\"rb+"\"             { return OPEN_UPDATE;                      }
+"\"w+"\"              { return TRUNCATE_CREATE_FOR_UPDATE;       }
+"\"w+b"\"             { return TRUNCATE_CREATE_FOR_UPDATE;       }
+"\"wb+"\"             { return TRUNCATE_CREATE_FOR_UPDATE;       }
+"\"a+"\"              { return OPEN_APPEND_OR_CREATE_FOR_UPDATE; }
+"\"a+b"\"             { return OPEN_APPEND_OR_CREATE_FOR_UPDATE; }
+"\"ab+"\"             { return OPEN_APPEND_OR_CREATE_FOR_UPDATE; }
+
 <INITIAL>
 {
 [/][*]              { BEGIN(multi_line_comment); }
