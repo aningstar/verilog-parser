@@ -1,28 +1,19 @@
-all: testcases grammar_examples
+run: build
+	./verilog_parser
 
-testcases: parser
-	cd testcases && $(MAKE)
+build: main/*.c parser/lib/*.c
+	cd main/ && \
+	gcc `pkg-config --cflags gtk+-3.0` -o \
+	../verilog_parser \
+	../parser/lib/*.c \
+	*.c \
+	-lfl \
+	-pthread \
+	`pkg-config --libs gtk+-3.0`
 
-grammar_examples: parser
-	cd grammar_examples && $(MAKE) 
+parser: 
+	cd parser/ && $(MAKE)
 
-parser: lexic.l verilog_parser.y
-	bison -d -v verilog_parser.y
-	lex lexic.l
-	gcc lex.yy.c verilog_parser.tab.c structures.c main.c -lfl -o verilog_parser
-
-debug: lexic.l verilog_parser.y
-	bison -d -v verilog_parser.y
-	lex lexic.l
-	gcc -Wall -g lex.yy.c verilog_parser.tab.c structures.c main.c -lfl -o verilog_parser
-
-run_debug: debug
-	cd testcases && $(MAKE) debug
-	cd grammar_examples && $(MAKE) debug
-
-clean: 
-	rm lex.yy.c
-	rm verilog_parser.tab.h
-	rm verilog_parser.tab.c
-	rm verilog_parser.output
+clean:
 	rm verilog_parser
+	cd parser/ && $(MAKE) clean

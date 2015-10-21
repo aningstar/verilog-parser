@@ -9,3 +9,9 @@ verilog_parser.tab.h
 verilog_parser.tab.c
 verilog_parser.output
 verilog_parser
+testcases/
+grammar_examples/
+push.sh
+build.xml~
+parser
+parser.c
