@@ -15,3 +15,5 @@ push.sh
 build.xml~
 parser
 parser.c
+instances.tpl
+modules.tpl

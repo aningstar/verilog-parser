@@ -12,6 +12,7 @@ extern int fds[2];
 int main (int argc, char **argv) {
 
     pthread_t thread_1;
+    pthread_t thread_2;
     int return_code;
     // initialize gui
     init(argc, argv);
@@ -21,6 +22,11 @@ int main (int argc, char **argv) {
     // spawn a thread to check and display parser messages from redirectd
     // standard output
     return_code = pthread_create(&thread_1, NULL, display_parser_output, NULL);
+    if (return_code) {
+        perror("error: pthread_create");
+        return 1;
+    }
+    return_code = pthread_create(&thread_2, NULL, read_structures,NULL);
     if (return_code) {
         perror("error: pthread_create");
         return 1;

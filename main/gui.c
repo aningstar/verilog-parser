@@ -1,25 +1,34 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <gtk/gtk.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <gtk/gtk.h>
 #include "gui.h"
 #include "treeview.h"
 #include "notebook.h"
 #include "../parser/lib/verilog_parser.tab.h"
-#include "../parser/lib/structures.h"
+#include "../tpl/tpl.h"
 
 extern FILE *yyin;
 
-/* Use verilog parser to parse the specified verilog file */
+/* Spanws a new process and use verilog parser to parse
+ * the specified verilog file. After that serialize the
+ * structrures */
 void parse_file(GObject *object) {
+    create_and_fill_model();
     gchar *filename;
+    // get filename of opened file
     filename = g_list_nth_data(opened_files, notebook_current_file_number());
     if (filename != NULL) {
         // spawn new process for parsing
         if (fork() == 0) {
+            Shared *shmem;
+            // attach shared memory segment to the address space
+            shmem = (Shared *)shmat(shmid, NULL, 0);
             //Redirect fds[1] to be writed with the standard output.
             dup2 (fds[1], 1);
             printf("\n*****\n");
@@ -33,18 +42,118 @@ void parse_file(GObject *object) {
             yyparse();
             // close file
             fclose(yyin);
+            print_modules();
             printf("\n*****\n");
             printf("Parsing Complete");
             printf("\n*****\n");
             fflush(stdout);
-            // exit
+            store_structures();
+            // copy structures to the shared segment
+            shmem->rdy = 1;
+            // detache from shared segment
+            shmdt(shmem);
+            // exit child process
             exit(0);
         }
     }
 }
-/* Parser's Thread function. The thread checks the redirected */
-/* standard ouput, for messages from parser and display them */
-/* to label */
+/* Thread function that wait from parser
+ * to end , and uses the tlp library to
+ * deserialize the structures. After that it
+ * paints the structures to the gtk tree. */
+void *read_structures() {
+    Shared *shmem;
+    // create a new shared segment
+    shmid = shmget(IPC_PRIVATE, sizeof(Shared), IPC_CREAT|0777);
+    // attach shared memory segment to the address space
+    shmem = (Shared *)shmat(shmid, NULL, 0);
+    // destroy segment after the last process detaches
+    shmctl(shmid, IPC_RMID, NULL);
+
+    while(1) {
+        // wait for the process to signal
+        shmem->rdy = 0;
+        while(shmem->rdy == 0) {}
+        // deserialize the structures
+        load_structures();
+        print_modules();
+    }
+    return 0;
+}
+/* Uses the tlp library and serialize
+ * the structures in binary format */
+void store_structures() {
+    int i = 0;
+    tpl_node *tn_modules, *tn_instances;
+    Module tmp_module;
+    Instance tmp_instance, *curr;
+
+    // Map an array with structs
+    tn_modules = tpl_map("A(S(c#))", &tmp_module, SIZE);
+    // Pack the informations of the array
+    for (i = 0; i < number_of_modules; i++) {
+        tmp_module = *modules[i];
+        tpl_pack(tn_modules, 1);
+    }
+    // Save to tlp file
+    tpl_dump(tn_modules, TPL_FILE, "modules.tpl");
+    // Free memory
+    tpl_free(tn_modules);
+
+    // Map a two dimensional array with lists
+    tn_instances = tpl_map("A(A(S(ic#)))", &tmp_instance, SIZE);
+    // Pack the informations of the array
+    for (i = 0; i < number_of_modules; i++) {
+        for(curr = cells[i]; curr != NULL; curr = curr->next) {
+            tmp_instance = *curr;
+            tpl_pack(tn_instances, 2);
+        }
+        tpl_pack(tn_instances, 1);
+    }
+    // Save to tlp file
+    tpl_dump(tn_instances, TPL_FILE, "instances.tpl");
+    // Free memory
+    tpl_free(tn_instances);
+}
+/* Uses the tlp library and deserialize the binary file
+ * with the structures from parsing */
+void load_structures() {
+    int i = 0;
+    tpl_node *tn_modules, *tn_instances;
+    Module tmp_module;
+    Instance tmp_instance;
+    Instance *head = NULL;
+
+    // Map an array structs
+    tn_modules = tpl_map("A(S(c#))", &tmp_module, SIZE);
+    // Load file with structure
+    tpl_load(tn_modules, TPL_FILE, "modules.tpl");
+    // Unpack the array and save the structrure
+    while(tpl_unpack(tn_modules, 1) > 0) {
+        add_module(tmp_module.name);
+    }
+    // Free the memory
+    tpl_free(tn_modules);
+
+    // Map a two dimensional array with lists
+    tn_instances = tpl_map("A(A(S(ic#)))", &tmp_instance, SIZE);
+    // Load file with structure
+    tpl_load(tn_instances, TPL_FILE, "instances.tpl");
+    // Unpack the array and save the structure
+    while(tpl_unpack(tn_instances, 1) > 0) {
+        while(tpl_unpack(tn_instances, 2) > 0) {
+            head = addInstance(head, tmp_instance.instance_name, tmp_instance.module_key);
+        }
+        cells[i] = head;
+        i++;
+        head = NULL;
+    }
+    // Free the memory
+    tpl_free(tn_instances);
+}
+
+/* Parser's Thread function. The thread checks the redirected standard ouput */
+/* of child process,for messages from parser and display them to textview */
 void *display_parser_output() {
     gint chars_read;
     gchar buf[1024];

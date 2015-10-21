@@ -28,8 +28,7 @@ void check_reduction_flag(int reduction_flag);
 /* or a reduction_or (value 1) or not (value 0). */
 int reduction_and_flag, reduction_or_flag;
 
-struct module
-{
+struct module {
     char name[SIZE]; // hash strings - module name //
 };
 
@@ -47,8 +46,6 @@ Instance **cells;
 // Pointer to the head of the list that contains the cells for the current
 // module
 Instance *current_head;
-// Pointer to the instaces hash table
-char **instances;
 // the number of stored modules to the modules hash table
 int number_of_modules;
 // variable used for function's returned values

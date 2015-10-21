@@ -9,6 +9,7 @@ all:
 	mv verilog_parser.tab.c lib/
 	mv lex.yy.c lib/
 	mv *.h lib/
+	gcc parser.c lib/*.c -o parser -lfl
 
 clean:
 	$(RM) lib/verilog_parser.*
