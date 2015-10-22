@@ -6,3 +6,4 @@ GtkWidget *notebook_current_view();
 // of the given file and append it to the
 // notebook
 void notebook_add_page(gchar *filename);
+void notebook_close_current_page();

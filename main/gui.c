@@ -189,6 +189,11 @@ void destroy(GtkWidget *widget, gpointer data) {
     gtk_main_quit ();
 }
 
+void close_file() {
+    notebook_close_current_page();
+    gtk_tree_store_clear(parser.treestore);
+}
+
 void select_page() {
     // free old filename
     //g_free(filename);
@@ -282,6 +287,10 @@ void init(int argc, char **argv) {
     // connect save file button with the save file function
     g_signal_connect (parser.save_file_button, "clicked",
             G_CALLBACK(save_file), NULL);
+    parser.close_file_button =
+        gtk_builder_get_object (parser.builder, "close_file_button");
+    g_signal_connect (parser.close_file_button, "clicked",
+            G_CALLBACK(close_file), NULL);
     // take parser output lable from UI description
     parser.parser_output =
         gtk_builder_get_object(parser.builder,"parser_output");

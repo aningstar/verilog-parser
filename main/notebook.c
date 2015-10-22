@@ -6,6 +6,12 @@
 #include <unistd.h>
 #include "gui.h"
 
+
+void notebook_close_current_page() {
+    gint page_number = 0;
+    page_number = gtk_notebook_get_current_page(GTK_NOTEBOOK(parser.notebook));
+    gtk_notebook_remove_page(GTK_NOTEBOOK(parser.notebook), page_number);
+}
 // returns the nth opened file in notebook
 guint notebook_current_file_number() {
     // get the number of current page
