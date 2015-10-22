@@ -17,6 +17,25 @@ The current version of parser supports:
 * Udp Declarations
 * Common System Tasks and Functions
 
+Compile
+===
+
+Compile parser
+```
+cd parser && $(MAKE) 
+```
+Compile project
+```
+make build
+```
+
+Run
+===
+
+```
+make run
+```
+
 Tools
 ===
 
@@ -24,11 +43,13 @@ Tools
 
 [GNU Bison](https://www.gnu.org/software/bison/)
 
-[tpl - a small binary serialization library for C](
+[Tpl - a small binary serialization library for C](
 https://github.com/troydhanson/tpl)
 
 [Glade - A User Interface Designer](
 https://glade.gnome.org/)
+
+[Gtk 3](http://www.gtk.org/)
 
 References
 ===
