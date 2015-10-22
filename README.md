@@ -15,6 +15,14 @@ The current version of parser supports:
 * Procedural Blocks
 * Specify Blocks
 * Udp Declarations
+* Common System Tasks and Functions
+
+Tools
+===
+
+* [tpl - a small binary serialization library for C](
+https://github.com/troydhanson/tpl
+)
 
 References
 ===
