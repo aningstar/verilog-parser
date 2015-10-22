@@ -229,7 +229,7 @@ module_declaration:
         current_head = NULL;
     }
 |   module_keyword identifier OPENPARENTHESES nonempty_identifier_list 
-    CLOSEPARENTHESES SEMICOLON module_port_body
+    CLOSEPARENTHESES SEMICOLON
     module_items ENDMODULE
     { 
         add_module($2); // create a plmodule node in modules hash table
@@ -296,13 +296,6 @@ module_port_body:
             fflush(stdout);
         #endif
     }
-|   module_port_body port_declaration SEMICOLON 
-    { 
-        #ifdef SYNTAX_DEBUG
-            printf("module_port_declaration "); 
-            fflush(stdout);
-        #endif
-    }
 ;
 
 module_items: /* empty */
@@ -313,6 +306,7 @@ module_items: /* empty */
 |   module_items specify_block { }
 |   module_items procedural_programming_statement { }
 |   module_items system_task { }
+|   module_items module_port_body { }
 ;
 
 nonempty_identifier_list: 
