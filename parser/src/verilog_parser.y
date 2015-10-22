@@ -89,6 +89,14 @@
 /* Open types. */
 %token OPEN_READ TRUNCATE_CREATE_FOR_WRITE OPEN_APPEND OPEN_UPDATE
 %token TRUNCATE_CREATE_FOR_UPDATE OPEN_APPEND_OR_CREATE_FOR_UPDATE
+/* Compiler Directives. */
+%token COMPILER_RESETALL COMPILER_TIMESCALE COMPILER_DEFINE COMPILER_UNDEF
+%token COMPILER_IFDEF COMPILER_IFNDEF COMPILER_ELSE COMPILER_ELSEIF
+%token COMPILER_ENDIF COMPILER_INCLUDE COMPILER_CELLDEFINE
+%token COMPILER_ENDCELLDEFINE COMPILER_DEFAULT_NETTYPE
+%token COMPILER_UNCONNECTED_DRIVE COMPILER_NOUNCONNECTED_DRIVE COMPILER_USELIB
+/* Configurations. */
+%token CONFIG DESIGN LIBLIST CELL INSTANCE ENDCONFIG USE LIBRARY INCLUDE INCDIR
 
 %token <name> X_LOW X_UPPER B_LOW B_UPPER R_LOW R_UPPER F_LOW F_UPPER 
 %token <name> P_LOW P_UPPER N_LOW N_UPPER
@@ -221,7 +229,7 @@ module_declaration:
         current_head = NULL;
     }
 |   module_keyword identifier OPENPARENTHESES nonempty_identifier_list 
-    CLOSEPARENTHESES SEMICOLON module_port_body
+    CLOSEPARENTHESES SEMICOLON
     module_items ENDMODULE
     { 
         add_module($2); // create a plmodule node in modules hash table
@@ -288,13 +296,6 @@ module_port_body:
             fflush(stdout);
         #endif
     }
-|   module_port_body port_declaration SEMICOLON 
-    { 
-        #ifdef SYNTAX_DEBUG
-            printf("module_port_declaration "); 
-            fflush(stdout);
-        #endif
-    }
 ;
 
 module_items: /* empty */
@@ -305,6 +306,7 @@ module_items: /* empty */
 |   module_items specify_block { }
 |   module_items procedural_programming_statement { }
 |   module_items system_task { }
+|   module_items module_port_body { }
 ;
 
 nonempty_identifier_list: 
