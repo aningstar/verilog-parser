@@ -26,6 +26,7 @@ inside them. */
 %%
 
     /* Match Verilog 2001 keywords. */
+"-incdir"             { return INCDIR; }
 "always"              { return ALWAYS; }
 "and"                 { return AND; }
 "assign"              { return ASSIGN; }
@@ -37,19 +38,19 @@ inside them. */
 "case"                { return CASE; }
 "casex"               { return CASEX; }
 "casez"               { return CASEZ; }
-"cell"                { printf("CELL\n"); }
+"cell"                { return CELL; }
 "cmos"                { return CMOS; }
-"config"              { printf("CONFIG\n"); }
+"config"              { return CONFIG; }
 "deassign"            { return DEASSIGN; }
 "default"             { return DEFAULT; }
 "defparam"            { return DEFPARAM; }
-"design"              { printf("DESIGN\n"); }
+"design"              { return DESIGN; }
 "disable"             { return DISABLE; }
 "edge"                { return EDGE; }
 "else"                { return ELSE; }
 "end"                 { return END; }
 "endcase"             { return ENDCASE; }
-"endconfig"           { printf("ENDCONFIG\n"); }
+"endconfig"           { return ENDCONFIG; }
 "endfunction"         { return ENDFUNCTION; }
 "endgenerate"         { return ENDGENERATE; }
 "endmodule"           { return ENDMODULE; }
@@ -69,14 +70,16 @@ inside them. */
 "highz1"              { printf("HIGHZ1\n"); }
 "if"                  { return IF; }
 "ifnone"              { return IFNONE; }
+"include"             { return INCLUDE; }
 "initial"             { return INITIAL_TOKEN; }
-"instance"            { printf("INSTANCE\n"); }
+"instance"            { return INSTANCE; }
 "inout"               { return INOUT; }
 "input"               { return INPUT; }
 "integer"             { return INTEGER; }
 "join"                { return JOIN; }
 "large"               { return LARGE; }
-"liblist"             { printf("LIBLIST\n"); }
+"liblist"             { return LIBLIST; }
+"library"             { return LIBRARY; }
 "localparam"          { return LOCALPARAM; }
 "macromodule"         { return MACROMODULE; }
 "medium"              { return MEDIUM;}
@@ -136,7 +139,7 @@ inside them. */
 "trior"               { return TRIOR; }
 "trireg"              { return TRIREG; }
 "unsigned"            { printf("UNSIGNED\n"); }
-"use"                 { printf("USE\n"); }
+"use"                 { return USE; }
 "vectored"            { return VECTORED; }
 "wait"                { return WAIT; }
 "wand"                { return WAND; }
