@@ -20,9 +20,10 @@ The current version of parser supports:
 Tools
 ===
 
-[tpl - a small binary serialization library for C](
-https://github.com/troydhanson/tpl
-)
+[GNU Bison](https://www.gnu.org/software/bison/)
+
+[Flex](https://www.gnu.org/software/flex/flex.html)
+
 
 References
 ===
