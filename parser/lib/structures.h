@@ -19,6 +19,9 @@ Instance *addInstance(Instance *head, char instance_name[], int module_key);
 int check_for_module(char name[]);
 void add_module(char name[]);
 void print_modules(void);
+/* Free allocated memory and initialize
+ * global variables */
+void free_memory();
 void reset_reduction_flags(int *reduction_and_flag, int *reduction_or_flag);
 void turn_reduction_flag_on(int *reduction_flag);
 void check_reduction_flag(int reduction_flag);

@@ -77,6 +77,7 @@ void *read_structures() {
         // deserialize the structures
         load_structures();
         print_modules();
+        free_memory();
     }
     return 0;
 }

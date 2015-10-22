@@ -109,4 +109,26 @@ Instance *addInstance(Instance *head, char instance_name[], int module_key) {
     }
     return head;
 }
+/* Free allocated memory and initialize
+ * global variables */
+void free_memory() {
+    Instance *curr, *tmp;
+    Module *curr_module;
+    Module **tmp_modules;
+    int i;
 
+    for (i = 0; i < number_of_modules; i++) {
+        for(curr = cells[i]; curr != NULL; curr = curr->next) {
+            tmp = curr;
+            free(tmp);
+        }
+    }
+    cells = NULL;
+    for(i = 0; i <number_of_modules; i++) {
+        curr_module = modules[i];
+        free(curr_module);
+    }
+    modules = NULL;
+
+    number_of_modules = 0;
+}
