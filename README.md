@@ -25,8 +25,10 @@ Tools
 [GNU Bison](https://www.gnu.org/software/bison/)
 
 [tpl - a small binary serialization library for C](
-https://github.com/troydhanson/tpl
-)
+https://github.com/troydhanson/tpl)
+
+[Glade - A User Interface Designer](
+https://glade.gnome.org/)
 
 References
 ===
