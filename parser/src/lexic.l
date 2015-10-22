@@ -243,6 +243,24 @@ inside them. */
 "\"a+b"\"             { return OPEN_APPEND_OR_CREATE_FOR_UPDATE; }
 "\"ab+"\"             { return OPEN_APPEND_OR_CREATE_FOR_UPDATE; }
 
+    /* Verilog compiler directives. */
+"`resetall"           { return COMPILER_RESETALL;             }
+"`timescale"          { return COMPILER_TIMESCALE;            }
+"`define"             { return COMPILER_DEFINE;               }
+"`undef"              { return COMPILER_UNDEF;                }
+"`ifdef"              { return COMPILER_IFDEF;                }
+"`ifndef"             { return COMPILER_IFNDEF;               }
+"`else"               { return COMPILER_ELSE;                 }
+"`elsif"              { return COMPILER_ELSEIF;               }
+"`endif"              { return COMPILER_ENDIF;                }
+"`include"            { return COMPILER_INCLUDE;              }
+"`celldefine"         { return COMPILER_CELLDEFINE;           }
+"`endcelldefine"      { return COMPILER_ENDCELLDEFINE;        }
+"`default_nettype"    { return COMPILER_DEFAULT_NETTYPE;      }
+"`unconnected_drive"  { return COMPILER_UNCONNECTED_DRIVE;    }
+"`nounconnected_drive" { return COMPILER_NOUNCONNECTED_DRIVE; }
+"`uselib"             { return COMPILER_USELIB;               }
+
 <INITIAL>
 {
 [/][*]              { BEGIN(multi_line_comment); }
