@@ -5,6 +5,8 @@ enum {
     INSTANCE_ENABLE,
     NUM_COLS
 } ;
-void create_and_fill_model ();
+
+void clean_tree();
+void create_and_fill_tree ();
 // Sets columns and store model for the treeview
 void init_treeview ();

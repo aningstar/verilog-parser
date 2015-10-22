@@ -371,7 +371,8 @@ that comments are invisible to the parser). */
                                                      return IDENTIFIER; 
                                                    }
 
-[\\][^\n\t ]+                                      { return IDENTIFIER; }
+"\\"[^\n\t ]+                                      { yylval.name = strdup(yytext); 
+                                                    return IDENTIFIER; }
  
     /* Match Verilog 2001 real numbers. */
 [0-9]+[.][0-9][0-9_]*                              { return REALV; }

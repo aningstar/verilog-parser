@@ -19,10 +19,19 @@ extern FILE *yyin;
  * the specified verilog file. After that serialize the
  * structrures */
 void parse_file(GObject *object) {
-    create_and_fill_model();
+    gtk_tree_store_clear(parser.treestore);
     gchar *filename;
     // get filename of opened file
     filename = g_list_nth_data(opened_files, notebook_current_file_number());
+
+    // Delete old text in text_view
+    GtkTextBuffer *buffer;
+    GtkTextIter iter_start, iter_end;
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(parser.parser_output));
+    gtk_text_buffer_get_start_iter(buffer, &iter_start);
+    gtk_text_buffer_get_end_iter(buffer, &iter_end);
+    gtk_text_buffer_delete(buffer, &iter_start, &iter_end);
+
     if (filename != NULL) {
         // spawn new process for parsing
         if (fork() == 0) {
@@ -76,7 +85,7 @@ void *read_structures() {
         while(shmem->rdy == 0) {}
         // deserialize the structures
         load_structures();
-        print_modules();
+        create_and_fill_tree();
         free_memory();
     }
     return 0;
@@ -168,9 +177,9 @@ void *display_parser_output() {
     // to stop the loop. After the signal remove the
     // parser log file.
     while(1) {
-        gtk_text_buffer_get_end_iter(buffer, &iter);
         // read from pipe
         chars_read = read(fds[0], buf, 1024);
+        gtk_text_buffer_get_end_iter(buffer, &iter);
         gtk_text_buffer_insert(buffer, &iter, buf, chars_read);
     }
 }
