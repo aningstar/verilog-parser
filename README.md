@@ -1,28 +1,14 @@
 Parsing Gate-Level Verilog Netlists (.v)
 ===
 
-The current version of parser supports:
-
-* Module Definitions
-* Data Type Declarations
-* Module Instances
-* Primitive Instances
-* Generate Blocks
-* Continuous Assignments
-* Expressions
-* Tasks Definitions
-* Functions Definitions
-* Procedural Blocks
-* Specify Blocks
-* Udp Declarations
-* Common System Tasks and Functions
+Implementation of a fully-fledged Verilog parser which performs lectical and syntactic analysis of the hardware description language using the Flex and Bison parsing tools. It subsequently creates hash tables and stores the core modules in them. Furthermore, the results can be visualized with a GUI GTK application.
 
 Compile
 ===
 
 Compile parser
 ```
-cd parser && $(MAKE) 
+cd parser && $(MAKE)
 ```
 Compile project
 ```
