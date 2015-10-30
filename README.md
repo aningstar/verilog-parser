@@ -1,4 +1,4 @@
-Parsing Gate-Level Verilog Netlists (.v)
+Parsing Verilog HDL
 ===
 
 Implementation of a fully-fledged Verilog parser which performs lectical and syntactic analysis of the hardware description language using the Flex and Bison parsing tools. It subsequently creates hash tables and stores the core modules in them. Furthermore, the results can be visualized with a GUI GTK application.
