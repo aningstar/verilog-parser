@@ -180,8 +180,15 @@
 %%
 
 description: /* empty */
-| description module_declaration 
-| description udp_declaration
+|   description module_declaration 
+|   description udp_declaration
+|   description time_unit
+;
+
+/* TODO */
+/* Specify unit of measurement */
+time_unit:
+    COMPILER_TIMESCALE number identifier SLASH number identifier { } 
 ;
 
 /*            Module Definition            */
